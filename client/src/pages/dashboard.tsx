@@ -71,9 +71,59 @@ export default function Dashboard() {
         data-testid="button-add-report"
       />
 
+      {/* Location Selection Overlay */}
+      {locationSelectionMode && (
+        <div className="fixed top-4 left-4 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm">
+          <h3 className="font-semibold text-sm mb-3">Select Location on Map</h3>
+          
+          <div className="space-y-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="text-sm text-blue-800 mb-1">
+                🗺️ Click anywhere on the map to place your marker
+              </div>
+              <div className="text-xs text-blue-600">
+                Drag the red marker to fine-tune the location
+              </div>
+            </div>
+            
+            {selectedLocation && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+                <div className="text-sm text-green-800">
+                  ✅ Location: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+                </div>
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setLocationSelectionMode(false)}
+                size="sm"
+                className="flex-1"
+                disabled={!selectedLocation}
+                data-testid="button-confirm-location"
+              >
+                ✓ Confirm Location
+              </Button>
+              <Button
+                onClick={() => {
+                  setLocationSelectionMode(false);
+                  setSelectedLocation(null);
+                  setIsReportModalOpen(false);
+                }}
+                variant="outline"
+                size="sm"
+                data-testid="button-cancel-location"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modals */}
       <ReportModal 
-        isOpen={isReportModalOpen}
+        isOpen={isReportModalOpen && !locationSelectionMode}
         onClose={() => {
           setIsReportModalOpen(false);
           setLocationSelectionMode(false);

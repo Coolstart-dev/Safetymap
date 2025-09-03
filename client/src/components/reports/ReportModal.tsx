@@ -224,12 +224,10 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={locationSelectionMode ? "max-w-sm fixed top-4 left-4 right-auto bottom-auto" : "max-w-md max-h-[90vh] overflow-y-auto"}>
-        {!locationSelectionMode ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>Report Incident</DialogTitle>
-            </DialogHeader>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Report Incident</DialogTitle>
+        </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -488,55 +486,6 @@ export default function ReportModal({
             </Button>
           </form>
         </Form>
-          </>
-        ) : (
-          // Minimized view when in location selection mode
-          <div className="p-4">
-            <DialogHeader className="pb-3">
-              <DialogTitle className="text-base">Select Location on Map</DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-3">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="text-sm text-blue-800 mb-2">
-                  📍 Click anywhere on the map to place your marker
-                </div>
-                <div className="text-xs text-blue-600">
-                  Drag the red marker to fine-tune the exact location
-                </div>
-              </div>
-              
-              {selectedLocation && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-                  <div className="text-sm text-green-800">
-                    ✅ Location: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  onClick={handleSelectOnMap}
-                  size="sm"
-                  className="flex-1"
-                  data-testid="button-exit-map"
-                >
-                  ✓ Confirm Location
-                </Button>
-                <Button
-                  type="button"
-                  onClick={onClose}
-                  variant="outline"
-                  size="sm"
-                  data-testid="button-cancel-location"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );
