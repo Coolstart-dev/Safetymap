@@ -94,8 +94,25 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                   Time
                 </span>
                 <p className="text-muted-foreground">
-                  {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })} 
-                  ({new Date(report.createdAt).toLocaleString()})
+                  {(() => {
+                    if (!report.createdAt) return "Time not available";
+                    
+                    try {
+                      const date = new Date(report.createdAt);
+                      if (isNaN(date.getTime())) {
+                        return "Invalid date format";
+                      }
+                      return (
+                        <>
+                          {formatDistanceToNow(date, { addSuffix: true })} 
+                          ({date.toLocaleString()})
+                        </>
+                      );
+                    } catch (error) {
+                      console.log("Date parsing error:", error, "createdAt value:", report.createdAt);
+                      return "Unable to parse date";
+                    }
+                  })()}
                 </p>
               </div>
 
