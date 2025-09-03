@@ -4,8 +4,8 @@ import ReportsList from "@/components/reports/ReportsList";
 import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FloatingActionButton from "@/components/ui/floating-action-button";
-import { Shield, Search, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import FloatingMenu from "@/components/ui/floating-menu";
+import { Settings } from "lucide-react";
 
 export default function Dashboard() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -39,27 +39,19 @@ export default function Dashboard() {
     setSelectedLocation(null);
   };
 
+  const menuItems = [
+    {
+      label: "Admin Panel",
+      icon: <Settings className="h-4 w-4" />,
+      onClick: () => window.location.href = '/admin'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-border sticky top-0 z-40">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <h1 className="text-lg font-bold text-foreground">Area</h1>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" data-testid="button-search">
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => window.location.href = '/admin'} data-testid="button-admin">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </header>
+
+      {/* Floating Menu */}
+      <FloatingMenu items={menuItems} />
 
       {/* Map Container */}
       <div className="relative">
