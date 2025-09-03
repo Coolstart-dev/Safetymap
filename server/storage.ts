@@ -1,6 +1,6 @@
 import { reports, type Report, type InsertReport } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   getReport(id: string): Promise<Report | undefined>;

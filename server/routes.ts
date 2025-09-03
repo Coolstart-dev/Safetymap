@@ -151,6 +151,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route - Get ALL reports (including rejected ones)
+  app.get("/api/admin/reports", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      let reports;
+      
+      if (category && category !== 'all') {
+        reports = await storage.getReportsByCategory(category);
+      } else {
+        reports = await storage.getAllReports();
+      }
+      
+      console.log("DEBUG - Admin reports fetched:", reports.length, "reports");
+      if (reports.length > 0) {
+        console.log("DEBUG - First report:", {
+          id: reports[0].id,
+          title: reports[0].title,
+          originalTitle: reports[0].originalTitle,
+          isPublic: reports[0].isPublic,
+          moderationStatus: reports[0].moderationStatus
+        });
+      }
+      
+      res.json(reports);
+    } catch (error) {
+      console.log("DEBUG - Admin reports error:", error);
+      res.status(500).json({ error: "Failed to fetch admin reports" });
+    }
+  });
+
   // Admin route - Delete all reports (for testing)
   app.delete("/api/admin/reports", async (req, res) => {
     try {
