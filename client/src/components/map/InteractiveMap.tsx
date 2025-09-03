@@ -52,6 +52,7 @@ export default function InteractiveMap({
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
   const locationMarkerRef = useRef<L.Marker | null>(null);
+  const isDraggingMarker = useRef(false);
 
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -83,7 +84,8 @@ export default function InteractiveMap({
     
     // Add click handler for location selection mode
     map.on('click', (e: L.LeafletMouseEvent) => {
-      if (locationSelectionMode && onLocationSelect) {
+      // Don't place marker if we're in the middle of dragging
+      if (locationSelectionMode && onLocationSelect && !isDraggingMarker.current) {
         const { lat, lng } = e.latlng;
         onLocationSelect({ lat, lng });
       }
@@ -149,15 +151,39 @@ export default function InteractiveMap({
         draggable: true
       }).addTo(leafletMapRef.current);
 
-      // Handle marker drag
+      // Handle marker drag events
+      locationMarker.on('dragstart', () => {
+        isDraggingMarker.current = true;
+        locationMarker.closeTooltip();
+      });
+
+      locationMarker.on('drag', (e: L.LeafletEvent) => {
+        // Optional: provide real-time feedback during drag
+        const marker = e.target as L.Marker;
+        const position = marker.getLatLng();
+        // You could update UI here if needed
+      });
+
       locationMarker.on('dragend', (e: L.DragEndEvent) => {
         const marker = e.target as L.Marker;
         const position = marker.getLatLng();
         if (onLocationSelect) {
           onLocationSelect({ lat: position.lat, lng: position.lng });
         }
+        // Reset dragging flag after a short delay to prevent immediate map clicks
+        setTimeout(() => {
+          isDraggingMarker.current = false;
+        }, 100);
+        
+        // Show tooltip again
+        locationMarker.bindTooltip('Drag to adjust location', {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -50]
+        }).openTooltip();
       });
 
+      // Initial tooltip
       locationMarker.bindTooltip('Drag to adjust location', {
         permanent: true,
         direction: 'top',
