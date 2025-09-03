@@ -3,17 +3,31 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Database, Eye, EyeOff, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Trash2, Database, Eye, EyeOff, AlertTriangle, CheckCircle, Settings, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import FloatingMenu from "@/components/ui/floating-menu";
 
 export default function AdminPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showOriginalContent, setShowOriginalContent] = useState<{[key: string]: boolean}>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const menuItems = [
+    {
+      label: "Dashboard",
+      icon: <Home className="h-4 w-4" />,
+      onClick: () => window.location.href = '/'
+    },
+    {
+      label: "Admin Panel",
+      icon: <Settings className="h-4 w-4" />,
+      onClick: () => window.location.href = '/admin'
+    }
+  ];
 
   // Fetch all reports (including rejected ones) for admin  
   const { data: allReports = [], isLoading, error } = useQuery<any[]>({
@@ -75,6 +89,8 @@ export default function AdminPage() {
 
   return (
     <div className="container max-w-2xl mx-auto p-4 space-y-6">
+      {/* Floating Menu */}
+      <FloatingMenu items={menuItems} />
       <div className="text-center">
         <h1 className="text-2xl font-bold text-foreground mb-2">Admin Panel</h1>
         <p className="text-muted-foreground">Manage your Area community safety platform</p>

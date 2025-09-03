@@ -5,7 +5,8 @@ import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
-import { Settings } from "lucide-react";
+import { Settings, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -40,6 +41,11 @@ export default function Dashboard() {
   };
 
   const menuItems = [
+    {
+      label: "Dashboard",
+      icon: <Home className="h-4 w-4" />,
+      onClick: () => window.location.href = '/'
+    },
     {
       label: "Admin Panel",
       icon: <Settings className="h-4 w-4" />,
