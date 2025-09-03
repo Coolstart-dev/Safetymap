@@ -424,68 +424,42 @@ export default function ReportModal({
                   <FormItem>
                     <FormLabel>When did this happen?</FormLabel>
                     <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
+                      <div className="space-y-3">
+                        <input
+                          type="datetime-local"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          value={currentDateTime}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          data-testid="input-datetime"
+                        />
+                        <div className="flex gap-2">
                           <Button
                             type="button"
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
-                            data-testid="button-select-datetime"
+                            size="sm"
+                            onClick={() => {
+                              const now = new Date().toISOString().slice(0, 16);
+                              field.onChange(now);
+                            }}
+                            data-testid="button-now"
                           >
-                            <Calendar className="mr-2 h-4 w-4" />
-                            {currentDateTime ? 
-                              new Date(currentDateTime).toLocaleString('en-US', {
-                                weekday: 'short',
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              }) : 
-                              'Select date and time'
-                            }
+                            <Clock className="mr-1 h-3 w-3" />
+                            Now
                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <div className="p-4 space-y-4">
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Date and Time</label>
-                              <input
-                                type="datetime-local"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                value={currentDateTime}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                data-testid="input-datetime"
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                size="sm"
-                                onClick={() => {
-                                  const now = new Date().toISOString().slice(0, 16);
-                                  field.onChange(now);
-                                }}
-                                data-testid="button-now"
-                              >
-                                Now
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => field.onChange("")}
-                                data-testid="button-clear"
-                              >
-                                Clear
-                              </Button>
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => field.onChange("")}
+                            data-testid="button-clear"
+                          >
+                            Clear
+                          </Button>
+                        </div>
+                      </div>
                     </FormControl>
                     <div className="text-xs text-muted-foreground">
-                      Defaults to current time - click the button above to adjust when the incident actually occurred
+                      Defaults to current time - adjust above if the incident happened at a different time
                     </div>
                     <FormMessage />
                   </FormItem>
