@@ -235,27 +235,44 @@ export default function InteractiveMap({
       const heatData = filteredReports.map(report => [
         report.latitude!,
         report.longitude!,
-        1 // intensity value
+        0.8 // intensity value
       ]);
 
+      console.log('Heatmap data:', heatData.length, 'points');
+      console.log('Sample data:', heatData.slice(0, 3));
+
       if (heatData.length > 0) {
-        // @ts-ignore - leaflet.heat doesn't have types
-        const heatmapLayer = L.heatLayer(heatData, {
-          radius: 20,
-          blur: 15,
-          maxZoom: 17,
-          gradient: {
-            0.0: '#3182ce',
-            0.2: '#63b3ed', 
-            0.4: '#90cdf4',
-            0.6: '#fbb6ce',
-            0.8: '#f687b3',
-            1.0: '#e53e3e'
+        try {
+          // @ts-ignore - leaflet.heat doesn't have types
+          if (typeof L.heatLayer === 'function') {
+            console.log('Creating heatmap layer...');
+            // @ts-ignore
+            const heatmapLayer = L.heatLayer(heatData, {
+              radius: 25,
+              blur: 20,
+              maxZoom: 18,
+              max: 1.0,
+              gradient: {
+                0.0: 'blue',
+                0.2: 'cyan', 
+                0.4: 'lime',
+                0.6: 'yellow',
+                0.8: 'orange',
+                1.0: 'red'
+              }
+            });
+            
+            heatmapLayer.addTo(leafletMapRef.current);
+            heatmapRef.current = heatmapLayer;
+            console.log('Heatmap layer added successfully');
+          } else {
+            console.error('L.heatLayer is not available - leaflet.heat plugin not loaded');
           }
-        });
-        
-        heatmapLayer.addTo(leafletMapRef.current);
-        heatmapRef.current = heatmapLayer;
+        } catch (error) {
+          console.error('Error creating heatmap:', error);
+        }
+      } else {
+        console.log('No data available for heatmap');
       }
     } else {
       // Add markers for each report (original logic)
