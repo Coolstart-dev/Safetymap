@@ -154,10 +154,24 @@ export default function ReportModal({
         onLocationSelectionModeToggle();
       }
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.log("Submission error:", error);
+      
+      // Try to parse the error response for specific moderation messages
+      let errorTitle = "Failed to submit report";
+      let errorDescription = "Please try again later.";
+      
+      if (error?.message?.includes("Content rejected by moderation")) {
+        errorTitle = "Report niet geaccepteerd";
+        errorDescription = "Je melding bevat inhoud die niet voldoet aan onze richtlijnen. Controleer op ongepaste taal of persoonlijke informatie.";
+      } else if (error?.message?.includes("400")) {
+        errorTitle = "Melding geweigerd";
+        errorDescription = "Je melding kon niet worden geaccepteerd. Controleer de inhoud en probeer opnieuw.";
+      }
+      
       toast({
-        title: "Failed to submit report",
-        description: "Please try again later.",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
       });
     },
