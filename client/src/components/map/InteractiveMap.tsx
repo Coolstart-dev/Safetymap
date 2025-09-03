@@ -231,76 +231,54 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // DEBUG: Let's try a completely different approach - manual grouping
-      const pointGroups: Map<string, number> = new Map();
-      const gridSize = 0.01; // Larger grid for testing
+      // Simple density calculation - count reports within 500m of each point
+      const heatData: number[][] = [];
       
-      // Group points into grid cells
       filteredReports.forEach(report => {
         if (!report.latitude || !report.longitude) return;
         
-        const gridLat = Math.floor(report.latitude / gridSize) * gridSize;
-        const gridLng = Math.floor(report.longitude / gridSize) * gridSize;
-        const key = `${gridLat},${gridLng}`;
+        // Count nearby reports within ~500m 
+        let nearbyCount = 0;
+        const searchRadius = 0.005;
         
-        pointGroups.set(key, (pointGroups.get(key) || 0) + 1);
+        filteredReports.forEach(other => {
+          if (!other.latitude || !other.longitude) return;
+          
+          const distLat = Math.abs(report.latitude! - other.latitude);
+          const distLng = Math.abs(report.longitude! - other.longitude);
+          
+          if (distLat <= searchRadius && distLng <= searchRadius) {
+            nearbyCount++;
+          }
+        });
+        
+        // Simple intensity mapping
+        const intensity = nearbyCount >= 3 ? 1.0 : nearbyCount >= 2 ? 0.6 : 0.3;
+        
+        heatData.push([report.latitude, report.longitude, intensity]);
       });
-
-      // Create heatmap data with VERY different intensities
-      const heatData = filteredReports.map(report => {
-        if (!report.latitude || !report.longitude) return [0, 0, 0];
-        
-        const gridLat = Math.floor(report.latitude / gridSize) * gridSize;
-        const gridLng = Math.floor(report.longitude / gridSize) * gridSize;
-        const key = `${gridLat},${gridLng}`;
-        const count = pointGroups.get(key) || 1;
-        
-        // EXTREMELY different intensity values
-        let intensity;
-        if (count === 1) {
-          intensity = 0.1;    // Very low
-        } else if (count === 2) {
-          intensity = 0.3;    // Low-medium  
-        } else if (count === 3) {
-          intensity = 0.7;    // High
-        } else {
-          intensity = 1.0;    // Maximum
-        }
-        
-        console.log(`Point at [${report.latitude}, ${report.longitude}]: count=${count}, intensity=${intensity}`);
-        
-        return [report.latitude, report.longitude, intensity];
-      });
-
-      console.log('Grid groups:', Array.from(pointGroups.entries()));
-      console.log('Intensity values:', heatData.map(d => d[2]).sort());
 
       if (heatData.length > 0) {
         try {
-          // @ts-ignore - leaflet.heat doesn't have types
+          // @ts-ignore
           if (typeof L.heatLayer === 'function') {
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 100,         // Very large radius
-              blur: 50,           // Heavy blur
-              minOpacity: 0.4,    // Lower minimum
-              max: 1.0,           // Max intensity = 1
+              radius: 30,
+              blur: 15, 
+              max: 1.0,
               gradient: {
-                0.0: '#000080',   // Navy blue (lowest)
-                0.3: '#0000ff',   // Blue (1 report)
-                0.7: '#ff8000',   // Orange (3 reports)  
-                1.0: '#ff0000'    // Red (4+ reports)
+                0.3: '#3b82f6',  // Blue - single reports
+                0.6: '#f59e0b',  // Orange - pair reports  
+                1.0: '#ef4444'   // Red - cluster reports
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
-            console.log('Heatmap created with grid-based intensities');
-          } else {
-            console.error('L.heatLayer is not available');
           }
         } catch (error) {
-          console.error('Error creating heatmap:', error);
+          console.error('Heatmap error:', error);
         }
       }
     } else {
