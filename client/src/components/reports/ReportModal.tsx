@@ -116,7 +116,12 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
       return response.json();
     },
     onSuccess: () => {
+      console.log("Report submitted successfully, invalidating queries...");
+      // Force refresh all reports queries with different category filters
       queryClient.invalidateQueries({ queryKey: ['/api/reports'] });
+      queryClient.refetchQueries({ queryKey: ['/api/reports'] });
+      queryClient.refetchQueries({ queryKey: ['/api/reports', { category: 'all' }] });
+      queryClient.refetchQueries({ queryKey: ['/api/reports', { category: 'dangerous' }] });
       toast({
         title: "Report submitted successfully",
         description: "Thank you for helping keep our community safe.",
