@@ -63,36 +63,56 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
 
   const createReportMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      console.log("Creating FormData from:", data);
+      
       const formData = new FormData();
       
       // Always include required fields
+      console.log("Adding title:", data.title);
       formData.append('title', data.title);
+      console.log("Adding description:", data.description);
       formData.append('description', data.description);
+      console.log("Adding category:", data.category);
       formData.append('category', data.category);
+      console.log("Adding involvementType:", data.involvementType);
       formData.append('involvementType', data.involvementType);
       
       // Include optional fields only if they have values
       if (data.subcategory) {
+        console.log("Adding subcategory:", data.subcategory);
         formData.append('subcategory', data.subcategory);
       }
       if (data.latitude !== null && data.latitude !== undefined) {
+        console.log("Adding latitude:", data.latitude);
         formData.append('latitude', data.latitude.toString());
       }
       if (data.longitude !== null && data.longitude !== undefined) {
+        console.log("Adding longitude:", data.longitude);
         formData.append('longitude', data.longitude.toString());
       }
       if (data.locationDescription) {
+        console.log("Adding locationDescription:", data.locationDescription);
         formData.append('locationDescription', data.locationDescription);
       }
       
       // Boolean field - always include
+      console.log("Adding authoritiesContacted:", data.authoritiesContacted);
       formData.append('authoritiesContacted', data.authoritiesContacted ? 'true' : 'false');
 
       if (imageFile) {
+        console.log("Adding image file:", imageFile.name);
         formData.append('image', imageFile);
       }
 
+      // Log all FormData entries
+      console.log("Final FormData entries:");
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(key + ': ' + value);
+      });
+
+      console.log("Sending request to /api/reports...");
       const response = await apiRequest('POST', '/api/reports', formData);
+      console.log("Response received:", response.status);
       return response.json();
     },
     onSuccess: () => {

@@ -12,13 +12,32 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  console.log("apiRequest called with:", { method, url, dataType: data?.constructor?.name });
+  
+  let headers: Record<string, string> = {};
+  let body: string | FormData | undefined;
+  
+  if (data) {
+    if (data instanceof FormData) {
+      console.log("Sending FormData, not setting Content-Type header");
+      // Don't set Content-Type for FormData - browser will set it with boundary
+      body = data;
+    } else {
+      console.log("Sending JSON data");
+      headers["Content-Type"] = "application/json";
+      body = JSON.stringify(data);
+    }
+  }
+  
+  console.log("Making fetch request with headers:", headers);
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    headers,
+    body,
     credentials: "include",
   });
 
+  console.log("Fetch response:", res.status, res.statusText);
   await throwIfResNotOk(res);
   return res;
 }
