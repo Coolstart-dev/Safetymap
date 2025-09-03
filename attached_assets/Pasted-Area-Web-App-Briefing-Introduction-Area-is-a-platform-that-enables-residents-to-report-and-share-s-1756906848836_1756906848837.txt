@@ -1,0 +1,67 @@
+Area:  Web App Briefing
+Introduction
+Area is a platform that enables residents to report and share suspicious, dangerous, disruptive, or criminal activities in order to warn others. Every report strengthens a vigilant and connected community.
+Users can submit a report in the same way accidents are flagged on Waze. Reports can also be viewed on an interactive map. click on the map icon to read all information or select a report in the list view.
+The Waze app is a good start for UI and look and feel. Map in top, list below with sorting and filter options. Circular button to add a report. (plus sign). and a drawer for the list view. 
+Main objectives
+Develop a fully functional dashboard + real map. A proof of concept (POC) to present the idea to investors. V1 will not be deployed in a live environment with real users; all usage will be limited to testing purposes only. 
+
+- It must have a charming design. Not the looks of a crime database. 
+- Tester must be able to make a report and make sure the icon is on the map and in the list
+- tester can open a report to see all the data is available
+- Tester can filter categories on or off
+- Everything must be fullt funcional (map, zoom, scroll, list items, filters etc) 
+Categories of Reports
+Personal Harassment
+Physical aggression (fighting, restraining)
+Unwanted behavior (catcalling, sexual remarks, racism,)
+Threats
+Dangerous animals (e.g., unleashed dogs)
+Suspicious Activity
+Strange or unusual behavior
+Suspicious noises
+Dangerous situations
+Objects blocking the road
+Slippery surfaces
+other
+Degradation of Public Spaces
+Littering
+Illegal dumping
+Nighttime noise
+Dog fouling
+Graffiti
+Vandalism
+Theft & Vandalism of Private Property
+Bike theft
+Property damage
+Porch piracy
+Cybercrime
+Pickpocketing
+Status reports
+(All level 0 reports) 
+Map
+Live incident tracking: Pins display active reports, similar to Waze.
+Filter options: By category or tag to identify patterns (e.g., theft hotspots).
+Scalable icons: Detailed icons when zoomed in; simple markers at city level.
+List View
+Filterable, sortable list format of reports based on category and all the available data. 
+For example a user must be able to see all theft reports sorted by distance. Or all incidents conserning the degradation of the plublic space. 
+This list is very essential for incidents without a geolocation, but it must contain also geo tagged reports.
+
+Adding a report (UGC) 
+Simple, fast reporting process contains: 
+In this order:
+Button to make start the report sequence
+Main Category selection +  sub-category selection.
+Written description of the incident.
+Optional image upload for credibility.
+“Here" and "Now" shortcut automatically uses current location and time. Location is optional because cybercrime is has often no location
+Pin placement (automatic GPS coordinates or manual pin placement, no address) 
+Indicate if police/authorities were already contacted.
+Clarify whether the report is first-hand (the user personally witnessed it) or second-hand (based on an external source such as press or a friend). 
+In the user interface, add a clear question such as: “Were you personally involved in this incident?” Options: (1) Yes, I was the victim (the event happened to me or my property), (2) No, I am reporting something that happened to someone else (friend, family, or a stranger).
+Make report button
+Confirmation and thank-you message.
+
+Users: Identification & Authentication
+V1: Open access (no login, admin panel also open) for testing. 
