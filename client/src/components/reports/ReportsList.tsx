@@ -29,15 +29,20 @@ export default function ReportsList({
     queryKey: ["/api/reports", { category: activeCategory }],
   });
 
-  const filteredReports = reports.filter(report => {
-    // If no subcategories selected, show all reports
-    if (selectedSubcategories.length === 0) {
-      return activeCategory === 'all' || report.category === activeCategory;
-    }
-    
-    // If subcategories selected, filter by those
-    return selectedSubcategories.includes(report.subcategory || '');
-  });
+  const filteredReports = reports
+    .filter(report => {
+      // If no subcategories selected, show all reports
+      if (selectedSubcategories.length === 0) {
+        return activeCategory === 'all' || report.category === activeCategory;
+      }
+      
+      // If subcategories selected, filter by those
+      return selectedSubcategories.includes(report.subcategory || '');
+    })
+    .sort((a, b) => {
+      // Sort by createdAt date, newest first
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   const getCategoryColor = (category: string) => {
     const categoryInfo = categories[category as keyof typeof categories];
