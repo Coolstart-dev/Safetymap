@@ -151,8 +151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin route - Get ALL reports (including rejected ones)
+  // Admin routes - IMPORTANT: PUT GET BEFORE DELETE to avoid Express route conflicts
   app.get("/api/admin/reports", async (req, res) => {
+    console.log("DEBUG - Admin GET route hit!");
     try {
       const category = req.query.category as string;
       let reports;
@@ -181,8 +182,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin route - Delete all reports (for testing)
   app.delete("/api/admin/reports", async (req, res) => {
+    console.log("DEBUG - Admin DELETE route hit!");
     try {
       const success = await storage.deleteAllReports();
       res.json({ success, message: success ? "All reports deleted" : "Failed to delete reports" });

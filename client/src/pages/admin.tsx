@@ -16,8 +16,15 @@ export default function AdminPage() {
   const queryClient = useQueryClient();
 
   // Fetch all reports (including rejected ones) for admin
-  const { data: allReports = [], isLoading } = useQuery<any[]>({
+  const { data: allReports = [], isLoading, error } = useQuery<any[]>({
     queryKey: ['/api/admin/reports'],
+  });
+
+  console.log("DEBUG - Admin page query:", {
+    isLoading,
+    error,
+    reportsCount: allReports.length,
+    firstReport: allReports[0]
   });
 
   const handleDeleteAllReports = async () => {

@@ -22,7 +22,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllReports(): Promise<Report[]> {
     // Admin: Get ALL reports including rejected ones
-    return await db.select().from(reports).orderBy(reports.createdAt);
+    console.log("DEBUG - getAllReports called");
+    const result = await db.select().from(reports);
+    console.log("DEBUG - getAllReports result:", result.length, "reports found");
+    return result;
   }
 
   async getAllPublicReports(): Promise<Report[]> {
