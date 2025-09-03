@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,13 +33,24 @@ import { X, Camera, MapPin, Navigation } from "lucide-react";
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedLocation?: { lat: number; lng: number } | null;
+  onLocationSelect?: (location: { lat: number; lng: number }) => void;
+  locationSelectionMode?: boolean;
+  onLocationSelectionModeToggle?: () => void;
 }
 
 const formSchema = insertReportSchema;
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
+export default function ReportModal({ 
+  isOpen, 
+  onClose, 
+  selectedLocation, 
+  onLocationSelect, 
+  locationSelectionMode = false,
+  onLocationSelectionModeToggle 
+}: ReportModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { location, getCurrentLocation, isLoading: locationLoading } = useGeolocation();
@@ -130,6 +141,10 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
       form.reset();
       setSelectedCategory("");
       setImageFile(null);
+      // Turn off location selection mode when closing
+      if (locationSelectionMode && onLocationSelectionModeToggle) {
+        onLocationSelectionModeToggle();
+      }
     },
     onError: () => {
       toast({
@@ -150,12 +165,33 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
     if (position) {
       form.setValue("latitude", position.latitude);
       form.setValue("longitude", position.longitude);
+      if (onLocationSelect) {
+        onLocationSelect({ lat: position.latitude, lng: position.longitude });
+      }
       toast({
         title: "Location captured",
         description: "Using your current location and time.",
       });
     }
   };
+
+  const handleSelectOnMap = () => {
+    if (onLocationSelectionModeToggle) {
+      onLocationSelectionModeToggle();
+      toast({
+        title: locationSelectionMode ? "Map selection disabled" : "Map selection enabled",
+        description: locationSelectionMode ? "Click 'Select on Map' to re-enable" : "Click anywhere on the map to set the location",
+      });
+    }
+  };
+
+  // Update form when location is selected from map
+  useEffect(() => {
+    if (selectedLocation) {
+      form.setValue("latitude", selectedLocation.lat);
+      form.setValue("longitude", selectedLocation.lng);
+    }
+  }, [selectedLocation, form]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -301,16 +337,44 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
             <div>
               <Label className="block text-sm font-medium mb-2">Location</Label>
               <div className="space-y-3">
-                <Button
-                  type="button"
-                  className="w-full"
-                  onClick={handleHereAndNow}
-                  disabled={locationLoading}
-                  data-testid="button-here-now"
-                >
-                  <Navigation className="h-4 w-4 mr-2" />
-                  {locationLoading ? "Getting location..." : "Use 'Here & Now'"}
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    onClick={handleHereAndNow}
+                    disabled={locationLoading}
+                    data-testid="button-here-now"
+                    variant={selectedLocation && !locationSelectionMode ? "default" : "outline"}
+                  >
+                    <Navigation className="h-4 w-4 mr-2" />
+                    {locationLoading ? "Getting..." : "Use Here"}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleSelectOnMap}
+                    data-testid="button-select-map"
+                    variant={locationSelectionMode ? "default" : "outline"}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {locationSelectionMode ? "Exit Map" : "Select on Map"}
+                  </Button>
+                </div>
+                
+                {selectedLocation && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="text-sm text-green-800">
+                      ✓ Location selected: {selectedLocation.lat.toFixed(5)}, {selectedLocation.lng.toFixed(5)}
+                    </div>
+                  </div>
+                )}
+                
+                {locationSelectionMode && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="text-sm text-blue-800">
+                      📍 Click anywhere on the map to set the location, or drag the red marker
+                    </div>
+                  </div>
+                )}
+                
                 <div className="text-center text-xs text-muted-foreground">or</div>
                 <FormField
                   control={form.control}

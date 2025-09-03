@@ -12,6 +12,8 @@ export default function Dashboard() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [locationSelectionMode, setLocationSelectionMode] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -50,6 +52,9 @@ export default function Dashboard() {
         <InteractiveMap 
           onPinClick={handlePinClick}
           activeCategory={activeCategory}
+          locationSelectionMode={locationSelectionMode}
+          selectedLocation={selectedLocation}
+          onLocationSelect={setSelectedLocation}
         />
       </div>
 
@@ -69,7 +74,15 @@ export default function Dashboard() {
       {/* Modals */}
       <ReportModal 
         isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
+        onClose={() => {
+          setIsReportModalOpen(false);
+          setLocationSelectionMode(false);
+          setSelectedLocation(null);
+        }}
+        selectedLocation={selectedLocation}
+        onLocationSelect={setSelectedLocation}
+        locationSelectionMode={locationSelectionMode}
+        onLocationSelectionModeToggle={() => setLocationSelectionMode(!locationSelectionMode)}
       />
 
       <ReportDetailModal

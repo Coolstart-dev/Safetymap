@@ -34,13 +34,24 @@ const CURRENT_TILES = TILE_CONFIG.openstreetmap;
 interface InteractiveMapProps {
   onPinClick: (reportId: string) => void;
   activeCategory: string;
+  // Location selection mode for creating new reports
+  locationSelectionMode?: boolean;
+  selectedLocation?: { lat: number; lng: number } | null;
+  onLocationSelect?: (location: { lat: number; lng: number }) => void;
 }
 
 
-export default function InteractiveMap({ onPinClick, activeCategory }: InteractiveMapProps) {
+export default function InteractiveMap({ 
+  onPinClick, 
+  activeCategory, 
+  locationSelectionMode = false,
+  selectedLocation = null,
+  onLocationSelect 
+}: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const locationMarkerRef = useRef<L.Marker | null>(null);
 
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -69,15 +80,93 @@ export default function InteractiveMap({ onPinClick, activeCategory }: Interacti
     const markersLayer = L.layerGroup().addTo(map);
     markersRef.current = markersLayer;
     leafletMapRef.current = map;
+    
+    // Add click handler for location selection mode
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      if (locationSelectionMode && onLocationSelect) {
+        const { lat, lng } = e.latlng;
+        onLocationSelect({ lat, lng });
+      }
+    });
 
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.remove();
         leafletMapRef.current = null;
         markersRef.current = null;
+        locationMarkerRef.current = null;
       }
     };
   }, []);
+
+  // Handle location selection marker
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    // Remove existing location marker
+    if (locationMarkerRef.current) {
+      leafletMapRef.current.removeLayer(locationMarkerRef.current);
+      locationMarkerRef.current = null;
+    }
+
+    // Add location selection marker if in selection mode and location is set
+    if (locationSelectionMode && selectedLocation) {
+      // Create a draggable red marker for location selection
+      const locationIcon = L.divIcon({
+        className: 'location-selection-marker',
+        html: `
+          <div style="
+            width: 40px; 
+            height: 40px; 
+            background-color: #ef4444; 
+            border: 4px solid white; 
+            border-radius: 50%; 
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            animation: pulse 2s infinite;
+          ">
+            <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+          </div>
+          <style>
+            @keyframes pulse {
+              0% { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0.7); }
+              70% { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(239, 68, 68, 0); }
+              100% { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0); }
+            }
+          </style>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
+      });
+
+      const locationMarker = L.marker([selectedLocation.lat, selectedLocation.lng], {
+        icon: locationIcon,
+        draggable: true
+      }).addTo(leafletMapRef.current);
+
+      // Handle marker drag
+      locationMarker.on('dragend', (e: L.DragEndEvent) => {
+        const marker = e.target as L.Marker;
+        const position = marker.getLatLng();
+        if (onLocationSelect) {
+          onLocationSelect({ lat: position.lat, lng: position.lng });
+        }
+      });
+
+      locationMarker.bindTooltip('Drag to adjust location', {
+        permanent: true,
+        direction: 'top',
+        offset: [0, -50]
+      });
+
+      locationMarkerRef.current = locationMarker;
+    }
+  }, [locationSelectionMode, selectedLocation, onLocationSelect]);
 
   // Update markers when reports change
   useEffect(() => {
