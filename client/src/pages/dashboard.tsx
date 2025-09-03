@@ -25,6 +25,19 @@ export default function Dashboard() {
     setIsDetailModalOpen(true);
   };
 
+  const handleOpenReportModal = () => {
+    // Reset all location-related state when opening a new report
+    setLocationSelectionMode(false);
+    setSelectedLocation(null);
+    setIsReportModalOpen(true);
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+    setLocationSelectionMode(false);
+    setSelectedLocation(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -67,7 +80,7 @@ export default function Dashboard() {
 
       {/* Floating Action Button */}
       <FloatingActionButton 
-        onClick={() => setIsReportModalOpen(true)}
+        onClick={handleOpenReportModal}
         data-testid="button-add-report"
       />
 
@@ -105,11 +118,7 @@ export default function Dashboard() {
                 ✓ Confirm Location
               </Button>
               <Button
-                onClick={() => {
-                  setLocationSelectionMode(false);
-                  setSelectedLocation(null);
-                  setIsReportModalOpen(false);
-                }}
+                onClick={handleCloseReportModal}
                 variant="outline"
                 size="sm"
                 data-testid="button-cancel-location"
@@ -124,11 +133,7 @@ export default function Dashboard() {
       {/* Modals */}
       <ReportModal 
         isOpen={isReportModalOpen && !locationSelectionMode}
-        onClose={() => {
-          setIsReportModalOpen(false);
-          setLocationSelectionMode(false);
-          setSelectedLocation(null);
-        }}
+        onClose={handleCloseReportModal}
         selectedLocation={selectedLocation}
         onLocationSelect={setSelectedLocation}
         locationSelectionMode={locationSelectionMode}

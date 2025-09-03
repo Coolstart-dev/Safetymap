@@ -82,14 +82,16 @@ export default function InteractiveMap({
     markersRef.current = markersLayer;
     leafletMapRef.current = map;
     
-    // Add click handler for location selection mode
-    map.on('click', (e: L.LeafletMouseEvent) => {
+    // Store map reference for click handler that can access current state
+    const mapClickHandler = (e: L.LeafletMouseEvent) => {
       // Don't place marker if we're in the middle of dragging
       if (locationSelectionMode && onLocationSelect && !isDraggingMarker.current) {
         const { lat, lng } = e.latlng;
         onLocationSelect({ lat, lng });
       }
-    });
+    };
+    
+    map.on('click', mapClickHandler);
 
     return () => {
       if (leafletMapRef.current) {
@@ -99,13 +101,13 @@ export default function InteractiveMap({
         locationMarkerRef.current = null;
       }
     };
-  }, []);
+  }, [locationSelectionMode, onLocationSelect]);
 
   // Handle location selection marker
   useEffect(() => {
     if (!leafletMapRef.current) return;
 
-    // Remove existing location marker
+    // Always remove existing location marker first
     if (locationMarkerRef.current) {
       leafletMapRef.current.removeLayer(locationMarkerRef.current);
       locationMarkerRef.current = null;
