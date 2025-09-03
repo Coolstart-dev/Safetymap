@@ -93,18 +93,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         originalTitle: validatedData.title,
         originalDescription: validatedData.description,
-        // Use moderated version if available, otherwise fallback to original
-        title: (moderationResult.moderatedTitle && moderationResult.moderatedTitle.length > 0) 
+        // FORCE: Always use moderated version if available, create fallback if AI fails
+        title: (moderationResult.moderatedTitle && moderationResult.moderatedTitle.trim().length > 0) 
           ? moderationResult.moderatedTitle 
-          : validatedData.title,
-        description: (moderationResult.moderatedDescription && moderationResult.moderatedDescription.length > 0) 
+          : (shouldReject ? `Gemoderate melding: ${validatedData.category}` : validatedData.title),
+        description: (moderationResult.moderatedDescription && moderationResult.moderatedDescription.trim().length > 0) 
           ? moderationResult.moderatedDescription 
-          : validatedData.description,
+          : (shouldReject ? "Melding is gemoderated vanwege ongepaste inhoud." : validatedData.description),
         moderationStatus: shouldReject ? 'rejected' : 'approved',
         moderationReason: moderationResult.reason || null,
         isModerated: true, // AI always processes content
         isPublic: !shouldReject, // Only approved content is public
       };
+      
+      console.log("DEBUG - Final report data before save:", {
+        id: 'will-be-generated',
+        title: finalReportData.title,
+        originalTitle: finalReportData.originalTitle,
+        isPublic: finalReportData.isPublic,
+        moderationStatus: finalReportData.moderationStatus
+      });
       
       // ALWAYS save the report first, regardless of moderation result
       const report = await storage.createReportWithModeration(finalReportData);
