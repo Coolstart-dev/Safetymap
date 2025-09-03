@@ -231,11 +231,11 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Create heatmap layer
+      // Create heatmap layer with higher intensity values
       const heatData = filteredReports.map(report => [
         report.latitude!,
         report.longitude!,
-        0.8 // intensity value
+        5 // Much higher intensity value
       ]);
 
       console.log('Heatmap data:', heatData.length, 'points');
@@ -248,23 +248,30 @@ export default function InteractiveMap({
             console.log('Creating heatmap layer...');
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 25,
-              blur: 20,
-              maxZoom: 18,
-              max: 1.0,
+              radius: 50,        // Larger radius for more visibility
+              blur: 25,          // More blur for smoother appearance  
+              minOpacity: 0.4,   // Minimum opacity to ensure visibility
+              max: 5,            // Match our intensity values
               gradient: {
-                0.0: 'blue',
-                0.2: 'cyan', 
-                0.4: 'lime',
-                0.6: 'yellow',
-                0.8: 'orange',
-                1.0: 'red'
+                0.2: '#313695',   // Dark blue
+                0.4: '#4575b4',   // Medium blue
+                0.6: '#74add1',   // Light blue
+                0.8: '#fee90d',   // Yellow
+                1.0: '#d73027'    // Red
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
             console.log('Heatmap layer added successfully');
+            
+            // Debug: check if canvas element is created
+            const mapContainer = leafletMapRef.current.getContainer();
+            const heatmapCanvas = mapContainer.querySelector('.leaflet-heatmap-layer canvas');
+            console.log('Heatmap canvas found:', !!heatmapCanvas);
+            if (heatmapCanvas) {
+              console.log('Canvas dimensions:', (heatmapCanvas as HTMLCanvasElement).width, 'x', (heatmapCanvas as HTMLCanvasElement).height);
+            }
           } else {
             console.error('L.heatLayer is not available - leaflet.heat plugin not loaded');
           }
