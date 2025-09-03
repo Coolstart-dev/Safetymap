@@ -97,17 +97,17 @@ export default function FilterSheet({
                 {category.subcategories.map((subcategory) => (
                   <div 
                     key={subcategory}
-                    className="flex items-center space-x-3 py-2 px-3 rounded-lg hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleSubcategoryToggle(subcategory)}
+                    className="flex items-center space-x-3 py-2 px-3 rounded-lg hover:bg-muted/50"
                   >
                     <Checkbox
+                      id={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
                       checked={tempSelected.includes(subcategory)}
                       onCheckedChange={() => handleSubcategoryToggle(subcategory)}
                       data-testid={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
                     />
                     <label 
+                      htmlFor={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
                       className="text-sm cursor-pointer flex-1"
-                      onClick={(e) => e.preventDefault()}
                     >
                       {subcategory}
                     </label>
