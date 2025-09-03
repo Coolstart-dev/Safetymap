@@ -6,6 +6,7 @@ import { Filter, Shield, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import FilterSheet from "./FilterSheet";
 
 interface ReportsListProps {
   onReportClick: (reportId: string) => void;
@@ -15,14 +16,21 @@ interface ReportsListProps {
 
 export default function ReportsList({ onReportClick, activeCategory, onCategoryChange }: ReportsListProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   
   const { data: reports = [], isLoading } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
   });
 
-  const filteredReports = reports.filter(report => 
-    activeCategory === 'all' || report.category === activeCategory
-  );
+  const filteredReports = reports.filter(report => {
+    // If no subcategories selected, show all reports
+    if (selectedSubcategories.length === 0) {
+      return activeCategory === 'all' || report.category === activeCategory;
+    }
+    
+    // If subcategories selected, filter by those
+    return selectedSubcategories.includes(report.subcategory || '');
+  });
 
   const getCategoryColor = (category: string) => {
     const categoryInfo = categories[category as keyof typeof categories];
@@ -60,73 +68,59 @@ export default function ReportsList({ onReportClick, activeCategory, onCategoryC
         </div>
         
         {/* Selected Filter Tags (always visible when filters are applied) */}
-        {activeCategory !== 'all' && (
+        {selectedSubcategories.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-3 mb-3">
-            <div
-              className="flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border"
-              style={{ 
-                backgroundColor: `${getCategoryColor(activeCategory)}15`,
-                borderColor: `${getCategoryColor(activeCategory)}40`,
-                color: getCategoryColor(activeCategory)
-              }}
-            >
-              <span 
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: getCategoryColor(activeCategory) }}
-              />
-              {getCategoryName(activeCategory)}
-              <button
-                onClick={() => onCategoryChange('all')}
-                className="ml-1 hover:bg-black/10 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
+            {selectedSubcategories.slice(0, 3).map((subcategory) => {
+              // Find the category for this subcategory
+              const categoryEntry = Object.entries(categories).find(([_, category]) => 
+                (category.subcategories as readonly string[]).includes(subcategory)
+              );
+              const color = categoryEntry?.[1].color || '#6b7280';
+              
+              return (
+                <div
+                  key={subcategory}
+                  className="flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border"
+                  style={{ 
+                    backgroundColor: `${color}15`,
+                    borderColor: `${color}40`,
+                    color: color
+                  }}
+                >
+                  <span 
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                  {subcategory.length > 15 ? `${subcategory.substring(0, 15)}...` : subcategory}
+                  <button
+                    onClick={() => {
+                      const newSelected = selectedSubcategories.filter(s => s !== subcategory);
+                      setSelectedSubcategories(newSelected);
+                    }}
+                    className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
+            {selectedSubcategories.length > 3 && (
+              <div className="flex-shrink-0 flex items-center px-3 py-1 rounded-full text-xs font-medium border border-muted bg-muted/50 text-muted-foreground">
+                +{selectedSubcategories.length - 3} more
+              </div>
+            )}
           </div>
         )}
         
-        {/* Category Filter Chips (only visible when showFilters is true) */}
-        {showFilters && (
-          <div className="flex gap-2 overflow-x-auto pb-3 mb-3 border-t pt-3">
-            <Button
-              variant={activeCategory === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 rounded-full"
-              onClick={() => {
-                onCategoryChange('all');
-                setShowFilters(false);
-              }}
-              data-testid="filter-all"
-            >
-              All
-            </Button>
-            {Object.entries(categories).map(([key, category]) => (
-              <Button
-                key={key}
-                variant={activeCategory === key ? 'default' : 'outline'}
-                size="sm"
-                className="flex-shrink-0 rounded-full"
-                onClick={() => {
-                  onCategoryChange(key);
-                  setShowFilters(false);
-                }}
-                data-testid={`filter-${key}`}
-                style={{
-                  backgroundColor: activeCategory === key ? category.color : undefined,
-                  borderColor: category.color,
-                  color: activeCategory === key ? 'white' : category.color
-                }}
-              >
-                <span 
-                  className="w-2 h-2 rounded-full inline-block mr-2"
-                  style={{ backgroundColor: activeCategory === key ? 'white' : category.color }}
-                />
-                {category.name}
-              </Button>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Filter Sheet */}
+      <FilterSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        selectedSubcategories={selectedSubcategories}
+        onApplyFilters={setSelectedSubcategories}
+      />
 
       {/* Reports List */}
       <div className="max-h-96 overflow-y-auto">
