@@ -14,6 +14,8 @@ interface InteractiveMapProps {
 export default function InteractiveMap({ onPinClick, activeCategory }: InteractiveMapProps) {
   const [zoom, setZoom] = useState(13);
   const [center, setCenter] = useState({ lat: 40.7128, lng: -74.0060 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -53,84 +55,146 @@ export default function InteractiveMap({ onPinClick, activeCategory }: Interacti
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    
+    // Simulate map panning
+    setCenter(prev => ({
+      lat: prev.lat + deltaY * 0.001,
+      lng: prev.lng - deltaX * 0.001
+    }));
+    
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Convert lat/lng to screen position for realistic pin placement
+  const getScreenPosition = (lat: number, lng: number) => {
+    const latDiff = lat - center.lat;
+    const lngDiff = lng - center.lng;
+    const scale = zoom / 13; // Base scale factor
+    
+    return {
+      x: 50 + (lngDiff * 1000 * scale), // Convert to percentage
+      y: 50 - (latDiff * 1000 * scale)  // Invert Y axis
+    };
+  };
+
   return (
-    <div className="relative h-[60vh] bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
-      {/* Map Background */}
-      <div className="absolute inset-0 bg-blue-200">
-        <div className="h-full w-full relative">
-          {/* Grid Lines for Map Effect */}
-          <svg className="absolute inset-0 h-full w-full opacity-20">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#3b82f6" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-          
+    <div className="relative h-[60vh] overflow-hidden cursor-grab select-none"
+         style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+         onMouseDown={handleMouseDown}
+         onMouseMove={handleMouseMove}
+         onMouseUp={handleMouseUp}
+         onMouseLeave={handleMouseUp}
+    >
+      {/* OpenStreetMap-style Background */}
+      <div className="absolute inset-0">
+        <iframe
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${center.lng-0.01},${center.lat-0.01},${center.lng+0.01},${center.lat+0.01}&layer=mapnik&marker=${center.lat},${center.lng}`}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          title="Interactive Map"
+          className="pointer-events-none"
+        />
+        
+        {/* Custom overlay for interactivity */}
+        <div className="absolute inset-0 bg-transparent pointer-events-none">
           {/* Report Pins */}
-          <div className="absolute inset-0">
-            {filteredReports.map((report, index) => {
-              const x = (index * 80 + 50) % window.innerWidth;
-              const y = (Math.sin(index) * 100 + 200) % 400;
-              return (
+          {filteredReports.map((report) => {
+            if (!report.latitude || !report.longitude) return null;
+            
+            const pos = getScreenPosition(report.latitude, report.longitude);
+            const isVisible = pos.x >= 0 && pos.x <= 100 && pos.y >= 0 && pos.y <= 100;
+            
+            if (!isVisible) return null;
+            
+            return (
+              <div
+                key={report.id}
+                className="absolute pointer-events-auto cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-all duration-200 z-10"
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPinClick(report.id);
+                }}
+                data-testid={`map-pin-${report.id}`}
+              >
                 <div
-                  key={report.id}
-                  className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-all"
-                  style={{
-                    left: `${Math.max(5, Math.min(95, x / window.innerWidth * 100))}%`,
-                    top: `${Math.max(5, Math.min(90, y / 400 * 100))}%`,
-                  }}
-                  onClick={() => onPinClick(report.id)}
-                  data-testid={`map-pin-${report.id}`}
+                  className="w-8 h-8 rounded-full border-3 border-white shadow-lg flex items-center justify-center hover:shadow-xl"
+                  style={{ backgroundColor: getCategoryColor(report.category) }}
+                  title={report.title}
                 >
-                  <div
-                    className="w-6 h-6 rounded-full border-3 border-white shadow-lg flex items-center justify-center"
-                    style={{ backgroundColor: getCategoryColor(report.category) }}
-                  >
-                    <MapPin className="h-3 w-3 text-white" />
+                  <MapPin className="h-4 w-4 text-white" />
+                </div>
+                
+                {/* Pin tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+                  <div className="bg-black text-white text-xs py-1 px-2 rounded whitespace-nowrap">
+                    {report.title}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-          
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 flex flex-col space-y-2 z-[1000]">
-            <Button
-              size="icon"
-              className="bg-white text-gray-700 shadow-md hover:shadow-lg"
-              onClick={handleZoomIn}
-              data-testid="button-zoom-in"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              className="bg-white text-gray-700 shadow-md hover:shadow-lg"
-              onClick={handleZoomOut}
-              data-testid="button-zoom-out"
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="absolute bottom-4 right-4 z-[1000]">
-            <Button
-              size="icon"
-              className="bg-white text-gray-700 shadow-md hover:shadow-lg rounded-full"
-              onClick={handleCenterMap}
-              data-testid="button-center-map"
-            >
-              <Navigation className="h-4 w-4" />
-            </Button>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       
+      {/* Map Controls */}
+      <div className="absolute top-4 right-4 flex flex-col space-y-2 z-[1000]">
+        <Button
+          size="icon"
+          className="bg-white text-gray-700 shadow-md hover:shadow-lg border"
+          onClick={handleZoomIn}
+          data-testid="button-zoom-in"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          size="icon"
+          className="bg-white text-gray-700 shadow-md hover:shadow-lg border"
+          onClick={handleZoomOut}
+          data-testid="button-zoom-out"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="absolute bottom-4 right-4 z-[1000]">
+        <Button
+          size="icon"
+          className="bg-white text-gray-700 shadow-md hover:shadow-lg border rounded-full"
+          onClick={handleCenterMap}
+          data-testid="button-center-map"
+          title="Center on my location"
+        >
+          <Navigation className="h-4 w-4" />
+        </Button>
+      </div>
+      
       {/* Map Info Overlay */}
-      <div className="absolute bottom-2 left-2 bg-white/80 px-2 py-1 rounded text-xs text-gray-600">
-        Reports: {filteredReports.length} • Zoom: {zoom}
+      <div className="absolute bottom-2 left-2 bg-white/90 px-3 py-1 rounded-full text-xs text-gray-700 shadow-sm border">
+        <span className="font-medium">{filteredReports.length}</span> reports • Zoom {zoom}
+      </div>
+      
+      {/* Attribution */}
+      <div className="absolute bottom-1 right-20 text-xs text-gray-500 bg-white/70 px-1 rounded">
+        © OpenStreetMap
       </div>
     </div>
   );
