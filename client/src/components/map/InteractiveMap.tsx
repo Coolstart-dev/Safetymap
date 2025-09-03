@@ -231,15 +231,15 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Simple density calculation - count reports within 500m of each point
-      const heatData: number[][] = [];
+      // Create proper heatmap data array
+      const heatData: [number, number, number][] = [];
       
       filteredReports.forEach(report => {
         if (!report.latitude || !report.longitude) return;
         
-        // Count nearby reports within ~500m 
+        // Count nearby reports within 300m radius
         let nearbyCount = 0;
-        const searchRadius = 0.005;
+        const searchRadius = 0.003; // ~300m
         
         filteredReports.forEach(other => {
           if (!other.latitude || !other.longitude) return;
@@ -252,34 +252,53 @@ export default function InteractiveMap({
           }
         });
         
-        // Simple intensity mapping
-        const intensity = nearbyCount >= 3 ? 1.0 : nearbyCount >= 2 ? 0.6 : 0.3;
+        // Convert count to intensity (0-1 range)
+        let intensity: number;
+        if (nearbyCount === 1) {
+          intensity = 0.3;  // Low intensity
+        } else if (nearbyCount === 2) {
+          intensity = 0.6;  // Medium intensity
+        } else if (nearbyCount === 3) {
+          intensity = 0.8;  // High intensity
+        } else {
+          intensity = 1.0;  // Maximum intensity
+        }
         
         heatData.push([report.latitude, report.longitude, intensity]);
       });
 
       if (heatData.length > 0) {
         try {
-          // @ts-ignore
+          // @ts-ignore - leaflet.heat doesn't have types
           if (typeof L.heatLayer === 'function') {
+            console.log('Creating heatmap with', heatData.length, 'points');
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 30,
-              blur: 15, 
+              radius: 25,
+              blur: 15,
+              maxZoom: 17,
               max: 1.0,
+              minOpacity: 0.05,
               gradient: {
-                0.3: '#3b82f6',  // Blue - single reports
-                0.6: '#f59e0b',  // Orange - pair reports  
-                1.0: '#ef4444'   // Red - cluster reports
+                '0.0': 'blue',
+                '0.3': 'cyan',  
+                '0.6': 'lime',
+                '0.8': 'yellow',
+                '1.0': 'red'
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
+            console.log('Heatmap layer added successfully');
+          } else {
+            console.error('L.heatLayer function not available');
           }
         } catch (error) {
-          console.error('Heatmap error:', error);
+          console.error('Error creating heatmap:', error);
         }
+      } else {
+        console.log('No data for heatmap');
       }
     } else {
       // Add markers for each report (original logic)
