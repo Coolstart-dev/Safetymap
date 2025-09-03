@@ -29,8 +29,7 @@ export interface ContentModerationResult {
 export class AIContentModerator {
   async moderateContent(title: string, description: string): Promise<ContentModerationResult> {
     try {
-      const prompt = `
-Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
+      const prompt = `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
 
 Analyseer de volgende melding en geef een JSON response terug met:
 - isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
@@ -52,7 +51,7 @@ Input:
 Titel: "${title}"
 Beschrijving: "${description}"
 
-Geef alleen valid JSON terug, geen andere tekst.`;
+BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de JSON response zelf.`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
@@ -63,7 +62,12 @@ Geef alleen valid JSON terug, geen andere tekst.`;
       const contentBlock = response.content[0];
       let result;
       if (contentBlock.type === 'text') {
-        result = JSON.parse(contentBlock.text);
+        let responseText = contentBlock.text;
+        
+        // Remove markdown code blocks if present
+        responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+        
+        result = JSON.parse(responseText);
       } else {
         throw new Error('Unexpected content type from AI response');
       }
