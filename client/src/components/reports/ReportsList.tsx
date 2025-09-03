@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Report } from "@shared/schema";
 import { categories } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
-import { Filter, Shield } from "lucide-react";
+import { Filter, Shield, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -13,6 +14,8 @@ interface ReportsListProps {
 }
 
 export default function ReportsList({ onReportClick, activeCategory, onCategoryChange }: ReportsListProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  
   const { data: reports = [], isLoading } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
   });
@@ -45,40 +48,84 @@ export default function ReportsList({ onReportClick, activeCategory, onCategoryC
       <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground">Recent Reports</h2>
-          <Button variant="ghost" size="sm" data-testid="button-filter">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowFilters(!showFilters)}
+            data-testid="button-filter"
+          >
             <Filter className="h-4 w-4 mr-1" />
             Filter
           </Button>
         </div>
         
-        {/* Category Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          <Button
-            variant={activeCategory === 'all' ? 'default' : 'secondary'}
-            size="sm"
-            className="flex-shrink-0 rounded-full"
-            onClick={() => onCategoryChange('all')}
-            data-testid="filter-all"
-          >
-            All
-          </Button>
-          {Object.entries(categories).map(([key, category]) => (
-            <Button
-              key={key}
-              variant={activeCategory === key ? 'default' : 'secondary'}
-              size="sm"
-              className="flex-shrink-0 rounded-full"
-              onClick={() => onCategoryChange(key)}
-              data-testid={`filter-${key}`}
+        {/* Selected Filter Tags (always visible when filters are applied) */}
+        {activeCategory !== 'all' && (
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-3">
+            <div
+              className="flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border"
+              style={{ 
+                backgroundColor: `${getCategoryColor(activeCategory)}15`,
+                borderColor: `${getCategoryColor(activeCategory)}40`,
+                color: getCategoryColor(activeCategory)
+              }}
             >
               <span 
-                className="w-2 h-2 rounded-full inline-block mr-1"
-                style={{ backgroundColor: category.color }}
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: getCategoryColor(activeCategory) }}
               />
-              {category.name.split(' ')[0]}
+              {getCategoryName(activeCategory)}
+              <button
+                onClick={() => onCategoryChange('all')}
+                className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Category Filter Chips (only visible when showFilters is true) */}
+        {showFilters && (
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-3 border-t pt-3">
+            <Button
+              variant={activeCategory === 'all' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-shrink-0 rounded-full"
+              onClick={() => {
+                onCategoryChange('all');
+                setShowFilters(false);
+              }}
+              data-testid="filter-all"
+            >
+              All
             </Button>
-          ))}
-        </div>
+            {Object.entries(categories).map(([key, category]) => (
+              <Button
+                key={key}
+                variant={activeCategory === key ? 'default' : 'outline'}
+                size="sm"
+                className="flex-shrink-0 rounded-full"
+                onClick={() => {
+                  onCategoryChange(key);
+                  setShowFilters(false);
+                }}
+                data-testid={`filter-${key}`}
+                style={{
+                  backgroundColor: activeCategory === key ? category.color : undefined,
+                  borderColor: category.color,
+                  color: activeCategory === key ? 'white' : category.color
+                }}
+              >
+                <span 
+                  className="w-2 h-2 rounded-full inline-block mr-2"
+                  style={{ backgroundColor: activeCategory === key ? 'white' : category.color }}
+                />
+                {category.name}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Reports List */}
