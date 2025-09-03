@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 export default function AdminPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showOriginalContent, setShowOriginalContent] = useState<{[key: string]: boolean}>({});
+  const [manualData, setManualData] = useState<any[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -30,6 +31,28 @@ export default function AdminPage() {
     firstReport: allReports[0],
     allReportsRaw: allReports
   });
+
+  const handleManualFetch = async () => {
+    try {
+      console.log("Manual fetch starting...");
+      const response = await fetch('/api/admin/reports');
+      console.log("Manual fetch response status:", response.status);
+      const data = await response.json();
+      console.log("Manual fetch data:", data);
+      setManualData(data);
+      toast({
+        title: "Manual fetch completed",
+        description: `Found ${data.length} reports`,
+      });
+    } catch (error) {
+      console.error("Manual fetch error:", error);
+      toast({
+        title: "Manual fetch failed",
+        description: String(error),
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDeleteAllReports = async () => {
     try {
@@ -164,13 +187,29 @@ export default function AdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-            <strong>DEBUG INFO:</strong><br/>
-            Loading: {isLoading ? 'YES' : 'NO'}<br/>
-            Error: {error ? String(error) : 'NONE'}<br/>
-            Reports Count: {allReports.length}<br/>
-            Reports Type: {typeof allReports}<br/>
-            Is Array: {Array.isArray(allReports) ? 'YES' : 'NO'}
+          <div className="mb-4 p-2 bg-gray-100 rounded text-xs space-y-2">
+            <div>
+              <strong>REACT QUERY DEBUG:</strong><br/>
+              Loading: {isLoading ? 'YES' : 'NO'}<br/>
+              Error: {error ? String(error) : 'NONE'}<br/>
+              Reports Count: {allReports.length}<br/>
+              Reports Type: {typeof allReports}<br/>
+              Is Array: {Array.isArray(allReports) ? 'YES' : 'NO'}
+            </div>
+            <div>
+              <strong>MANUAL FETCH DEBUG:</strong><br/>
+              Manual Data Count: {manualData.length}<br/>
+              Manual Data Type: {typeof manualData}<br/>
+              Manual Is Array: {Array.isArray(manualData) ? 'YES' : 'NO'}
+            </div>
+            <Button 
+              onClick={handleManualFetch} 
+              size="sm" 
+              variant="outline"
+              className="mt-2"
+            >
+              🔄 Manual Fetch Test
+            </Button>
           </div>
           
           {isLoading ? (
@@ -181,11 +220,29 @@ export default function AdminPage() {
             </div>
           ) : allReports.length === 0 ? (
             <div>
-              <p className="text-muted-foreground">Geen rapporten gevonden</p>
+              <p className="text-muted-foreground">React Query: Geen rapporten gevonden</p>
               <p className="text-xs text-red-500 mt-2">Debug: Array length = {allReports.length}, Type = {typeof allReports}</p>
+              
+              {manualData.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-green-600 font-medium">Manual Fetch: {manualData.length} rapporten gevonden!</p>
+                  <div className="space-y-2 mt-2">
+                    {manualData.slice(0, 3).map((report: any) => (
+                      <div key={report.id} className="text-xs bg-green-50 p-2 rounded">
+                        <strong>ID:</strong> {report.id}<br/>
+                        <strong>Title:</strong> {report.title || 'No title'}<br/>
+                        <strong>Original:</strong> {report.originalTitle || 'No original'}<br/>
+                        <strong>Public:</strong> {report.isPublic ? 'YES' : 'NO'}
+                      </div>
+                    ))}
+                    {manualData.length > 3 && <p className="text-xs">... and {manualData.length - 3} more</p>}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
+              <p className="text-green-600 font-medium">React Query: {allReports.length} rapporten gevonden!</p>
               {allReports.map((report: any) => (
                 <div key={report.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-start justify-between">
