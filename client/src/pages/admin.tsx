@@ -184,7 +184,12 @@ export default function AdminPage() {
             <p className="text-muted-foreground">Geen rapporten gevonden</p>
           ) : (
             <div className="space-y-4">
-              {allReports.map((report: any) => (
+              {allReports
+                .sort((a: any, b: any) => {
+                  // Sort by createdAt date, newest first
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                })
+                .map((report: any) => (
                 <div key={report.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
