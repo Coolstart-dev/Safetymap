@@ -63,6 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
         longitude: req.body.longitude ? parseFloat(req.body.longitude) : null,
         authoritiesContacted: req.body.authoritiesContacted === 'true',
+        incidentDateTime: req.body.incidentDateTime || undefined,
       };
 
       // Add image URL if file was uploaded

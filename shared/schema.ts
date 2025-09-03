@@ -15,6 +15,7 @@ export const reports = pgTable("reports", {
   imageUrl: text("image_url"),
   authoritiesContacted: boolean("authorities_contacted").default(false),
   involvementType: varchar("involvement_type", { length: 20 }).notNull(), // 'victim' or 'witness'
+  incidentDateTime: timestamp("incident_date_time"), // When the incident actually occurred
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -29,6 +30,7 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   locationDescription: z.string().optional(),
   imageUrl: z.string().optional(),
   authoritiesContacted: z.boolean().optional().default(false),
+  incidentDateTime: z.string().datetime().optional(), // ISO datetime string
 });
 
 export type InsertReport = z.infer<typeof insertReportSchema>;

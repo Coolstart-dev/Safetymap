@@ -44,6 +44,7 @@ export class MemStorage implements IStorage {
       locationDescription: insertReport.locationDescription || null,
       imageUrl: insertReport.imageUrl || null,
       authoritiesContacted: insertReport.authoritiesContacted || false,
+      incidentDateTime: insertReport.incidentDateTime ? new Date(insertReport.incidentDateTime) : null,
     };
     this.reports.set(id, report);
     return report;

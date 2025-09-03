@@ -21,7 +21,7 @@ interface ReportDetailModalProps {
 
 export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportDetailModalProps) {
   const { data: report, isLoading } = useQuery<Report>({
-    queryKey: ["/api/reports", reportId],
+    queryKey: [`/api/reports/${reportId}`],
     enabled: !!reportId,
   });
 
@@ -91,14 +91,15 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
               <div>
                 <span className="font-medium text-foreground flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
-                  Time
+                  {report.incidentDateTime ? "Incident Time" : "Reported Time"}
                 </span>
                 <p className="text-muted-foreground">
                   {(() => {
-                    if (!report.createdAt) return "Time not available";
+                    const dateTime = report.incidentDateTime || report.createdAt;
+                    if (!dateTime) return "Time not available";
                     
                     try {
-                      const date = new Date(report.createdAt);
+                      const date = new Date(dateTime);
                       if (isNaN(date.getTime())) {
                         return "Invalid date format";
                       }
@@ -106,10 +107,15 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                         <>
                           {formatDistanceToNow(date, { addSuffix: true })} 
                           ({date.toLocaleString()})
+                          {report.incidentDateTime && (
+                            <span className="block text-xs text-muted-foreground/70 mt-1">
+                              Incident occurred at this time
+                            </span>
+                          )}
                         </>
                       );
                     } catch (error) {
-                      console.log("Date parsing error:", error, "createdAt value:", report.createdAt);
+                      console.log("Date parsing error:", error, "dateTime value:", dateTime);
                       return "Unable to parse date";
                     }
                   })()}

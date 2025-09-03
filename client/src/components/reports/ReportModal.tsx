@@ -69,6 +69,7 @@ export default function ReportModal({
       locationDescription: undefined,
       authoritiesContacted: false,
       involvementType: "witness",
+      incidentDateTime: undefined,
     },
   });
 
@@ -109,6 +110,11 @@ export default function ReportModal({
       // Boolean field - always include
       console.log("Adding authoritiesContacted:", data.authoritiesContacted);
       formData.append('authoritiesContacted', data.authoritiesContacted ? 'true' : 'false');
+      
+      if (data.incidentDateTime) {
+        console.log("Adding incidentDateTime:", data.incidentDateTime);
+        formData.append('incidentDateTime', data.incidentDateTime);
+      }
 
       if (imageFile) {
         console.log("Adding image file:", imageFile.name);
@@ -165,11 +171,15 @@ export default function ReportModal({
     if (position) {
       form.setValue("latitude", position.latitude);
       form.setValue("longitude", position.longitude);
+      // Set current time for "Here & Now"
+      const currentTime = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+      form.setValue("incidentDateTime", currentTime);
+      
       if (onLocationSelect) {
         onLocationSelect({ lat: position.latitude, lng: position.longitude });
       }
       toast({
-        title: "Location captured",
+        title: "Location and time captured",
         description: "Using your current location and time.",
       });
     }
@@ -399,6 +409,32 @@ export default function ReportModal({
                 />
               </div>
             </div>
+
+            {/* Date & Time */}
+            <FormField
+              control={form.control}
+              name="incidentDateTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>When did this happen?</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="datetime-local"
+                      {...field}
+                      value={field.value || ""}
+                      data-testid="input-datetime"
+                    />
+                  </FormControl>
+                  <div className="text-xs text-muted-foreground">
+                    {field.value 
+                      ? "Time set automatically with 'Use Here' or adjust manually"
+                      : "Leave empty to use report submission time, or select when incident occurred"
+                    }
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Image Upload */}
             <div>
