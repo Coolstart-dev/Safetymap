@@ -441,30 +441,28 @@ export default function ReportModal({
                           <div className="p-4 space-y-4">
                             <div>
                               <label className="text-sm font-medium mb-2 block">Date</label>
-                              <Input
+                              <input
                                 type="date"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 value={format(selectedDateTime, "yyyy-MM-dd")}
                                 onChange={(e) => {
-                                  if (e.target.value) {
-                                    const currentTime = format(selectedDateTime, "HH:mm");
-                                    const newDateTime = e.target.value + 'T' + currentTime;
-                                    field.onChange(newDateTime);
-                                  }
+                                  const currentTime = format(selectedDateTime, "HH:mm");
+                                  const newDateTime = e.target.value + 'T' + currentTime;
+                                  field.onChange(newDateTime);
                                 }}
                                 data-testid="input-date"
                               />
                             </div>
                             <div>
                               <label className="text-sm font-medium mb-2 block">Time</label>
-                              <Input
+                              <input
                                 type="time"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 value={format(selectedDateTime, "HH:mm")}
                                 onChange={(e) => {
-                                  if (e.target.value) {
-                                    const currentDate = format(selectedDateTime, "yyyy-MM-dd");
-                                    const newDateTime = currentDate + 'T' + e.target.value;
-                                    field.onChange(newDateTime);
-                                  }
+                                  const currentDate = format(selectedDateTime, "yyyy-MM-dd");
+                                  const newDateTime = currentDate + 'T' + e.target.value;
+                                  field.onChange(newDateTime);
                                 }}
                                 data-testid="input-time"
                               />
