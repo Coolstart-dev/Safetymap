@@ -93,8 +93,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         originalTitle: validatedData.title,
         originalDescription: validatedData.description,
-        title: moderationResult.moderatedTitle || validatedData.title,
-        description: moderationResult.moderatedDescription || validatedData.description,
+        // Use moderated version if available, otherwise fallback to original
+        title: (moderationResult.moderatedTitle && moderationResult.moderatedTitle.length > 0) 
+          ? moderationResult.moderatedTitle 
+          : validatedData.title,
+        description: (moderationResult.moderatedDescription && moderationResult.moderatedDescription.length > 0) 
+          ? moderationResult.moderatedDescription 
+          : validatedData.description,
         moderationStatus: shouldReject ? 'rejected' : 'approved',
         moderationReason: moderationResult.reason || null,
         isModerated: true, // AI always processes content

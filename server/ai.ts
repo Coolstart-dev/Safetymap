@@ -36,8 +36,8 @@ Analyseer de volgende melding en geef een JSON response terug met:
 - isSpam: boolean (true als het een grap, meme, test of spam lijkt)
 - hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
 - hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
-- moderatedTitle: string (herschreven titel in formele, neutrale taal zonder persoonlijke info)
-- moderatedDescription: string (herschreven beschrijving in formele, neutrale taal zonder persoonlijke info)
+- moderatedTitle: string (ALTIJD herschreven titel in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
+- moderatedDescription: string (ALTIJD herschreven beschrijving in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
 - reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
 
 Richtlijnen voor herschrijven:
@@ -46,6 +46,12 @@ Richtlijnen voor herschrijven:
 - Behoud belangrijke details over het incident zelf
 - Maak het professioneel maar begrijpelijk
 - Verwijder emotionele taal en vervang door feitelijke beschrijving
+- BELANGRIJK: Herschrijf ALTIJD de content, ook als je het afkeurt! Dit helpt admins om de content te beoordelen.
+
+Voorbeelden van herschrijven bij afgewezen content:
+- Racistische taal → "Melding van verdachte persoon" 
+- Persoonlijke info → "Incident gerapporteerd in woongebied"
+- Grove taal → "Verstoring van openbare orde"
 
 Input:
 Titel: "${title}"
