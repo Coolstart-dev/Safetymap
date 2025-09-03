@@ -140,6 +140,17 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
   };
 
   const onSubmit = (data: FormData) => {
+    console.log("Form data being submitted:", data);
+    
+    // Validate required fields before submission
+    if (!data.category) {
+      toast({
+        title: "Please select a category",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createReportMutation.mutate(data);
   };
 
@@ -153,55 +164,68 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Category Selection */}
-            <div>
-              <FormLabel className="text-sm font-medium mb-3 block">
-                What type of incident? <span className="text-destructive">*</span>
-              </FormLabel>
-              <div className="grid grid-cols-2 gap-3">
-                {Object.entries(categories).map(([key, category]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
-                      selectedCategory === key ? 'border-primary bg-primary/5' : 'border-border'
-                    }`}
-                    onClick={() => handleCategorySelect(key)}
-                    data-testid={`category-${key}`}
-                  >
-                    <div 
-                      className="w-6 h-6 rounded-full mb-2"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <div className="text-sm font-medium text-foreground">{category.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {category.subcategories[0]}...
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium mb-3 block">
+                    What type of incident? <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(categories).map(([key, category]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
+                          field.value === key ? 'border-primary bg-primary/5' : 'border-border'
+                        }`}
+                        onClick={() => {
+                          field.onChange(key);
+                          setSelectedCategory(key);
+                        }}
+                        data-testid={`category-${key}`}
+                      >
+                        <div 
+                          className="w-6 h-6 rounded-full mb-2"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <div className="text-sm font-medium text-foreground">{category.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {category.subcategories[0]}...
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Subcategory */}
-            {selectedCategory && (
+            {(selectedCategory || form.watch("category")) && (
               <FormField
                 control={form.control}
                 name="subcategory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Specific type</FormLabel>
-                    <FormControl>
-                      <RadioGroup onValueChange={field.onChange} value={field.value}>
-                        {categories[selectedCategory as keyof typeof categories].subcategories.map((sub) => (
-                          <div key={sub} className="flex items-center space-x-2">
-                            <RadioGroupItem value={sub} id={sub} />
-                            <Label htmlFor={sub} className="text-sm">{sub}</Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentCategory = selectedCategory || form.watch("category");
+                  return (
+                    <FormItem>
+                      <FormLabel>Specific type</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value}>
+                          {categories[currentCategory as keyof typeof categories]?.subcategories.map((sub) => (
+                            <div key={sub} className="flex items-center space-x-2">
+                              <RadioGroupItem value={sub} id={sub} />
+                              <Label htmlFor={sub} className="text-sm">{sub}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             )}
 
