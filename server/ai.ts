@@ -46,12 +46,14 @@ Richtlijnen voor herschrijven:
 - Behoud belangrijke details over het incident zelf
 - Maak het professioneel maar begrijpelijk
 - Verwijder emotionele taal en vervang door feitelijke beschrijving
-- BELANGRIJK: Herschrijf ALTIJD de content, ook als je het afkeurt! Dit helpt admins om de content te beoordelen.
+- KRITIEK: Je MOET ALTIJD moderatedTitle en moderatedDescription invullen, ook bij afwijzing!
+- Voor afgewezen content: herschrijf naar neutrale, professionele taal zonder de problematische elementen
+- Geef NOOIT lege strings terug voor moderatedTitle en moderatedDescription
 
-Voorbeelden van herschrijven bij afgewezen content:
-- Racistische taal → "Melding van verdachte persoon" 
-- Persoonlijke info → "Incident gerapporteerd in woongebied"
-- Grove taal → "Verstoring van openbare orde"
+Voorbeelden van VERPLICHTE herschrijving bij afgewezen content:
+- "neger pikt fiets" → "Vermoedelijke fietsdiefstal door onbekende persoon"
+- Racistische beschrijving → "Incident gemeld door getuige in woongebied zonder verdere specificaties"
+- Grove taal → "Verstoring van openbare orde gerapporteerd"
 
 Input:
 Titel: "${title}"

@@ -106,13 +106,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isPublic: !shouldReject, // Only approved content is public
       };
       
+      // ALWAYS save the report first, regardless of moderation result
       const report = await storage.createReportWithModeration(finalReportData);
+      console.log("DEBUG - Report saved with ID:", report.id, "isPublic:", report.isPublic);
       
-      // If rejected, return error to user but report is still saved in admin area
+      // If rejected, return error to user but report is already saved in admin area
       if (shouldReject) {
         return res.status(400).json({ 
           error: "Content rejected by moderation",
-          reason: moderationResult.reason || "Content appears to be spam or inappropriate"
+          reason: moderationResult.reason || "Content appears to be spam or inappropriate",
+          reportId: report.id // Include for debugging
         });
       }
       
