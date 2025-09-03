@@ -20,7 +20,6 @@ export default function FloatingActionButton({
       className={cn(
         "fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50",
         "bg-accent text-accent-foreground hover:bg-accent/90",
-        "animate-pulse",
         className
       )}
       data-testid={testId}

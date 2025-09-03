@@ -21,6 +21,14 @@ export const reports = pgTable("reports", {
 export const insertReportSchema = createInsertSchema(reports).omit({
   id: true,
   createdAt: true,
+}).extend({
+  // Make optional fields explicitly optional
+  subcategory: z.string().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+  locationDescription: z.string().optional(),
+  imageUrl: z.string().optional(),
+  authoritiesContacted: z.boolean().optional().default(false),
 });
 
 export type InsertReport = z.infer<typeof insertReportSchema>;

@@ -35,9 +35,7 @@ interface ReportModalProps {
   onClose: () => void;
 }
 
-const formSchema = insertReportSchema.extend({
-  subcategory: z.string().optional(),
-});
+const formSchema = insertReportSchema;
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -67,16 +65,28 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
     mutationFn: async (data: FormData) => {
       const formData = new FormData();
       
-      // Only append non-null values to FormData
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && value !== "") {
-          if (typeof value === 'boolean') {
-            formData.append(key, value ? 'true' : 'false');
-          } else {
-            formData.append(key, value.toString());
-          }
-        }
-      });
+      // Always include required fields
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('category', data.category);
+      formData.append('involvementType', data.involvementType);
+      
+      // Include optional fields only if they have values
+      if (data.subcategory) {
+        formData.append('subcategory', data.subcategory);
+      }
+      if (data.latitude !== null && data.latitude !== undefined) {
+        formData.append('latitude', data.latitude.toString());
+      }
+      if (data.longitude !== null && data.longitude !== undefined) {
+        formData.append('longitude', data.longitude.toString());
+      }
+      if (data.locationDescription) {
+        formData.append('locationDescription', data.locationDescription);
+      }
+      
+      // Boolean field - always include
+      formData.append('authoritiesContacted', data.authoritiesContacted ? 'true' : 'false');
 
       if (imageFile) {
         formData.append('image', imageFile);
