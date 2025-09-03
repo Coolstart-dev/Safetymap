@@ -66,10 +66,13 @@ export default function InteractiveMap({ onPinClick, activeCategory }: Interacti
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     
-    // Simulate map panning
+    // Calculate movement based on zoom level
+    const movementScale = 0.0001 * (18 - zoom); // Smaller movements at higher zoom
+    
+    // Simulate map panning with proper scaling
     setCenter(prev => ({
-      lat: prev.lat + deltaY * 0.001,
-      lng: prev.lng - deltaX * 0.001
+      lat: prev.lat - deltaY * movementScale,
+      lng: prev.lng + deltaX * movementScale
     }));
     
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -79,16 +82,27 @@ export default function InteractiveMap({ onPinClick, activeCategory }: Interacti
     setIsDragging(false);
   };
 
-  // Convert lat/lng to screen position for realistic pin placement
+  // Convert lat/lng to screen position anchored to the map
   const getScreenPosition = (lat: number, lng: number) => {
+    // Calculate the map bounds based on center and zoom
+    const mapHeight = window.innerHeight * 0.6; // 60vh
+    const mapWidth = window.innerWidth;
+    
+    // Rough approximation: each zoom level doubles the scale
+    const scale = Math.pow(2, zoom - 10); // Normalize around zoom 10
+    
+    // Convert coordinate differences to pixels
+    const pixelsPerDegree = scale * 111320; // Approximate meters per degree at equator
+    const pixelsPerMeter = mapHeight / (20000 / scale); // Rough approximation
+    
     const latDiff = lat - center.lat;
     const lngDiff = lng - center.lng;
-    const scale = zoom / 13; // Base scale factor
     
-    return {
-      x: 50 + (lngDiff * 1000 * scale), // Convert to percentage
-      y: 50 - (latDiff * 1000 * scale)  // Invert Y axis
-    };
+    // Convert to percentage of screen
+    const x = 50 + (lngDiff * pixelsPerDegree * pixelsPerMeter) / mapWidth * 100;
+    const y = 50 - (latDiff * pixelsPerDegree * pixelsPerMeter) / mapHeight * 100;
+    
+    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
   };
 
   return (
@@ -102,6 +116,7 @@ export default function InteractiveMap({ onPinClick, activeCategory }: Interacti
       {/* OpenStreetMap-style Background */}
       <div className="absolute inset-0">
         <iframe
+          key={`${center.lat}-${center.lng}-${zoom}`}
           src={`https://www.openstreetmap.org/export/embed.html?bbox=${center.lng-0.01},${center.lat-0.01},${center.lng+0.01},${center.lat+0.01}&layer=mapnik&marker=${center.lat},${center.lng}`}
           width="100%"
           height="100%"
