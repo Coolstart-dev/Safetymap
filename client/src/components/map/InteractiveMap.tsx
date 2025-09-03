@@ -231,40 +231,49 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Simple approach: calculate nearby reports for each point
+      // DEBUG: Let's try a completely different approach - manual grouping
+      const pointGroups: Map<string, number> = new Map();
+      const gridSize = 0.01; // Larger grid for testing
+      
+      // Group points into grid cells
+      filteredReports.forEach(report => {
+        if (!report.latitude || !report.longitude) return;
+        
+        const gridLat = Math.floor(report.latitude / gridSize) * gridSize;
+        const gridLng = Math.floor(report.longitude / gridSize) * gridSize;
+        const key = `${gridLat},${gridLng}`;
+        
+        pointGroups.set(key, (pointGroups.get(key) || 0) + 1);
+      });
+
+      // Create heatmap data with VERY different intensities
       const heatData = filteredReports.map(report => {
         if (!report.latitude || !report.longitude) return [0, 0, 0];
         
-        // Count how many reports are within 300m of this report
-        const proximityRadius = 0.003; // ~300m
-        let nearbyCount = 0;
+        const gridLat = Math.floor(report.latitude / gridSize) * gridSize;
+        const gridLng = Math.floor(report.longitude / gridSize) * gridSize;
+        const key = `${gridLat},${gridLng}`;
+        const count = pointGroups.get(key) || 1;
         
-        filteredReports.forEach(otherReport => {
-          if (!otherReport.latitude || !otherReport.longitude) return;
-          
-          const latDiff = Math.abs(report.latitude! - otherReport.latitude);
-          const lngDiff = Math.abs(report.longitude! - otherReport.longitude);
-          const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-          
-          if (distance <= proximityRadius) {
-            nearbyCount++;
-          }
-        });
-        
-        // Extreme intensity scaling for maximum visibility
+        // EXTREMELY different intensity values
         let intensity;
-        if (nearbyCount === 1) {
-          intensity = 1;   // Single report: minimum intensity
-        } else if (nearbyCount === 2) {
-          intensity = 10;  // Two nearby: medium intensity
-        } else if (nearbyCount === 3) {
-          intensity = 50;  // Three nearby: high intensity
+        if (count === 1) {
+          intensity = 0.1;    // Very low
+        } else if (count === 2) {
+          intensity = 0.3;    // Low-medium  
+        } else if (count === 3) {
+          intensity = 0.7;    // High
         } else {
-          intensity = 100; // Four+ nearby: maximum intensity
+          intensity = 1.0;    // Maximum
         }
+        
+        console.log(`Point at [${report.latitude}, ${report.longitude}]: count=${count}, intensity=${intensity}`);
         
         return [report.latitude, report.longitude, intensity];
       });
+
+      console.log('Grid groups:', Array.from(pointGroups.entries()));
+      console.log('Intensity values:', heatData.map(d => d[2]).sort());
 
       if (heatData.length > 0) {
         try {
@@ -272,20 +281,21 @@ export default function InteractiveMap({
           if (typeof L.heatLayer === 'function') {
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 80,          // Much larger radius  
-              blur: 40,            // Heavy blur for smooth gradients
-              minOpacity: 0.7,     // High minimum opacity
-              max: 100,            // Scale to our intensity range
+              radius: 100,         // Very large radius
+              blur: 50,           // Heavy blur
+              minOpacity: 0.4,    // Lower minimum
+              max: 1.0,           // Max intensity = 1
               gradient: {
-                0.01: '#0066ff',   // Bright blue (1 report)
-                0.1:  '#00ff00',   // Bright green (2 reports)
-                0.5:  '#ffff00',   // Bright yellow (3 reports)  
-                1.0:  '#ff0000'    // Bright red (4+ reports)
+                0.0: '#000080',   // Navy blue (lowest)
+                0.3: '#0000ff',   // Blue (1 report)
+                0.7: '#ff8000',   // Orange (3 reports)  
+                1.0: '#ff0000'    // Red (4+ reports)
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
+            console.log('Heatmap created with grid-based intensities');
           } else {
             console.error('L.heatLayer is not available');
           }
