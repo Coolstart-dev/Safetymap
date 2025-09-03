@@ -30,7 +30,7 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   locationDescription: z.string().optional(),
   imageUrl: z.string().optional(),
   authoritiesContacted: z.boolean().optional().default(false),
-  incidentDateTime: z.string().datetime().optional(), // ISO datetime string
+  incidentDateTime: z.string().optional(), // ISO datetime string
 });
 
 export type InsertReport = z.infer<typeof insertReportSchema>;

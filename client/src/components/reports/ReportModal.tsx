@@ -28,7 +28,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Camera, MapPin, Navigation } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { X, Camera, MapPin, Navigation, Calendar, Clock } from "lucide-react";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -414,26 +416,112 @@ export default function ReportModal({
             <FormField
               control={form.control}
               name="incidentDateTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>When did this happen?</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="datetime-local"
-                      {...field}
-                      value={field.value || ""}
-                      data-testid="input-datetime"
-                    />
-                  </FormControl>
-                  <div className="text-xs text-muted-foreground">
-                    {field.value 
-                      ? "Time set automatically with 'Use Here' or adjust manually"
-                      : "Leave empty to use report submission time, or select when incident occurred"
-                    }
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const selectedDateTime = field.value ? new Date(field.value) : null;
+                
+                return (
+                  <FormItem>
+                    <FormLabel>When did this happen?</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                            data-testid="button-select-datetime"
+                          >
+                            {selectedDateTime ? (
+                              <>
+                                <Calendar className="mr-2 h-4 w-4" />
+                                {format(selectedDateTime, "PPP 'at' HH:mm")}
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="mr-2 h-4 w-4" />
+                                Select date and time
+                              </>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <div className="p-4 space-y-4">
+                            <div>
+                              <label className="text-sm font-medium mb-2 block">Date</label>
+                              <Input
+                                type="date"
+                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : ""}
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    const currentTime = selectedDateTime || new Date();
+                                    const newDate = new Date(e.target.value);
+                                    newDate.setHours(currentTime.getHours());
+                                    newDate.setMinutes(currentTime.getMinutes());
+                                    field.onChange(newDate.toISOString().slice(0, 16));
+                                  }
+                                }}
+                                data-testid="input-date"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium mb-2 block">Time</label>
+                              <Input
+                                type="time"
+                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : ""}
+                                onChange={(e) => {
+                                  if (e.target.value && selectedDateTime) {
+                                    const [hours, minutes] = e.target.value.split(':');
+                                    const newDate = new Date(selectedDateTime);
+                                    newDate.setHours(parseInt(hours));
+                                    newDate.setMinutes(parseInt(minutes));
+                                    field.onChange(newDate.toISOString().slice(0, 16));
+                                  } else if (e.target.value) {
+                                    const [hours, minutes] = e.target.value.split(':');
+                                    const newDate = new Date();
+                                    newDate.setHours(parseInt(hours));
+                                    newDate.setMinutes(parseInt(minutes));
+                                    field.onChange(newDate.toISOString().slice(0, 16));
+                                  }
+                                }}
+                                data-testid="input-time"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => {
+                                  const now = new Date();
+                                  field.onChange(now.toISOString().slice(0, 16));
+                                }}
+                                data-testid="button-now"
+                              >
+                                Now
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => field.onChange("")}
+                                data-testid="button-clear"
+                              >
+                                Clear
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <div className="text-xs text-muted-foreground">
+                      {field.value 
+                        ? "Time set - you can adjust it using the button above"
+                        : "Leave empty to use report submission time, or select when incident occurred"
+                      }
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* Image Upload */}
