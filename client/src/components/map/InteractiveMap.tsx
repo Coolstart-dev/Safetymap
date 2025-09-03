@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+// @ts-ignore - leaflet.heat doesn't have types
+import "leaflet.heat";
 import { useQuery } from "@tanstack/react-query";
 import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
@@ -39,6 +41,8 @@ interface InteractiveMapProps {
   locationSelectionMode?: boolean;
   selectedLocation?: { lat: number; lng: number } | null;
   onLocationSelect?: (location: { lat: number; lng: number }) => void;
+  // Heatmap mode toggle
+  isHeatmapMode?: boolean;
 }
 
 
@@ -48,11 +52,13 @@ export default function InteractiveMap({
   selectedSubcategories,
   locationSelectionMode = false,
   selectedLocation = null,
-  onLocationSelect 
+  onLocationSelect,
+  isHeatmapMode = false
 }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const heatmapRef = useRef<any>(null);
   const locationMarkerRef = useRef<L.Marker | null>(null);
   const isDraggingMarker = useRef(false);
 
@@ -198,12 +204,18 @@ export default function InteractiveMap({
     }
   }, [locationSelectionMode, selectedLocation, onLocationSelect]);
 
-  // Update markers when reports change
+  // Update markers/heatmap when reports or mode changes
   useEffect(() => {
     if (!leafletMapRef.current || !markersRef.current) return;
 
     // Clear existing markers
     markersRef.current.clearLayers();
+    
+    // Remove existing heatmap if it exists
+    if (heatmapRef.current) {
+      leafletMapRef.current.removeLayer(heatmapRef.current);
+      heatmapRef.current = null;
+    }
 
     // Filter reports based on active category, selected subcategories, and valid coordinates
     const filteredReports = reports.filter(report => {
@@ -218,56 +230,85 @@ export default function InteractiveMap({
       return activeCategory === 'all' || report.category === activeCategory;
     });
 
-    // Add markers for each report
-    filteredReports.forEach((report) => {
-      if (!report.latitude || !report.longitude || !markersRef.current) return;
+    if (isHeatmapMode) {
+      // Create heatmap layer
+      const heatData = filteredReports.map(report => [
+        report.latitude!,
+        report.longitude!,
+        1 // intensity value
+      ]);
 
-      const categoryInfo = categories[report.category as keyof typeof categories];
-      const color = categoryInfo?.color || '#6b7280';
+      if (heatData.length > 0) {
+        // @ts-ignore - leaflet.heat doesn't have types
+        const heatmapLayer = L.heatLayer(heatData, {
+          radius: 20,
+          blur: 15,
+          maxZoom: 17,
+          gradient: {
+            0.0: '#3182ce',
+            0.2: '#63b3ed', 
+            0.4: '#90cdf4',
+            0.6: '#fbb6ce',
+            0.8: '#f687b3',
+            1.0: '#e53e3e'
+          }
+        });
+        
+        heatmapLayer.addTo(leafletMapRef.current);
+        heatmapRef.current = heatmapLayer;
+      }
+    } else {
+      // Add markers for each report (original logic)
+      filteredReports.forEach((report) => {
+        if (!report.latitude || !report.longitude || !markersRef.current) return;
 
-      // Create custom colored marker
-      const customIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `
-          <div style="
-            width: 32px; 
-            height: 32px; 
-            background-color: ${color}; 
-            border: 3px solid white; 
-            border-radius: 50%; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-          ">
-            <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-            </svg>
-          </div>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        const categoryInfo = categories[report.category as keyof typeof categories];
+        const color = categoryInfo?.color || '#6b7280';
+
+        // Create custom colored marker
+        const customIcon = L.divIcon({
+          className: 'custom-marker',
+          html: `
+            <div style="
+              width: 32px; 
+              height: 32px; 
+              background-color: ${color}; 
+              border: 3px solid white; 
+              border-radius: 50%; 
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+            ">
+              <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              </svg>
+            </div>
+          `,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker([report.latitude, report.longitude], {
+          icon: customIcon
+        });
+
+        // Add click handler
+        marker.on('click', () => {
+          onPinClick(report.id);
+        });
+
+        // Add tooltip
+        marker.bindTooltip(report.title, {
+          direction: 'top',
+          offset: [0, -20]
+        });
+
+        markersRef.current.addLayer(marker);
       });
-
-      const marker = L.marker([report.latitude, report.longitude], {
-        icon: customIcon
-      });
-
-      // Add click handler
-      marker.on('click', () => {
-        onPinClick(report.id);
-      });
-
-      // Add tooltip
-      marker.bindTooltip(report.title, {
-        direction: 'top',
-        offset: [0, -20]
-      });
-
-      markersRef.current.addLayer(marker);
-    });
-  }, [reports, activeCategory, selectedSubcategories, onPinClick]);
+    }
+  }, [reports, activeCategory, selectedSubcategories, onPinClick, isHeatmapMode]);
 
   const handleCenterMap = () => {
     if (!leafletMapRef.current) return;

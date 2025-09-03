@@ -5,7 +5,7 @@ import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
-import { Settings, Home } from "lucide-react";
+import { Settings, Home, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isHeatmapMode, setIsHeatmapMode] = useState(false);
 
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -53,11 +54,20 @@ export default function Dashboard() {
     }
   ];
 
+  const toggleActions = [
+    {
+      label: "Heatmap Mode",
+      icon: <MapPin className="h-4 w-4" />,
+      isActive: isHeatmapMode,
+      onToggle: () => setIsHeatmapMode(!isHeatmapMode)
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
 
       {/* Floating Menu */}
-      <FloatingMenu items={menuItems} />
+      <FloatingMenu items={menuItems} toggleActions={toggleActions} />
 
       {/* Map Container */}
       <div className="relative">
@@ -68,6 +78,7 @@ export default function Dashboard() {
           locationSelectionMode={locationSelectionMode}
           selectedLocation={selectedLocation}
           onLocationSelect={setSelectedLocation}
+          isHeatmapMode={isHeatmapMode}
         />
       </div>
 

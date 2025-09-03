@@ -8,11 +8,19 @@ interface MenuItem {
   onClick: () => void;
 }
 
-interface FloatingMenuProps {
-  items: MenuItem[];
+interface ToggleAction {
+  label: string;
+  icon: React.ReactNode;
+  isActive: boolean;
+  onToggle: () => void;
 }
 
-export default function FloatingMenu({ items }: FloatingMenuProps) {
+interface FloatingMenuProps {
+  items: MenuItem[];
+  toggleActions?: ToggleAction[];
+}
+
+export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -46,6 +54,7 @@ export default function FloatingMenu({ items }: FloatingMenuProps) {
           
           {/* Menu Items */}
           <div className="absolute top-14 left-0 bg-white rounded-lg shadow-xl border border-gray-200 min-w-48 py-2 z-50">
+            {/* Navigation Items */}
             {items.map((item, index) => (
               <button
                 key={index}
@@ -60,6 +69,35 @@ export default function FloatingMenu({ items }: FloatingMenuProps) {
                   {item.icon}
                 </span>
                 {item.label}
+              </button>
+            ))}
+            
+            {/* Separator if we have both items and toggle actions */}
+            {items.length > 0 && toggleActions.length > 0 && (
+              <hr className="my-2 border-gray-200" />
+            )}
+            
+            {/* Toggle Actions */}
+            {toggleActions.map((action, index) => (
+              <button
+                key={`toggle-${index}`}
+                onClick={() => {
+                  action.onToggle();
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors ${
+                  action.isActive 
+                    ? 'text-blue-700 bg-blue-50 hover:bg-blue-100' 
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+                data-testid={`toggle-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <div className="flex items-center">
+                  <span className={`mr-3 ${action.isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {action.icon}
+                  </span>
+                  {action.label}
+                </div>
+                <div className={`w-2 h-2 rounded-full ${action.isActive ? 'bg-blue-600' : 'bg-gray-300'}`} />
               </button>
             ))}
           </div>
