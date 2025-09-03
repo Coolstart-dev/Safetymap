@@ -54,10 +54,10 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
       title: "",
       description: "",
       category: "",
-      subcategory: "",
-      latitude: null,
-      longitude: null,
-      locationDescription: "",
+      subcategory: undefined,
+      latitude: undefined,
+      longitude: undefined,
+      locationDescription: undefined,
       authoritiesContacted: false,
       involvementType: "witness",
     },
@@ -67,9 +67,14 @@ export default function ReportModal({ isOpen, onClose }: ReportModalProps) {
     mutationFn: async (data: FormData) => {
       const formData = new FormData();
       
+      // Only append non-null values to FormData
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formData.append(key, value.toString());
+        if (value !== null && value !== undefined && value !== "") {
+          if (typeof value === 'boolean') {
+            formData.append(key, value ? 'true' : 'false');
+          } else {
+            formData.append(key, value.toString());
+          }
         }
       });
 

@@ -56,9 +56,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new report
   app.post("/api/reports", upload.single('image'), async (req: any, res) => {
     try {
-      console.log("Raw request body:", req.body);
-      console.log("File:", req.file);
-      
       const reportData = {
         ...req.body,
         latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
@@ -70,8 +67,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.file) {
         reportData.imageUrl = `/uploads/${req.file.filename}`;
       }
-
-      console.log("Processed report data:", reportData);
       
       const validatedData = insertReportSchema.parse(reportData);
       const report = await storage.createReport(validatedData);
@@ -79,10 +74,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(report);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.log("Validation error:", error.errors);
         return res.status(400).json({ error: "Validation failed", details: error.errors });
       }
-      console.log("Other error:", error);
       res.status(500).json({ error: "Failed to create report" });
     }
   });
