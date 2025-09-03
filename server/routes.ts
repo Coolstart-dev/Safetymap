@@ -5,6 +5,7 @@ import { insertReportSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
+import { AIContentModerator } from "./ai";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -53,7 +54,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new report
+  // Create new report with AI moderation
   app.post("/api/reports", upload.single('image'), async (req: any, res) => {
     try {
       console.log("DEBUG - Raw request body:", req.body);
@@ -74,7 +75,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("DEBUG - Processed data:", reportData);
       
       const validatedData = insertReportSchema.parse(reportData);
-      const report = await storage.createReport(validatedData);
+      
+      // Run AI content moderation
+      const moderator = new AIContentModerator();
+      const moderationResult = await moderator.moderateContent(
+        validatedData.title || '',
+        validatedData.description || ''
+      );
+      
+      console.log("DEBUG - Moderation result:", moderationResult);
+      
+      // Check if content should be auto-rejected
+      if (moderator.shouldAutoReject(moderationResult)) {
+        return res.status(400).json({ 
+          error: "Content rejected by moderation",
+          reason: moderationResult.reason || "Content appears to be spam or inappropriate"
+        });
+      }
+      
+      // Prepare report data with moderation results
+      const finalReportData = {
+        ...validatedData,
+        originalTitle: validatedData.title,
+        originalDescription: validatedData.description,
+        title: moderator.shouldUseModeratedVersion(moderationResult) 
+          ? moderationResult.moderatedTitle 
+          : validatedData.title,
+        description: moderator.shouldUseModeratedVersion(moderationResult) 
+          ? moderationResult.moderatedDescription 
+          : validatedData.description,
+        moderationStatus: moderationResult.isApproved ? 'approved' : 'pending',
+        moderationReason: moderationResult.reason || null,
+        isModerated: moderator.shouldUseModeratedVersion(moderationResult),
+      };
+      
+      const report = await storage.createReportWithModeration(finalReportData);
       
       res.status(201).json(report);
     } catch (error) {

@@ -7,6 +7,8 @@ export const reports = pgTable("reports", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  originalTitle: text("original_title"), // Store original user input
+  originalDescription: text("original_description"), // Store original user input
   category: varchar("category", { length: 50 }).notNull(),
   subcategory: varchar("subcategory", { length: 100 }),
   latitude: real("latitude"),
@@ -16,12 +18,20 @@ export const reports = pgTable("reports", {
   authoritiesContacted: boolean("authorities_contacted").default(false),
   involvementType: varchar("involvement_type", { length: 20 }).notNull(), // 'victim' or 'witness'
   incidentDateTime: timestamp("incident_date_time"), // When the incident actually occurred
+  moderationStatus: varchar("moderation_status", { length: 20 }).default("approved"), // 'approved', 'rejected', 'pending'
+  moderationReason: text("moderation_reason"), // Why it was rejected/modified
+  isModerated: boolean("is_moderated").default(false), // Whether AI modified the content
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertReportSchema = createInsertSchema(reports).omit({
   id: true,
   createdAt: true,
+  moderationStatus: true,
+  moderationReason: true,
+  isModerated: true,
+  originalTitle: true,
+  originalDescription: true,
 }).extend({
   // Make optional fields explicitly optional
   subcategory: z.string().optional(),

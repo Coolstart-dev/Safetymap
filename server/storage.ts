@@ -7,6 +7,7 @@ export interface IStorage {
   getAllReports(): Promise<Report[]>;
   getReportsByCategory(category: string): Promise<Report[]>;
   createReport(report: InsertReport): Promise<Report>;
+  createReportWithModeration(report: any): Promise<Report>; // For AI moderated reports
   deleteReport(id: string): Promise<boolean>;
   deleteAllReports(): Promise<boolean>; // Add admin function
 }
@@ -31,6 +32,17 @@ export class DatabaseStorage implements IStorage {
       .values({
         ...insertReport,
         incidentDateTime: insertReport.incidentDateTime ? new Date(insertReport.incidentDateTime) : null,
+      })
+      .returning();
+    return report;
+  }
+
+  async createReportWithModeration(reportData: any): Promise<Report> {
+    const [report] = await db
+      .insert(reports)
+      .values({
+        ...reportData,
+        incidentDateTime: reportData.incidentDateTime ? new Date(reportData.incidentDateTime) : null,
       })
       .returning();
     return report;
