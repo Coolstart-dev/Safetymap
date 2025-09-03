@@ -34,6 +34,7 @@ const CURRENT_TILES = TILE_CONFIG.openstreetmap;
 interface InteractiveMapProps {
   onPinClick: (reportId: string) => void;
   activeCategory: string;
+  selectedSubcategories: string[];
   // Location selection mode for creating new reports
   locationSelectionMode?: boolean;
   selectedLocation?: { lat: number; lng: number } | null;
@@ -44,6 +45,7 @@ interface InteractiveMapProps {
 export default function InteractiveMap({ 
   onPinClick, 
   activeCategory, 
+  selectedSubcategories,
   locationSelectionMode = false,
   selectedLocation = null,
   onLocationSelect 
@@ -203,11 +205,18 @@ export default function InteractiveMap({
     // Clear existing markers
     markersRef.current.clearLayers();
 
-    // Filter reports based on active category and valid coordinates
-    const filteredReports = reports.filter(report => 
-      report.latitude && report.longitude && 
-      (activeCategory === 'all' || report.category === activeCategory)
-    );
+    // Filter reports based on active category, selected subcategories, and valid coordinates
+    const filteredReports = reports.filter(report => {
+      if (!report.latitude || !report.longitude) return false;
+      
+      // If subcategories are selected, filter by those
+      if (selectedSubcategories.length > 0) {
+        return selectedSubcategories.includes(report.subcategory || '');
+      }
+      
+      // Otherwise filter by category
+      return activeCategory === 'all' || report.category === activeCategory;
+    });
 
     // Add markers for each report
     filteredReports.forEach((report) => {
@@ -258,7 +267,7 @@ export default function InteractiveMap({
 
       markersRef.current.addLayer(marker);
     });
-  }, [reports, activeCategory, onPinClick]);
+  }, [reports, activeCategory, selectedSubcategories, onPinClick]);
 
   const handleCenterMap = () => {
     if (!leafletMapRef.current) return;

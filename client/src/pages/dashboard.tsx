@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -65,6 +66,7 @@ export default function Dashboard() {
         <InteractiveMap 
           onPinClick={handlePinClick}
           activeCategory={activeCategory}
+          selectedSubcategories={selectedSubcategories}
           locationSelectionMode={locationSelectionMode}
           selectedLocation={selectedLocation}
           onLocationSelect={setSelectedLocation}
@@ -76,6 +78,8 @@ export default function Dashboard() {
         onReportClick={handleReportClick}
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
+        selectedSubcategories={selectedSubcategories}
+        onSubcategoriesChange={setSelectedSubcategories}
       />
 
       {/* Floating Action Button */}

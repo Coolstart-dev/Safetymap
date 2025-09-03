@@ -12,11 +12,18 @@ interface ReportsListProps {
   onReportClick: (reportId: string) => void;
   activeCategory: string;
   onCategoryChange: (category: string) => void;
+  selectedSubcategories: string[];
+  onSubcategoriesChange: (subcategories: string[]) => void;
 }
 
-export default function ReportsList({ onReportClick, activeCategory, onCategoryChange }: ReportsListProps) {
+export default function ReportsList({ 
+  onReportClick, 
+  activeCategory, 
+  onCategoryChange, 
+  selectedSubcategories, 
+  onSubcategoriesChange 
+}: ReportsListProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   
   const { data: reports = [], isLoading } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -95,7 +102,7 @@ export default function ReportsList({ onReportClick, activeCategory, onCategoryC
                   <button
                     onClick={() => {
                       const newSelected = selectedSubcategories.filter(s => s !== subcategory);
-                      setSelectedSubcategories(newSelected);
+                      onSubcategoriesChange(newSelected);
                     }}
                     className="ml-1 hover:bg-black/10 rounded-full p-0.5"
                   >
@@ -119,7 +126,7 @@ export default function ReportsList({ onReportClick, activeCategory, onCategoryC
         isOpen={showFilters}
         onClose={() => setShowFilters(false)}
         selectedSubcategories={selectedSubcategories}
-        onApplyFilters={setSelectedSubcategories}
+        onApplyFilters={onSubcategoriesChange}
       />
 
       {/* Reports List */}
