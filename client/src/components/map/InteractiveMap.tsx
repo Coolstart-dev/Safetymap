@@ -231,15 +231,41 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Create heatmap layer with higher intensity values
-      const heatData = filteredReports.map(report => [
-        report.latitude!,
-        report.longitude!,
-        5 // Much higher intensity value
-      ]);
+      // Create density map - count reports in nearby locations to create intensity
+      const densityMap: Map<string, number> = new Map();
+      const radius = 0.001; // ~100m radius for grouping nearby reports
+      
+      // Group nearby reports to calculate density
+      filteredReports.forEach(report => {
+        if (!report.latitude || !report.longitude) return;
+        
+        // Round coordinates to create location groups
+        const lat = Math.round(report.latitude / radius) * radius;
+        const lng = Math.round(report.longitude / radius) * radius;
+        const key = `${lat},${lng}`;
+        
+        densityMap.set(key, (densityMap.get(key) || 0) + 1);
+      });
+
+      // Create heatmap data with dynamic intensity based on density
+      const heatData = filteredReports.map(report => {
+        if (!report.latitude || !report.longitude) return [0, 0, 0];
+        
+        // Find density for this location
+        const lat = Math.round(report.latitude / radius) * radius;
+        const lng = Math.round(report.longitude / radius) * radius;
+        const key = `${lat},${lng}`;
+        const density = densityMap.get(key) || 1;
+        
+        // Scale intensity: 1 report = 1, 2 reports = 3, 3 reports = 6, etc.
+        const intensity = Math.min(10, density * 2);
+        
+        return [report.latitude, report.longitude, intensity];
+      });
 
       console.log('Heatmap data:', heatData.length, 'points');
-      console.log('Sample data:', heatData.slice(0, 3));
+      console.log('Max density:', Math.max(...Array.from(densityMap.values())));
+      console.log('Sample intensities:', heatData.slice(0, 3).map(d => d[2]));
 
       if (heatData.length > 0) {
         try {
@@ -248,30 +274,23 @@ export default function InteractiveMap({
             console.log('Creating heatmap layer...');
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 50,        // Larger radius for more visibility
-              blur: 25,          // More blur for smoother appearance  
-              minOpacity: 0.4,   // Minimum opacity to ensure visibility
-              max: 5,            // Match our intensity values
+              radius: 40,        // Medium radius for good visibility
+              blur: 20,          // Smooth blur for natural appearance
+              minOpacity: 0.3,   // Minimum opacity for single reports
+              max: 10,           // Maximum intensity value
               gradient: {
-                0.2: '#313695',   // Dark blue
-                0.4: '#4575b4',   // Medium blue
-                0.6: '#74add1',   // Light blue
-                0.8: '#fee90d',   // Yellow
-                1.0: '#d73027'    // Red
+                0.1: '#2563eb',   // Blue (low density)
+                0.3: '#3b82f6',   // Light blue
+                0.5: '#10b981',   // Green (medium)
+                0.7: '#f59e0b',   // Orange (high)
+                0.9: '#ef4444',   // Red (very high)
+                1.0: '#dc2626'    // Dark red (maximum)
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
             console.log('Heatmap layer added successfully');
-            
-            // Debug: check if canvas element is created
-            const mapContainer = leafletMapRef.current.getContainer();
-            const heatmapCanvas = mapContainer.querySelector('.leaflet-heatmap-layer canvas');
-            console.log('Heatmap canvas found:', !!heatmapCanvas);
-            if (heatmapCanvas) {
-              console.log('Canvas dimensions:', (heatmapCanvas as HTMLCanvasElement).width, 'x', (heatmapCanvas as HTMLCanvasElement).height);
-            }
           } else {
             console.error('L.heatLayer is not available - leaflet.heat plugin not loaded');
           }
