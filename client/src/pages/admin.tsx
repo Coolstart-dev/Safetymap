@@ -15,9 +15,12 @@ export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch all reports (including rejected ones) for admin
+  // Fetch all reports (including rejected ones) for admin  
   const { data: allReports = [], isLoading, error } = useQuery<any[]>({
     queryKey: ['/api/admin/reports'],
+    enabled: true,
+    retry: 3,
+    refetchOnMount: true,
   });
 
   console.log("DEBUG - Admin page query:", {
@@ -161,8 +164,21 @@ export default function AdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+            <strong>DEBUG INFO:</strong><br/>
+            Loading: {isLoading ? 'YES' : 'NO'}<br/>
+            Error: {error ? String(error) : 'NONE'}<br/>
+            Reports Count: {allReports.length}<br/>
+            Reports Type: {typeof allReports}<br/>
+            Is Array: {Array.isArray(allReports) ? 'YES' : 'NO'}
+          </div>
+          
           {isLoading ? (
             <p className="text-muted-foreground">Laden...</p>
+          ) : error ? (
+            <div>
+              <p className="text-red-500">Error: {String(error)}</p>
+            </div>
           ) : allReports.length === 0 ? (
             <div>
               <p className="text-muted-foreground">Geen rapporten gevonden</p>
