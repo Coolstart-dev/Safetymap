@@ -450,12 +450,14 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Date</label>
                               <Input
                                 type="date"
-                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd")}
+                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : ""}
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    const currentTime = selectedDateTime || new Date();
-                                    const newDate = new Date(e.target.value + 'T' + format(currentTime, "HH:mm"));
-                                    field.onChange(newDate.toISOString().slice(0, 16));
+                                    const currentTime = selectedDateTime ? format(selectedDateTime, "HH:mm") : "12:00";
+                                    const newDateTime = e.target.value + 'T' + currentTime;
+                                    field.onChange(newDateTime);
+                                  } else {
+                                    field.onChange("");
                                   }
                                 }}
                                 data-testid="input-date"
@@ -465,12 +467,16 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Time</label>
                               <Input
                                 type="time"
-                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : format(new Date(), "HH:mm")}
+                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : ""}
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    const currentDate = selectedDateTime || new Date();
-                                    const newDateTime = format(currentDate, "yyyy-MM-dd") + 'T' + e.target.value;
+                                    const currentDate = selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd");
+                                    const newDateTime = currentDate + 'T' + e.target.value;
                                     field.onChange(newDateTime);
+                                  } else if (selectedDateTime) {
+                                    // Keep date but clear time
+                                    const dateOnly = format(selectedDateTime, "yyyy-MM-dd");
+                                    field.onChange(dateOnly + 'T12:00');
                                   }
                                 }}
                                 data-testid="input-time"
