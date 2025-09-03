@@ -231,41 +231,52 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Create density map - count reports in nearby locations to create intensity
+      // Create density map with larger grouping radius
       const densityMap: Map<string, number> = new Map();
-      const radius = 0.001; // ~100m radius for grouping nearby reports
+      const groupingRadius = 0.005; // ~500m radius for grouping nearby reports
       
       // Group nearby reports to calculate density
       filteredReports.forEach(report => {
         if (!report.latitude || !report.longitude) return;
         
-        // Round coordinates to create location groups
-        const lat = Math.round(report.latitude / radius) * radius;
-        const lng = Math.round(report.longitude / radius) * radius;
+        // Round coordinates to create larger location groups
+        const lat = Math.round(report.latitude / groupingRadius) * groupingRadius;
+        const lng = Math.round(report.longitude / groupingRadius) * groupingRadius;
         const key = `${lat},${lng}`;
         
         densityMap.set(key, (densityMap.get(key) || 0) + 1);
       });
 
-      // Create heatmap data with dynamic intensity based on density
+      // Create heatmap data with much more dramatic intensity differences
+      const maxDensity = Math.max(...Array.from(densityMap.values()), 1);
       const heatData = filteredReports.map(report => {
         if (!report.latitude || !report.longitude) return [0, 0, 0];
         
         // Find density for this location
-        const lat = Math.round(report.latitude / radius) * radius;
-        const lng = Math.round(report.longitude / radius) * radius;
+        const lat = Math.round(report.latitude / groupingRadius) * groupingRadius;
+        const lng = Math.round(report.longitude / groupingRadius) * groupingRadius;
         const key = `${lat},${lng}`;
         const density = densityMap.get(key) || 1;
         
-        // Scale intensity: 1 report = 1, 2 reports = 3, 3 reports = 6, etc.
-        const intensity = Math.min(10, density * 2);
+        // More dramatic intensity scaling
+        let intensity;
+        if (density === 1) {
+          intensity = 0.2; // Single reports: very low intensity (blue)
+        } else if (density === 2) {
+          intensity = 0.5; // Two reports: medium intensity (green)
+        } else if (density === 3) {
+          intensity = 0.8; // Three reports: high intensity (orange)
+        } else {
+          intensity = 1.0; // Four or more: maximum intensity (red)
+        }
         
         return [report.latitude, report.longitude, intensity];
       });
 
       console.log('Heatmap data:', heatData.length, 'points');
-      console.log('Max density:', Math.max(...Array.from(densityMap.values())));
-      console.log('Sample intensities:', heatData.slice(0, 3).map(d => d[2]));
+      console.log('Max density:', maxDensity);
+      console.log('Density distribution:', Array.from(densityMap.values()).sort());
+      console.log('Intensity range:', [Math.min(...heatData.map(d => d[2])), Math.max(...heatData.map(d => d[2]))]);
 
       if (heatData.length > 0) {
         try {
@@ -274,17 +285,16 @@ export default function InteractiveMap({
             console.log('Creating heatmap layer...');
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 40,        // Medium radius for good visibility
-              blur: 20,          // Smooth blur for natural appearance
-              minOpacity: 0.3,   // Minimum opacity for single reports
-              max: 10,           // Maximum intensity value
+              radius: 60,        // Larger radius for better visibility
+              blur: 30,          // More blur for smoother gradients
+              minOpacity: 0.5,   // Higher minimum opacity
+              max: 1.0,          // Scale to our intensity range
               gradient: {
-                0.1: '#2563eb',   // Blue (low density)
-                0.3: '#3b82f6',   // Light blue
-                0.5: '#10b981',   // Green (medium)
-                0.7: '#f59e0b',   // Orange (high)
-                0.9: '#ef4444',   // Red (very high)
-                1.0: '#dc2626'    // Dark red (maximum)
+                0.0: '#1e40af',   // Dark blue (no/very low)
+                0.2: '#3b82f6',   // Blue (1 report)
+                0.5: '#10b981',   // Green (2 reports)  
+                0.8: '#f59e0b',   // Orange (3 reports)
+                1.0: '#dc2626'    // Red (4+ reports)
               }
             });
             
