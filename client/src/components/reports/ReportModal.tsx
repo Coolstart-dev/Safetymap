@@ -173,7 +173,7 @@ export default function ReportModal({
     if (position) {
       form.setValue("latitude", position.latitude);
       form.setValue("longitude", position.longitude);
-      // Set current time for "Here & Now"
+          // Set current time for "Here & Now"
       const currentTime = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
       form.setValue("incidentDateTime", currentTime);
       
@@ -450,13 +450,11 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Date</label>
                               <Input
                                 type="date"
-                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : ""}
+                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd")}
                                 onChange={(e) => {
                                   if (e.target.value) {
                                     const currentTime = selectedDateTime || new Date();
-                                    const newDate = new Date(e.target.value);
-                                    newDate.setHours(currentTime.getHours());
-                                    newDate.setMinutes(currentTime.getMinutes());
+                                    const newDate = new Date(e.target.value + 'T' + format(currentTime, "HH:mm"));
                                     field.onChange(newDate.toISOString().slice(0, 16));
                                   }
                                 }}
@@ -467,20 +465,12 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Time</label>
                               <Input
                                 type="time"
-                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : ""}
+                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : format(new Date(), "HH:mm")}
                                 onChange={(e) => {
-                                  if (e.target.value && selectedDateTime) {
-                                    const [hours, minutes] = e.target.value.split(':');
-                                    const newDate = new Date(selectedDateTime);
-                                    newDate.setHours(parseInt(hours));
-                                    newDate.setMinutes(parseInt(minutes));
-                                    field.onChange(newDate.toISOString().slice(0, 16));
-                                  } else if (e.target.value) {
-                                    const [hours, minutes] = e.target.value.split(':');
-                                    const newDate = new Date();
-                                    newDate.setHours(parseInt(hours));
-                                    newDate.setMinutes(parseInt(minutes));
-                                    field.onChange(newDate.toISOString().slice(0, 16));
+                                  if (e.target.value) {
+                                    const currentDate = selectedDateTime || new Date();
+                                    const newDateTime = format(currentDate, "yyyy-MM-dd") + 'T' + e.target.value;
+                                    field.onChange(newDateTime);
                                   }
                                 }}
                                 data-testid="input-time"

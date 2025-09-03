@@ -88,18 +88,47 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                 <p className="text-muted-foreground">{report.description}</p>
               </div>
 
+              {/* Incident Time */}
+              {report.incidentDateTime && (
+                <div>
+                  <span className="font-medium text-foreground flex items-center">
+                    <Clock className="h-4 w-4 mr-2" />
+                    When incident happened
+                  </span>
+                  <p className="text-muted-foreground">
+                    {(() => {
+                      try {
+                        const date = new Date(report.incidentDateTime);
+                        if (isNaN(date.getTime())) {
+                          return "Invalid date format";
+                        }
+                        return (
+                          <>
+                            {formatDistanceToNow(date, { addSuffix: true })} 
+                            ({date.toLocaleString()})
+                          </>
+                        );
+                      } catch (error) {
+                        console.log("Date parsing error:", error, "incidentDateTime value:", report.incidentDateTime);
+                        return "Unable to parse date";
+                      }
+                    })()}
+                  </p>
+                </div>
+              )}
+
+              {/* Reported Time */}
               <div>
                 <span className="font-medium text-foreground flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
-                  {report.incidentDateTime ? "Incident Time" : "Reported Time"}
+                  Report submitted
                 </span>
                 <p className="text-muted-foreground">
                   {(() => {
-                    const dateTime = report.incidentDateTime || report.createdAt;
-                    if (!dateTime) return "Time not available";
+                    if (!report.createdAt) return "Time not available";
                     
                     try {
-                      const date = new Date(dateTime);
+                      const date = new Date(report.createdAt);
                       if (isNaN(date.getTime())) {
                         return "Invalid date format";
                       }
@@ -107,15 +136,10 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                         <>
                           {formatDistanceToNow(date, { addSuffix: true })} 
                           ({date.toLocaleString()})
-                          {report.incidentDateTime && (
-                            <span className="block text-xs text-muted-foreground/70 mt-1">
-                              Incident occurred at this time
-                            </span>
-                          )}
                         </>
                       );
                     } catch (error) {
-                      console.log("Date parsing error:", error, "dateTime value:", dateTime);
+                      console.log("Date parsing error:", error, "createdAt value:", report.createdAt);
                       return "Unable to parse date";
                     }
                   })()}
