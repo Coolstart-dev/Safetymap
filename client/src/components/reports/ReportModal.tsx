@@ -449,31 +449,13 @@ export default function ReportModal({
                         <PopoverContent className="w-auto p-0" align="start">
                           <div className="p-4 space-y-4">
                             <div>
-                              <label className="text-sm font-medium mb-2 block">Date</label>
+                              <label className="text-sm font-medium mb-2 block">Date and Time</label>
                               <input
-                                type="date"
+                                type="datetime-local"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                value={currentDateTime ? currentDateTime.slice(0, 10) : ''}
-                                onChange={(e) => {
-                                  const timeValue = currentDateTime ? currentDateTime.slice(11, 16) : '12:00';
-                                  const newDateTime = e.target.value + 'T' + timeValue;
-                                  field.onChange(newDateTime);
-                                }}
-                                data-testid="input-date"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Time</label>
-                              <input
-                                type="time"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                value={currentDateTime ? currentDateTime.slice(11, 16) : ''}
-                                onChange={(e) => {
-                                  const dateValue = currentDateTime ? currentDateTime.slice(0, 10) : new Date().toISOString().slice(0, 10);
-                                  const newDateTime = dateValue + 'T' + e.target.value;
-                                  field.onChange(newDateTime);
-                                }}
-                                data-testid="input-time"
+                                value={currentDateTime}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                data-testid="input-datetime"
                               />
                             </div>
                             <div className="flex gap-2">
