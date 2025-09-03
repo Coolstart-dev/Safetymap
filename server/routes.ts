@@ -100,6 +100,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route - Delete all reports (for testing)
+  app.delete("/api/admin/reports", async (req, res) => {
+    try {
+      const success = await storage.deleteAllReports();
+      res.json({ success, message: success ? "All reports deleted" : "Failed to delete reports" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete all reports" });
+    }
+  });
+
   // Serve uploaded images
   app.use('/uploads', express.static('uploads'));
 

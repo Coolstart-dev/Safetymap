@@ -53,7 +53,7 @@ export default function Dashboard() {
             <Button variant="ghost" size="icon" data-testid="button-search">
               <Search className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" data-testid="button-settings">
+            <Button variant="ghost" size="icon" onClick={() => window.location.href = '/admin'} data-testid="button-admin">
               <Settings className="h-4 w-4" />
             </Button>
           </div>
