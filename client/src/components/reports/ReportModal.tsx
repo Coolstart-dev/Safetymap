@@ -419,7 +419,6 @@ export default function ReportModal({
               render={({ field }) => {
                 // Default to current time if no value set
                 const currentDateTime = field.value || new Date().toISOString().slice(0, 16);
-                const selectedDateTime = new Date(currentDateTime);
                 
                 return (
                   <FormItem>
@@ -434,7 +433,17 @@ export default function ReportModal({
                             data-testid="button-select-datetime"
                           >
                             <Calendar className="mr-2 h-4 w-4" />
-                            {format(selectedDateTime, "PPP 'at' HH:mm")}
+                            {currentDateTime ? 
+                              new Date(currentDateTime).toLocaleString('en-US', {
+                                weekday: 'short',
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : 
+                              'Select date and time'
+                            }
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -443,11 +452,11 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Date</label>
                               <input
                                 type="date"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                value={format(selectedDateTime, "yyyy-MM-dd")}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                value={currentDateTime ? currentDateTime.slice(0, 10) : ''}
                                 onChange={(e) => {
-                                  const currentTime = format(selectedDateTime, "HH:mm");
-                                  const newDateTime = e.target.value + 'T' + currentTime;
+                                  const timeValue = currentDateTime ? currentDateTime.slice(11, 16) : '12:00';
+                                  const newDateTime = e.target.value + 'T' + timeValue;
                                   field.onChange(newDateTime);
                                 }}
                                 data-testid="input-date"
@@ -457,11 +466,11 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Time</label>
                               <input
                                 type="time"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                value={format(selectedDateTime, "HH:mm")}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                value={currentDateTime ? currentDateTime.slice(11, 16) : ''}
                                 onChange={(e) => {
-                                  const currentDate = format(selectedDateTime, "yyyy-MM-dd");
-                                  const newDateTime = currentDate + 'T' + e.target.value;
+                                  const dateValue = currentDateTime ? currentDateTime.slice(0, 10) : new Date().toISOString().slice(0, 10);
+                                  const newDateTime = dateValue + 'T' + e.target.value;
                                   field.onChange(newDateTime);
                                 }}
                                 data-testid="input-time"
@@ -472,8 +481,8 @@ export default function ReportModal({
                                 type="button"
                                 size="sm"
                                 onClick={() => {
-                                  const now = new Date();
-                                  field.onChange(now.toISOString().slice(0, 16));
+                                  const now = new Date().toISOString().slice(0, 16);
+                                  field.onChange(now);
                                 }}
                                 data-testid="button-now"
                               >
