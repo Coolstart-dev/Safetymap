@@ -24,7 +24,8 @@ export default function AdminPage() {
     isLoading,
     error,
     reportsCount: allReports.length,
-    firstReport: allReports[0]
+    firstReport: allReports[0],
+    allReportsRaw: allReports
   });
 
   const handleDeleteAllReports = async () => {
@@ -163,7 +164,10 @@ export default function AdminPage() {
           {isLoading ? (
             <p className="text-muted-foreground">Laden...</p>
           ) : allReports.length === 0 ? (
-            <p className="text-muted-foreground">Geen rapporten gevonden</p>
+            <div>
+              <p className="text-muted-foreground">Geen rapporten gevonden</p>
+              <p className="text-xs text-red-500 mt-2">Debug: Array length = {allReports.length}, Type = {typeof allReports}</p>
+            </div>
           ) : (
             <div className="space-y-4">
               {allReports.map((report: any) => (
