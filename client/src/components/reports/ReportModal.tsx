@@ -417,7 +417,9 @@ export default function ReportModal({
               control={form.control}
               name="incidentDateTime"
               render={({ field }) => {
-                const selectedDateTime = field.value ? new Date(field.value) : null;
+                // Default to current time if no value set
+                const currentDateTime = field.value || new Date().toISOString().slice(0, 16);
+                const selectedDateTime = new Date(currentDateTime);
                 
                 return (
                   <FormItem>
@@ -431,17 +433,8 @@ export default function ReportModal({
                             className="w-full justify-start text-left font-normal"
                             data-testid="button-select-datetime"
                           >
-                            {selectedDateTime ? (
-                              <>
-                                <Calendar className="mr-2 h-4 w-4" />
-                                {format(selectedDateTime, "PPP 'at' HH:mm")}
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="mr-2 h-4 w-4" />
-                                Select date and time
-                              </>
-                            )}
+                            <Calendar className="mr-2 h-4 w-4" />
+                            {format(selectedDateTime, "PPP 'at' HH:mm")}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -450,14 +443,12 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Date</label>
                               <Input
                                 type="date"
-                                value={selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : ""}
+                                value={format(selectedDateTime, "yyyy-MM-dd")}
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    const currentTime = selectedDateTime ? format(selectedDateTime, "HH:mm") : "12:00";
+                                    const currentTime = format(selectedDateTime, "HH:mm");
                                     const newDateTime = e.target.value + 'T' + currentTime;
                                     field.onChange(newDateTime);
-                                  } else {
-                                    field.onChange("");
                                   }
                                 }}
                                 data-testid="input-date"
@@ -467,16 +458,12 @@ export default function ReportModal({
                               <label className="text-sm font-medium mb-2 block">Time</label>
                               <Input
                                 type="time"
-                                value={selectedDateTime ? format(selectedDateTime, "HH:mm") : ""}
+                                value={format(selectedDateTime, "HH:mm")}
                                 onChange={(e) => {
                                   if (e.target.value) {
-                                    const currentDate = selectedDateTime ? format(selectedDateTime, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd");
+                                    const currentDate = format(selectedDateTime, "yyyy-MM-dd");
                                     const newDateTime = currentDate + 'T' + e.target.value;
                                     field.onChange(newDateTime);
-                                  } else if (selectedDateTime) {
-                                    // Keep date but clear time
-                                    const dateOnly = format(selectedDateTime, "yyyy-MM-dd");
-                                    field.onChange(dateOnly + 'T12:00');
                                   }
                                 }}
                                 data-testid="input-time"
@@ -509,10 +496,7 @@ export default function ReportModal({
                       </Popover>
                     </FormControl>
                     <div className="text-xs text-muted-foreground">
-                      {field.value 
-                        ? "Time set - you can adjust it using the button above"
-                        : "Leave empty to use report submission time, or select when incident occurred"
-                      }
+                      Defaults to current time - click the button above to adjust when the incident actually occurred
                     </div>
                     <FormMessage />
                   </FormItem>
