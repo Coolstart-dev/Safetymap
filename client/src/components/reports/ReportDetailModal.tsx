@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Report } from "@shared/schema";
 import { categories } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
-import { Phone, Flag, Shield, Clock, MapPin, User, Camera } from "lucide-react";
+import { Flag, Shield, Clock, MapPin, User, Camera } from "lucide-react";
 
 import {
   Dialog,
@@ -177,14 +177,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-4 space-y-2">
-              <Button 
-                className="w-full" 
-                data-testid="button-contact-authorities"
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                Contact Authorities
-              </Button>
+            <div className="pt-4">
               <Button 
                 variant="outline" 
                 className="w-full"
