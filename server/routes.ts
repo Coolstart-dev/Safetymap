@@ -23,16 +23,16 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all reports
+  // Get public reports only (for main dashboard)
   app.get("/api/reports", async (req, res) => {
     try {
       const category = req.query.category as string;
       let reports;
       
       if (category && category !== 'all') {
-        reports = await storage.getReportsByCategory(category);
+        reports = await storage.getPublicReportsByCategory(category);
       } else {
-        reports = await storage.getAllReports();
+        reports = await storage.getAllPublicReports();
       }
       
       res.json(reports);
@@ -85,31 +85,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("DEBUG - Moderation result:", moderationResult);
       
-      // Check if content should be auto-rejected
-      if (moderator.shouldAutoReject(moderationResult)) {
+      // NEW STRATEGY: Save ALL reports, use isPublic flag for visibility
+      const shouldReject = moderator.shouldAutoReject(moderationResult);
+      
+      // Prepare report data with moderation results - ALWAYS save with original + moderated content
+      const finalReportData = {
+        ...validatedData,
+        originalTitle: validatedData.title,
+        originalDescription: validatedData.description,
+        title: moderationResult.moderatedTitle || validatedData.title,
+        description: moderationResult.moderatedDescription || validatedData.description,
+        moderationStatus: shouldReject ? 'rejected' : 'approved',
+        moderationReason: moderationResult.reason || null,
+        isModerated: true, // AI always processes content
+        isPublic: !shouldReject, // Only approved content is public
+      };
+      
+      const report = await storage.createReportWithModeration(finalReportData);
+      
+      // If rejected, return error to user but report is still saved in admin area
+      if (shouldReject) {
         return res.status(400).json({ 
           error: "Content rejected by moderation",
           reason: moderationResult.reason || "Content appears to be spam or inappropriate"
         });
       }
-      
-      // Prepare report data with moderation results
-      const finalReportData = {
-        ...validatedData,
-        originalTitle: validatedData.title,
-        originalDescription: validatedData.description,
-        title: moderator.shouldUseModeratedVersion(moderationResult) 
-          ? moderationResult.moderatedTitle 
-          : validatedData.title,
-        description: moderator.shouldUseModeratedVersion(moderationResult) 
-          ? moderationResult.moderatedDescription 
-          : validatedData.description,
-        moderationStatus: moderationResult.isApproved ? 'approved' : 'pending',
-        moderationReason: moderationResult.reason || null,
-        isModerated: moderator.shouldUseModeratedVersion(moderationResult),
-      };
-      
-      const report = await storage.createReportWithModeration(finalReportData);
       
       res.status(201).json(report);
     } catch (error) {

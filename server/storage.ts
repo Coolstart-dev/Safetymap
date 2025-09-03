@@ -4,8 +4,10 @@ import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getReport(id: string): Promise<Report | undefined>;
-  getAllReports(): Promise<Report[]>;
-  getReportsByCategory(category: string): Promise<Report[]>;
+  getAllReports(): Promise<Report[]>; // Admin: All reports including rejected
+  getAllPublicReports(): Promise<Report[]>; // Public: Only approved reports
+  getReportsByCategory(category: string): Promise<Report[]>; // Admin: All reports by category
+  getPublicReportsByCategory(category: string): Promise<Report[]>; // Public: Only approved reports by category
   createReport(report: InsertReport): Promise<Report>;
   createReportWithModeration(report: any): Promise<Report>; // For AI moderated reports
   deleteReport(id: string): Promise<boolean>;
@@ -19,11 +21,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllReports(): Promise<Report[]> {
+    // Admin: Get ALL reports including rejected ones
     return await db.select().from(reports).orderBy(reports.createdAt);
   }
 
+  async getAllPublicReports(): Promise<Report[]> {
+    // Public: Only get approved reports that are marked as public
+    return await db.select().from(reports)
+      .where(eq(reports.isPublic, true));
+  }
+
   async getReportsByCategory(category: string): Promise<Report[]> {
-    return await db.select().from(reports).where(eq(reports.category, category)).orderBy(reports.createdAt);
+    // Admin: All reports by category including rejected
+    return await db.select().from(reports)
+      .where(eq(reports.category, category));
+  }
+
+  async getPublicReportsByCategory(category: string): Promise<Report[]> {
+    // Public: Only approved reports by category
+    return await db.select().from(reports)
+      .where(and(eq(reports.category, category), eq(reports.isPublic, true)));
   }
 
   async createReport(insertReport: InsertReport): Promise<Report> {

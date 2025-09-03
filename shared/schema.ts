@@ -21,6 +21,7 @@ export const reports = pgTable("reports", {
   moderationStatus: varchar("moderation_status", { length: 20 }).default("approved"), // 'approved', 'rejected', 'pending'
   moderationReason: text("moderation_reason"), // Why it was rejected/modified
   isModerated: boolean("is_moderated").default(false), // Whether AI modified the content
+  isPublic: boolean("is_public").default(true), // Whether report is visible to public (false for rejected reports)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -30,6 +31,7 @@ export const insertReportSchema = createInsertSchema(reports).omit({
   moderationStatus: true,
   moderationReason: true,
   isModerated: true,
+  isPublic: true,
   originalTitle: true,
   originalDescription: true,
 }).extend({
