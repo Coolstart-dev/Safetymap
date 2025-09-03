@@ -231,84 +231,67 @@ export default function InteractiveMap({
     });
 
     if (isHeatmapMode) {
-      // Create density map with larger grouping radius
-      const densityMap: Map<string, number> = new Map();
-      const groupingRadius = 0.005; // ~500m radius for grouping nearby reports
-      
-      // Group nearby reports to calculate density
-      filteredReports.forEach(report => {
-        if (!report.latitude || !report.longitude) return;
-        
-        // Round coordinates to create larger location groups
-        const lat = Math.round(report.latitude / groupingRadius) * groupingRadius;
-        const lng = Math.round(report.longitude / groupingRadius) * groupingRadius;
-        const key = `${lat},${lng}`;
-        
-        densityMap.set(key, (densityMap.get(key) || 0) + 1);
-      });
-
-      // Create heatmap data with much more dramatic intensity differences
-      const maxDensity = Math.max(...Array.from(densityMap.values()), 1);
+      // Simple approach: calculate nearby reports for each point
       const heatData = filteredReports.map(report => {
         if (!report.latitude || !report.longitude) return [0, 0, 0];
         
-        // Find density for this location
-        const lat = Math.round(report.latitude / groupingRadius) * groupingRadius;
-        const lng = Math.round(report.longitude / groupingRadius) * groupingRadius;
-        const key = `${lat},${lng}`;
-        const density = densityMap.get(key) || 1;
+        // Count how many reports are within 300m of this report
+        const proximityRadius = 0.003; // ~300m
+        let nearbyCount = 0;
         
-        // More dramatic intensity scaling
+        filteredReports.forEach(otherReport => {
+          if (!otherReport.latitude || !otherReport.longitude) return;
+          
+          const latDiff = Math.abs(report.latitude! - otherReport.latitude);
+          const lngDiff = Math.abs(report.longitude! - otherReport.longitude);
+          const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+          
+          if (distance <= proximityRadius) {
+            nearbyCount++;
+          }
+        });
+        
+        // Extreme intensity scaling for maximum visibility
         let intensity;
-        if (density === 1) {
-          intensity = 0.2; // Single reports: very low intensity (blue)
-        } else if (density === 2) {
-          intensity = 0.5; // Two reports: medium intensity (green)
-        } else if (density === 3) {
-          intensity = 0.8; // Three reports: high intensity (orange)
+        if (nearbyCount === 1) {
+          intensity = 1;   // Single report: minimum intensity
+        } else if (nearbyCount === 2) {
+          intensity = 10;  // Two nearby: medium intensity
+        } else if (nearbyCount === 3) {
+          intensity = 50;  // Three nearby: high intensity
         } else {
-          intensity = 1.0; // Four or more: maximum intensity (red)
+          intensity = 100; // Four+ nearby: maximum intensity
         }
         
         return [report.latitude, report.longitude, intensity];
       });
 
-      console.log('Heatmap data:', heatData.length, 'points');
-      console.log('Max density:', maxDensity);
-      console.log('Density distribution:', Array.from(densityMap.values()).sort());
-      console.log('Intensity range:', [Math.min(...heatData.map(d => d[2])), Math.max(...heatData.map(d => d[2]))]);
-
       if (heatData.length > 0) {
         try {
           // @ts-ignore - leaflet.heat doesn't have types
           if (typeof L.heatLayer === 'function') {
-            console.log('Creating heatmap layer...');
             // @ts-ignore
             const heatmapLayer = L.heatLayer(heatData, {
-              radius: 60,        // Larger radius for better visibility
-              blur: 30,          // More blur for smoother gradients
-              minOpacity: 0.5,   // Higher minimum opacity
-              max: 1.0,          // Scale to our intensity range
+              radius: 80,          // Much larger radius  
+              blur: 40,            // Heavy blur for smooth gradients
+              minOpacity: 0.7,     // High minimum opacity
+              max: 100,            // Scale to our intensity range
               gradient: {
-                0.0: '#1e40af',   // Dark blue (no/very low)
-                0.2: '#3b82f6',   // Blue (1 report)
-                0.5: '#10b981',   // Green (2 reports)  
-                0.8: '#f59e0b',   // Orange (3 reports)
-                1.0: '#dc2626'    // Red (4+ reports)
+                0.01: '#0066ff',   // Bright blue (1 report)
+                0.1:  '#00ff00',   // Bright green (2 reports)
+                0.5:  '#ffff00',   // Bright yellow (3 reports)  
+                1.0:  '#ff0000'    // Bright red (4+ reports)
               }
             });
             
             heatmapLayer.addTo(leafletMapRef.current);
             heatmapRef.current = heatmapLayer;
-            console.log('Heatmap layer added successfully');
           } else {
-            console.error('L.heatLayer is not available - leaflet.heat plugin not loaded');
+            console.error('L.heatLayer is not available');
           }
         } catch (error) {
           console.error('Error creating heatmap:', error);
         }
-      } else {
-        console.log('No data available for heatmap');
       }
     } else {
       // Add markers for each report (original logic)
