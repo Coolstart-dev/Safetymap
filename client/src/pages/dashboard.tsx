@@ -55,6 +55,11 @@ export default function Dashboard() {
     setIsReportModalOpen(true);
   };
 
+  const handleLocationSelectionStart = () => {
+    // Snap bottom sheet to low position when starting location selection
+    snapToPosition(0); // 10% open for better map visibility
+  };
+
   const handleCloseReportModal = () => {
     setIsReportModalOpen(false);
     setLocationSelectionMode(false);
@@ -175,6 +180,7 @@ export default function Dashboard() {
         onLocationSelect={setSelectedLocation}
         locationSelectionMode={locationSelectionMode}
         onLocationSelectionModeToggle={() => setLocationSelectionMode(!locationSelectionMode)}
+        onLocationSelectionStart={handleLocationSelectionStart}
       />
 
       <ReportDetailModal

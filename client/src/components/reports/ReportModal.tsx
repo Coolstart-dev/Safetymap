@@ -39,6 +39,7 @@ interface ReportModalProps {
   onLocationSelect?: (location: { lat: number; lng: number }) => void;
   locationSelectionMode?: boolean;
   onLocationSelectionModeToggle?: () => void;
+  onLocationSelectionStart?: () => void;
 }
 
 const formSchema = insertReportSchema;
@@ -51,7 +52,8 @@ export default function ReportModal({
   selectedLocation, 
   onLocationSelect, 
   locationSelectionMode = false,
-  onLocationSelectionModeToggle 
+  onLocationSelectionModeToggle,
+  onLocationSelectionStart
 }: ReportModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -205,6 +207,10 @@ export default function ReportModal({
     if (onLocationSelectionModeToggle) {
       onLocationSelectionModeToggle();
       if (!locationSelectionMode) {
+        // Starting location selection - snap bottom sheet down for better map visibility
+        if (onLocationSelectionStart) {
+          onLocationSelectionStart();
+        }
         toast({
           title: "Map selection enabled",
           description: "Click anywhere on the map to set the location",
