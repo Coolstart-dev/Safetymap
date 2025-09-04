@@ -13,7 +13,7 @@ export default function BottomSheet({
   children, 
   open = true,
   onDismiss,
-  defaultSnap = 1
+  defaultSnap = 1.3
 }: BottomSheetProps) {
   return (
     <ReactSpringBottomSheet 
@@ -28,7 +28,7 @@ export default function BottomSheet({
       blocking={false}
       expandOnContentDrag={true}
       header={
-        <div className="w-full flex justify-center py-3">
+        <div className="w-full flex justify-center py-2">
           <div className="w-12 h-1.5 bg-gray-400 rounded-full"></div>
         </div>
       }
