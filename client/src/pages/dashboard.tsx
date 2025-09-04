@@ -84,7 +84,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Sheet with Reports */}
-      <BottomSheet defaultSnap={2}>
+      <BottomSheet>
         <ReportsList 
           onReportClick={handleReportClick}
           activeCategory={activeCategory}
