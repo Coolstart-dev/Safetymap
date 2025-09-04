@@ -19,7 +19,7 @@ export default function BottomSheet({
     <ReactSpringBottomSheet 
       open={open}
       onDismiss={onDismiss}
-      defaultSnap={defaultSnap || (({ maxHeight }) => maxHeight * 0.6)}
+      defaultSnap={defaultSnap || (({ maxHeight }) => maxHeight * 0.65)}
       snapPoints={({ maxHeight }) => [
         maxHeight * 0.9,       // Laag: 10% uitgeschoven
         maxHeight * 0.6,       // Midden: 40% uitgeschoven  
