@@ -381,7 +381,7 @@ export default function InteractiveMap({
   );
 
   return (
-    <div className="relative h-[60vh] bg-gray-100">
+    <div className="relative h-full bg-gray-100">
       {/* Leaflet map container */}
       <div 
         ref={mapRef} 

@@ -71,7 +71,7 @@ export default function Dashboard() {
       <FloatingMenu items={menuItems} toggleActions={toggleActions} />
 
       {/* Map Container - Full Height */}
-      <div className="flex-1 relative">
+      <div className="absolute inset-0 z-0">
         <InteractiveMap 
           onPinClick={handlePinClick}
           activeCategory={activeCategory}
