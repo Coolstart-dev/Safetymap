@@ -14,6 +14,7 @@ interface ReportsListProps {
   onCategoryChange: (category: string) => void;
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
+  onListScroll?: () => void;
 }
 
 export default function ReportsList({ 
@@ -21,7 +22,8 @@ export default function ReportsList({
   activeCategory, 
   onCategoryChange, 
   selectedSubcategories, 
-  onSubcategoriesChange 
+  onSubcategoriesChange,
+  onListScroll
 }: ReportsListProps) {
   const [showFilters, setShowFilters] = useState(false);
   
@@ -133,7 +135,10 @@ export default function ReportsList({
       />
 
       {/* Reports List */}
-      <div className="flex-1 overflow-y-auto">
+      <div 
+        className="flex-1 overflow-y-auto"
+        onScroll={onListScroll}
+      >
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>

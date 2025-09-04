@@ -43,6 +43,8 @@ interface InteractiveMapProps {
   onLocationSelect?: (location: { lat: number; lng: number }) => void;
   // Heatmap mode toggle
   isHeatmapMode?: boolean;
+  // Callback for map interactions (zoom, pan, etc)
+  onMapInteraction?: () => void;
 }
 
 
@@ -53,7 +55,8 @@ export default function InteractiveMap({
   locationSelectionMode = false,
   selectedLocation = null,
   onLocationSelect,
-  isHeatmapMode = false
+  isHeatmapMode = false,
+  onMapInteraction
 }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -100,6 +103,11 @@ export default function InteractiveMap({
     };
     
     map.on('click', mapClickHandler);
+
+    // Add map interaction event listeners (zoom, pan)
+    if (onMapInteraction) {
+      map.on('zoomstart movestart', onMapInteraction);
+    }
 
     return () => {
       if (leafletMapRef.current) {

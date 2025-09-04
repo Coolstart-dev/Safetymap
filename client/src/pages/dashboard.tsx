@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import InteractiveMap from "@/components/map/InteractiveMap";
 import ReportsList from "@/components/reports/ReportsList";
 import ReportModal from "@/components/reports/ReportModal";
@@ -6,6 +6,7 @@ import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
 import BottomSheet from "@/components/ui/bottom-sheet";
+import { BottomSheetRef } from 'react-spring-bottom-sheet';
 import { Settings, Home, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +19,24 @@ export default function Dashboard() {
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
+
+  // Debounced function to snap bottom sheet to position
+  const snapToPosition = useCallback((snapIndex: number) => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.snapTo(({ snapPoints }) => snapPoints[snapIndex]);
+    }
+  }, []);
+
+  // Handle map interactions - snap to low position (10%)
+  const handleMapInteraction = useCallback(() => {
+    snapToPosition(0); // Index 0 = 10% open
+  }, [snapToPosition]);
+
+  // Handle list scroll - snap to high position (90%)  
+  const handleListScroll = useCallback(() => {
+    snapToPosition(2); // Index 2 = 90% open
+  }, [snapToPosition]);
 
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -80,17 +99,19 @@ export default function Dashboard() {
           selectedLocation={selectedLocation}
           onLocationSelect={setSelectedLocation}
           isHeatmapMode={isHeatmapMode}
+          onMapInteraction={handleMapInteraction}
         />
       </div>
 
       {/* Bottom Sheet with Reports */}
-      <BottomSheet>
+      <BottomSheet ref={bottomSheetRef}>
         <ReportsList 
           onReportClick={handleReportClick}
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
           selectedSubcategories={selectedSubcategories}
           onSubcategoriesChange={setSelectedSubcategories}
+          onListScroll={handleListScroll}
         />
       </BottomSheet>
 

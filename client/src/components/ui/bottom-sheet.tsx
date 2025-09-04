@@ -1,5 +1,5 @@
-import React from 'react';
-import { BottomSheet as ReactSpringBottomSheet } from 'react-spring-bottom-sheet';
+import React, { forwardRef } from 'react';
+import { BottomSheet as ReactSpringBottomSheet, BottomSheetRef } from 'react-spring-bottom-sheet';
 import 'react-spring-bottom-sheet/dist/style.css';
 
 interface BottomSheetProps {
@@ -9,14 +9,15 @@ interface BottomSheetProps {
   defaultSnap?: number;
 }
 
-export default function BottomSheet({ 
+const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ 
   children, 
   open = true,
   onDismiss,
   defaultSnap
-}: BottomSheetProps) {
+}: BottomSheetProps, ref) => {
   return (
     <ReactSpringBottomSheet 
+      ref={ref}
       open={open}
       onDismiss={onDismiss}
       defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[1])}
@@ -34,4 +35,8 @@ export default function BottomSheet({
       </div>
     </ReactSpringBottomSheet>
   );
-}
+});
+
+BottomSheet.displayName = 'BottomSheet';
+
+export default BottomSheet;
