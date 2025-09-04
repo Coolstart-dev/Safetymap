@@ -21,9 +21,9 @@ export default function BottomSheet({
       onDismiss={onDismiss}
       defaultSnap={defaultSnap}
       snapPoints={({ maxHeight }) => [
-        maxHeight - 120,       // Laag (alleen grip balkje zichtbaar)
-        maxHeight * 0.45,      // Midden (net onder helft van scherm)
-        maxHeight * 0.1        // Hoog (bijna volledig scherm)
+        maxHeight * 0.9,       // Laag: 10% uitgeschoven
+        maxHeight * 0.6,       // Midden: 40% uitgeschoven  
+        maxHeight * 0.1        // Hoog: 90% uitgeschoven
       ]}
       blocking={false}
       expandOnContentDrag={true}
