@@ -5,6 +5,7 @@ import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
+import BottomSheet from "@/components/ui/bottom-sheet";
 import { Settings, Home, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -64,13 +65,13 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
 
       {/* Floating Menu */}
       <FloatingMenu items={menuItems} toggleActions={toggleActions} />
 
-      {/* Map Container */}
-      <div className="relative">
+      {/* Map Container - Full Height */}
+      <div className="flex-1 relative">
         <InteractiveMap 
           onPinClick={handlePinClick}
           activeCategory={activeCategory}
@@ -82,14 +83,16 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Reports List */}
-      <ReportsList 
-        onReportClick={handleReportClick}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        selectedSubcategories={selectedSubcategories}
-        onSubcategoriesChange={setSelectedSubcategories}
-      />
+      {/* Bottom Sheet with Reports */}
+      <BottomSheet defaultPosition="medium">
+        <ReportsList 
+          onReportClick={handleReportClick}
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+          selectedSubcategories={selectedSubcategories}
+          onSubcategoriesChange={setSelectedSubcategories}
+        />
+      </BottomSheet>
 
       {/* Floating Action Button */}
       <FloatingActionButton 

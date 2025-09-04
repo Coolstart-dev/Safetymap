@@ -61,11 +61,9 @@ export default function ReportsList({
   };
 
   return (
-    <div className="bg-white rounded-t-xl shadow-lg relative" style={{ marginTop: '-16px' }}>
-      <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-2 mb-4"></div>
-      
+    <div className="flex flex-col h-full bg-white">
       {/* Header and Filters */}
-      <div className="px-4 py-3 border-b border-border">
+      <div className="px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground">Recent Reports</h2>
           <Button 
@@ -135,7 +133,7 @@ export default function ReportsList({
       />
 
       {/* Reports List */}
-      <div className="max-h-96 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
