@@ -27,11 +27,6 @@ export default function BottomSheet({
       ]}
       blocking={false}
       expandOnContentDrag={true}
-      header={
-        <div className="w-full flex justify-center py-1">
-          <div className="w-12 h-1.5 bg-gray-400 rounded-full"></div>
-        </div>
-      }
     >
       <div className="p-0">
         {children}
