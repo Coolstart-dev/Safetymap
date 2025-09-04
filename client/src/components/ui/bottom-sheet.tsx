@@ -19,11 +19,11 @@ export default function BottomSheet({
     <ReactSpringBottomSheet 
       open={open}
       onDismiss={onDismiss}
-      defaultSnap={defaultSnap || (({ maxHeight }) => maxHeight * 0.6)}
+      defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[1])}
       snapPoints={({ maxHeight }) => [
-        maxHeight * 0.9,       // Laag: 10% uitgeschoven
-        maxHeight * 0.6,       // Midden: 40% uitgeschoven  
-        maxHeight * 0.1        // Hoog: 90% uitgeschoven
+        maxHeight * 0.1,       // Laag: 10% open
+        maxHeight * 0.4,       // Midden: 40% open
+        maxHeight * 0.9        // Hoog: 90% open
       ]}
       blocking={false}
       expandOnContentDrag={true}
