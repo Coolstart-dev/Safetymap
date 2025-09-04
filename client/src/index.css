@@ -72,6 +72,10 @@
     z-index: 10;
   }
 
+  .bottom-sheet-shadow [data-rsbs-overlay] {
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  }
+
   .map-pin:hover {
     transform: scale(1.2);
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);

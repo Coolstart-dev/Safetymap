@@ -27,6 +27,7 @@ export default function BottomSheet({
       ]}
       blocking={false}
       expandOnContentDrag={true}
+      className="bottom-sheet-shadow"
     >
       <div className="p-0">
         {children}
