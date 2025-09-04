@@ -13,7 +13,7 @@ export default function BottomSheet({
   children, 
   open = true,
   onDismiss,
-  defaultSnap = 1.3
+  defaultSnap = 1
 }: BottomSheetProps) {
   return (
     <ReactSpringBottomSheet 
@@ -21,9 +21,9 @@ export default function BottomSheet({
       onDismiss={onDismiss}
       defaultSnap={defaultSnap}
       snapPoints={({ maxHeight }) => [
-        80,               // Laag (alleen grip balkje)
-        maxHeight * 0.5,  // Midden (half scherm)  
-        maxHeight - 100   // Hoog (bijna volledig scherm)
+        maxHeight - 120,       // Laag (alleen grip balkje zichtbaar)
+        maxHeight * 0.45,      // Midden (net onder helft van scherm)
+        maxHeight * 0.1        // Hoog (bijna volledig scherm)
       ]}
       blocking={false}
       expandOnContentDrag={true}
