@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Users, Heart, Search, Loader2 } from "lucide-react";
+import { MapPin, Users, Heart, Search, Loader2, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,19 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
       return response.json();
     },
     enabled: !!searchedPostalCode,
+  });
+
+  const { data: aiSummary, isLoading: isLoadingSummary } = useQuery<{summary: string}>({
+    queryKey: ["/api/neighborhood", searchedPostalCode, "ai-summary"],
+    queryFn: async () => {
+      if (!searchedPostalCode) return null;
+      const response = await fetch(`/api/neighborhood/${searchedPostalCode}/ai-summary`);
+      if (!response.ok) {
+        throw new Error('Failed to get AI summary');
+      }
+      return response.json();
+    },
+    enabled: !!searchedPostalCode && !!neighborhoodData?.reports.length,
   });
 
   const handleSearch = () => {
@@ -110,6 +123,30 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
               {neighborhoodData.count} local reports
             </p>
           </div>
+
+          {/* AI Summary */}
+          {neighborhoodData.reports.length > 0 && (
+            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain className="w-4 h-4 text-blue-600" />
+                <h5 className="font-medium text-blue-800 dark:text-blue-200">AI Samenvatting</h5>
+              </div>
+              {isLoadingSummary ? (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Analyzing neighborhood reports...</span>
+                </div>
+              ) : aiSummary ? (
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  {aiSummary.summary}
+                </p>
+              ) : (
+                <p className="text-sm text-blue-600">
+                  Unable to generate summary at this moment.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Reports List */}
           <div className="flex-1 overflow-y-auto space-y-3">

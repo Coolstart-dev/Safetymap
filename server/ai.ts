@@ -71,15 +71,15 @@ BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de J
       let result;
       if (contentBlock.type === 'text') {
         let responseText = contentBlock.text;
-        
+
         // Remove markdown code blocks if present
         responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
-        
+
         result = JSON.parse(responseText);
       } else {
         throw new Error('Unexpected content type from AI response');
       }
-      
+
       // Validate the response structure
       if (typeof result.isApproved !== 'boolean' ||
           typeof result.isSpam !== 'boolean' ||
@@ -93,7 +93,7 @@ BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de J
       return result as ContentModerationResult;
     } catch (error) {
       console.error('AI moderation error:', error);
-      
+
       // Fallback: allow content but don't modify it
       return {
         isApproved: true,
@@ -108,8 +108,7 @@ BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de J
   }
 
   shouldAutoReject(result: ContentModerationResult): boolean {
-    // Auto-reject if it's spam or has inappropriate content
-    return result.isSpam || result.hasInappropriateContent;
+    return result.isSpam || result.hasInappropriateContent || result.hasPII;
   }
 
   shouldUseModeratedVersion(result: ContentModerationResult): boolean {
@@ -121,7 +120,44 @@ BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de J
     // Simple heuristic: if moderated text is more than 20% different in length, consider it significant
     const titleDiff = Math.abs(result.moderatedTitle.length - result.moderatedTitle.length) / result.moderatedTitle.length;
     const descDiff = Math.abs(result.moderatedDescription.length - result.moderatedDescription.length) / result.moderatedDescription.length;
-    
+
     return titleDiff > 0.2 || descDiff > 0.2;
+  }
+
+  async generateSummary(prompt: string): Promise<string> {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: 'Je bent een AI assistent die korte, feitelijke samenvattingen maakt van buurtmeldingen. Houd het neutraal en informatief.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.3,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0]?.message?.content?.trim() || '';
+    } catch (error) {
+      console.error('Error generating AI summary:', error);
+      throw error;
+    }
   }
 }

@@ -115,6 +115,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get AI summary for postal code
+  app.get("/api/neighborhood/:postalCode/ai-summary", async (req, res) => {
+    try {
+      const postalCode = req.params.postalCode;
+      
+      // Get postal code info
+      const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
+      if (!postalInfo) {
+        return res.status(404).json({ error: "Postal code not found" });
+      }
+      
+      // Get all reports for this postal code (no radius limit)
+      const allReports = await storage.getAllPublicReports();
+      const reportsInPostalCode = allReports.filter(report => {
+        if (!report.latitude || !report.longitude) return false;
+        
+        const distance = calculateDistance(
+          postalInfo.latitude, 
+          postalInfo.longitude,
+          report.latitude,
+          report.longitude
+        );
+        
+        return distance <= 2; // Keep minimal radius for exact postal code area
+      });
+      
+      if (reportsInPostalCode.length === 0) {
+        return res.json({ summary: "Geen recente meldingen in deze buurt." });
+      }
+      
+      // Generate AI summary
+      const moderator = new AIContentModerator();
+      const reportTexts = reportsInPostalCode.map(r => `${r.category}: ${r.description}`).join('. ');
+      
+      const prompt = `Geef een korte samenvatting van de veiligheidssituatie in deze buurt op basis van deze meldingen: ${reportTexts}. Houd het beknopt en feitelijk.`;
+      
+      try {
+        const summary = await moderator.generateSummary(prompt);
+        res.json({ summary: summary || "Gemengde meldingen in de buurt." });
+      } catch (aiError) {
+        // Fallback summary without AI
+        const categoryCount = reportsInPostalCode.reduce((acc, report) => {
+          acc[report.category] = (acc[report.category] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const topCategory = Object.entries(categoryCount)
+          .sort(([,a], [,b]) => b - a)[0];
+        
+        const fallbackSummary = `${reportsInPostalCode.length} meldingen in deze buurt. Meest voorkomend: ${topCategory[0]} (${topCategory[1]} meldingen).`;
+        res.json({ summary: fallbackSummary });
+      }
+      
+    } catch (error) {
+      console.error('AI summary error:', error);
+      res.status(500).json({ error: "Failed to generate AI summary" });
+    }
+  });
+
   // Get postal code info
   app.get("/api/geocode/:postalCode", async (req, res) => {
     try {
