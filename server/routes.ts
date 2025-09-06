@@ -106,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get reports by postal code
-  app.get("/api/neighborhood/:postalCode/reports", async (req, res) => {
+  app.get("/api/region/:postalCode/reports", async (req, res) => {
     try {
       const postalCode = req.params.postalCode;
       const category = req.query.category as string;
@@ -147,12 +147,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Postal code reports error:', error);
-      res.status(500).json({ error: "Failed to fetch neighborhood reports" });
+      res.status(500).json({ error: "Failed to fetch region reports" });
     }
   });
 
   // Get AI summary for postal code
-  app.get("/api/neighborhood/:postalCode/ai-summary", async (req, res) => {
+  app.get("/api/region/:postalCode/ai-summary", async (req, res) => {
     try {
       const postalCode = req.params.postalCode;
       
@@ -178,14 +178,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       if (reportsInPostalCode.length === 0) {
-        return res.json({ summary: "Geen recente meldingen in deze buurt." });
+        return res.json({ summary: "Geen recente meldingen in deze regio." });
       }
       
       // Generate AI summary
       const moderator = new AIContentModerator();
       const reportTexts = reportsInPostalCode.map(r => `${r.category}: ${r.description}`).join('. ');
       
-      const prompt = `Je bent een stadsmanager die rapporteert aan de burgemeester. Analyseer deze buurtmeldingen en geef een korte, professionele samenvatting: ${reportTexts}
+      const prompt = `Je bent een stadsmanager die rapporteert aan de burgemeester. Analyseer deze regiomeldingen en geef een korte, professionele samenvatting: ${reportTexts}
 
 Focus alleen op relevante zaken voor publieke veiligheid en openbare ruimte:
 - Criminaliteit, overlast, vandalisme
@@ -194,7 +194,7 @@ Focus alleen op relevante zaken voor publieke veiligheid en openbare ruimte:
 
 Rapporteer stijl:
 - Maximaal 2-3 zakelijke zinnen
-- Geen uitspraken over "veiligheid" of "rust" van de buurt
+- Geen uitspraken over "veiligheid" of "rust" van de regio
 - Vermeld concrete feiten en aantallen
 - Professionele, neutrale toon zonder overdreven details`;
       
@@ -211,7 +211,7 @@ Rapporteer stijl:
         const topCategory = Object.entries(categoryCount)
           .sort(([,a], [,b]) => b - a)[0];
         
-        const fallbackSummary = `${reportsInPostalCode.length} meldingen in deze buurt. Meest voorkomend: ${topCategory[0]} (${topCategory[1]} meldingen).`;
+        const fallbackSummary = `${reportsInPostalCode.length} meldingen in deze regio. Meest voorkomend: ${topCategory[0]} (${topCategory[1]} meldingen).`;
         res.json({ summary: fallbackSummary });
       }
       
