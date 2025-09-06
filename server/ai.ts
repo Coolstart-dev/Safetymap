@@ -55,10 +55,13 @@ Voorbeelden van VERPLICHTE herschrijving bij afgewezen content:
 - Racistische beschrijving → "Incident gemeld door getuige in woongebied zonder verdere specificaties"
 - Grove taal → "Verstoring van openbare orde gerapporteerd"
 
-const response = await anthropic.messages.create({
+Titel: ${title}
+Beschrijving: ${description}`;
+
+      const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: basePrompt }],
       });
 
       const contentBlock = response.content[0];
