@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Report } from "@shared/schema";
 import { categories } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
-import { Filter, Shield, X } from "lucide-react";
+import { Filter, Shield, X, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FilterSheet from "./FilterSheet";
+import MyNeighborhood from "./MyNeighborhood";
 
 interface ReportsListProps {
   onReportClick: (reportId: string) => void;
@@ -68,19 +69,42 @@ export default function ReportsList({
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Header and Filters */}
+      {/* Tab Navigation */}
       <div className="px-4 pt-1 pb-2 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold text-foreground">Recent Reports</h2>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setShowFilters(!showFilters)}
-            data-testid="button-filter"
-          >
-            <Filter className="h-4 w-4 mr-1" />
-            Filter
-          </Button>
+          <div className="flex space-x-1">
+            <Button
+              variant={activeTab === 'recent' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onTabChange('recent')}
+              className="flex items-center gap-2"
+              data-testid="tab-recent-reports"
+            >
+              <Clock className="w-4 h-4" />
+              Recent Reports
+            </Button>
+            <Button
+              variant={activeTab === 'neighborhood' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onTabChange('neighborhood')}
+              className="flex items-center gap-2"
+              data-testid="tab-my-neighborhood"
+            >
+              <MapPin className="w-4 h-4" />
+              My Neighborhood
+            </Button>
+          </div>
+          {activeTab === 'recent' && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-filter"
+            >
+              <Filter className="h-4 w-4 mr-1" />
+              Filter
+            </Button>
+          )}
         </div>
         
         {/* Selected Filter Tags (always visible when filters are applied) */}
@@ -138,11 +162,12 @@ export default function ReportsList({
         onApplyFilters={onSubcategoriesChange}
       />
 
-      {/* Reports List */}
-      <div 
-        className="flex-1 overflow-y-auto"
-        onScroll={onListScroll}
-      >
+      {/* Tab Content */}
+      {activeTab === 'recent' ? (
+        <div 
+          className="flex-1 overflow-y-auto"
+          onScroll={onListScroll}
+        >
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
@@ -202,7 +227,10 @@ export default function ReportsList({
             </div>
           ))
         )}
-      </div>
+        </div>
+      ) : (
+        <MyNeighborhood />
+      )}
     </div>
   );
 }
