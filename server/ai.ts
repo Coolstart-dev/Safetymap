@@ -27,9 +27,9 @@ export interface ContentModerationResult {
 }
 
 export class AIContentModerator {
-  async moderateContent(title: string, description: string): Promise<ContentModerationResult> {
+  async moderateContent(title: string, description: string, customPrompt?: string): Promise<ContentModerationResult> {
     try {
-      const prompt = `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
+      const basePrompt = customPrompt || `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
 
 Analyseer de volgende melding en geef een JSON response terug met:
 - isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
@@ -55,13 +55,7 @@ Voorbeelden van VERPLICHTE herschrijving bij afgewezen content:
 - Racistische beschrijving → "Incident gemeld door getuige in woongebied zonder verdere specificaties"
 - Grove taal → "Verstoring van openbare orde gerapporteerd"
 
-Input:
-Titel: "${title}"
-Beschrijving: "${description}"
-
-BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de JSON response zelf.`;
-
-      const response = await anthropic.messages.create({
+const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }],

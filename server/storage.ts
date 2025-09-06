@@ -1,6 +1,8 @@
 import { reports, type Report, type InsertReport } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
+import { promises as fs } from 'fs';
+import * as path from 'path';
 
 export interface IStorage {
   getReport(id: string): Promise<Report | undefined>;
@@ -12,6 +14,8 @@ export interface IStorage {
   createReportWithModeration(report: any): Promise<Report>; // For AI moderated reports
   deleteReport(id: string): Promise<boolean>;
   deleteAllReports(): Promise<boolean>; // Add admin function
+  getModerationPrompt(): Promise<string | null>;
+  saveModerationPrompt(prompt: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -75,11 +79,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAllReports(): Promise<boolean> {
     try {
-      await db.delete(reports);
+      await this.db.delete(reports);
+      console.log("All reports deleted from database");
       return true;
     } catch (error) {
-      console.error('Error deleting all reports:', error);
+      console.error("Error deleting all reports:", error);
       return false;
+    }
+  }
+
+  async getModerationPrompt(): Promise<string | null> {
+    try {
+      // Simple storage - could be extended to use a proper settings table
+      const promptPath = path.join(process.cwd(), 'moderation-prompt.txt');
+
+      try {
+        const prompt = await fs.readFile(promptPath, 'utf-8');
+        return prompt;
+      } catch (error) {
+        // File doesn't exist yet
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching moderation prompt:", error);
+      return null;
+    }
+  }
+
+  async saveModerationPrompt(prompt: string): Promise<void> {
+    try {
+      const promptPath = path.join(process.cwd(), 'moderation-prompt.txt');
+
+      await fs.writeFile(promptPath, prompt, 'utf-8');
+      console.log("Moderation prompt saved successfully");
+    } catch (error) {
+      console.error("Error saving moderation prompt:", error);
+      throw error;
     }
   }
 }

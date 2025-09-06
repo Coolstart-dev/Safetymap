@@ -8,6 +8,42 @@ import path from "path";
 import { AIContentModerator } from "./ai";
 import { GeocodingService } from "./geocoding";
 
+function getDefaultModerationPrompt(): string {
+  return `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
+
+Analyseer de volgende melding en geef een JSON response terug met:
+- isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
+- isSpam: boolean (true als het een grap, meme, test of spam lijkt)
+- hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
+- hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
+- moderatedTitle: string (ALTIJD herschreven titel in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
+- moderatedDescription: string (ALTIJD herschreven beschrijving in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
+- reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
+
+✅ TOEGESTAAN:
+- Echte veiligheidsincidenten (diefstal, vandalisme, geweld)
+- Overlast in openbare ruimte (geluidsoverlast, vervuiling)
+- Verkeerssituaties en gevaarlijke situaties
+- Constructieve meldingen over infrastructuur problemen
+- Waarnemingen van verdachte activiteiten
+
+❌ NIET TOEGESTAAN:
+- Algemene complimenten zonder specifiek incident ("mooi park")
+- Test berichten of spam ("test", "hallo")
+- Persoonlijke informatie (namen, telefoonnummers, adressen)
+- Racistische of discriminerende inhoud
+- Grove taal of beledigingen
+
+Richtlijnen voor herschrijven:
+- Verander naar formele, neutrale taal
+- Verwijder namen, telefoonnummers, specifieke adressen (maar behoud algemene locatie zoals "bij de supermarkt")
+- Behoud belangrijke details over het incident zelf
+- Maak het professioneel maar begrijpelijk
+- Verwijder emotionele taal en vervang door feitelijke beschrijving
+
+BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
+}
+
 // Distance calculation helper (Haversine formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth's radius in kilometers
@@ -225,9 +261,11 @@ Rapporteer stijl:
       
       // Run AI content moderation
       const moderator = new AIContentModerator();
+      const customPrompt = await storage.getModerationPrompt();
       const moderationResult = await moderator.moderateContent(
         validatedData.title || '',
-        validatedData.description || ''
+        validatedData.description || '',
+        customPrompt || undefined
       );
       
       console.log("DEBUG - Moderation result:", moderationResult);
@@ -295,6 +333,32 @@ Rapporteer stijl:
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete report" });
+    }
+  });
+
+  // Moderation prompt routes
+  app.get("/api/admin/moderation-prompt", async (req, res) => {
+    try {
+      const prompt = await storage.getModerationPrompt();
+      res.json({ prompt: prompt || getDefaultModerationPrompt() });
+    } catch (error) {
+      console.error('Error fetching moderation prompt:', error);
+      res.status(500).json({ error: "Failed to fetch moderation prompt" });
+    }
+  });
+
+  app.post("/api/admin/moderation-prompt", async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      if (typeof prompt !== 'string') {
+        return res.status(400).json({ error: "Prompt must be a string" });
+      }
+      
+      await storage.saveModerationPrompt(prompt);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error saving moderation prompt:', error);
+      res.status(500).json({ error: "Failed to save moderation prompt" });
     }
   });
 
