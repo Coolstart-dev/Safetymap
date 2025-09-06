@@ -39,6 +39,14 @@ export default function Dashboard() {
     snapToPosition(2); // Index 2 = 90% open
   }, [snapToPosition]);
 
+  // Handle tab change - snap to high position when switching to region tab
+  const handleTabChange = useCallback((tab: 'recent' | 'region') => {
+    setActiveTab(tab);
+    if (tab === 'region') {
+      snapToPosition(2); // Index 2 = 90% open for better visibility
+    }
+  }, [snapToPosition]);
+
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
     setIsDetailModalOpen(true);
@@ -119,7 +127,7 @@ export default function Dashboard() {
           onSubcategoriesChange={setSelectedSubcategories}
           onListScroll={handleListScroll}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
       </BottomSheet>
 
