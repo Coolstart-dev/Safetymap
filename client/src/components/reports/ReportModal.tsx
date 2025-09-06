@@ -256,13 +256,13 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[100vh] sm:max-h-[90vh] overflow-y-auto overscroll-behavior-contain">
         <DialogHeader>
           <DialogTitle>Report Incident</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6 touch-pan-y">
             {/* Category Selection */}
             <FormField
               control={form.control}
