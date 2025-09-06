@@ -256,7 +256,7 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[95vh] sm:max-h-[90vh] sm:h-auto overflow-y-scroll touch-pan-y" style={{WebkitOverflowScrolling: 'touch'}}>
+      <DialogContent className="max-w-md h-[95vh] sm:max-h-[90vh] sm:h-auto overflow-y-auto overscroll-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-y'}}>
         <DialogHeader>
           <DialogTitle>Report Incident</DialogTitle>
         </DialogHeader>
