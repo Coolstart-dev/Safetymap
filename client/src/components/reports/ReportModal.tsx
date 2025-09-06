@@ -256,13 +256,16 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[100vh] sm:max-h-[90vh] overflow-y-auto overscroll-behavior-contain">
+      <DialogContent 
+        className="max-w-md h-[100vh] w-full sm:max-h-[90vh] sm:h-auto overflow-y-auto overscroll-behavior-contain fixed inset-0 sm:relative sm:left-auto sm:top-auto sm:translate-x-0 sm:translate-y-0 sm:inset-auto rounded-none sm:rounded-lg pt-12 sm:pt-6"
+        style={{WebkitOverflowScrolling: 'touch'}}
+      >
         <DialogHeader>
           <DialogTitle>Report Incident</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6 touch-pan-y">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6" style={{WebkitOverflowScrolling: 'touch'}}>
             {/* Category Selection */}
             <FormField
               control={form.control}
