@@ -2,7 +2,7 @@
 
 ## Overview
 
-Area is a modern web application that enables residents to report and share suspicious, dangerous, disruptive, or criminal activities to warn others in their community. Built with a Waze-inspired interface, the platform features an interactive map showing real-time incident reports alongside a filterable list view. Users can submit reports with location data, images, and categorized information to create a vigilant and connected community safety network.
+Area is a modern web application that enables residents to report and share suspicious, dangerous, disruptive, or criminal activities to warn others in their community. Built with a Waze-inspired interface, the platform features an interactive map showing real-time incident reports alongside a filterable list view. Users can submit reports with location data, images, and categorized information to create a vigilant and connected regional safety network.
 
 ## User Preferences
 
