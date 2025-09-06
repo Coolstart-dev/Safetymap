@@ -15,6 +15,8 @@ interface ReportsListProps {
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
   onListScroll?: () => void;
+  activeTab: 'recent' | 'neighborhood';
+  onTabChange: (tab: 'recent' | 'neighborhood') => void;
 }
 
 export default function ReportsList({ 
@@ -23,7 +25,9 @@ export default function ReportsList({
   onCategoryChange, 
   selectedSubcategories, 
   onSubcategoriesChange,
-  onListScroll
+  onListScroll,
+  activeTab,
+  onTabChange
 }: ReportsListProps) {
   const [showFilters, setShowFilters] = useState(false);
   

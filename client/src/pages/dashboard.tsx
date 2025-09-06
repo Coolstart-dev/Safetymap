@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'recent' | 'neighborhood'>('recent');
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   // Debounced function to snap bottom sheet to position
@@ -117,6 +118,8 @@ export default function Dashboard() {
           selectedSubcategories={selectedSubcategories}
           onSubcategoriesChange={setSelectedSubcategories}
           onListScroll={handleListScroll}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
         />
       </BottomSheet>
 
