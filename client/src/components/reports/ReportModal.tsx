@@ -7,6 +7,7 @@ import { categories } from "@/lib/categories";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { z } from "zod";
 
 import {
@@ -60,6 +61,7 @@ export default function ReportModal({
   const { location, getCurrentLocation, isLoading: locationLoading } = useGeolocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -232,6 +234,16 @@ export default function ReportModal({
     }
   }, [selectedLocation, form]);
 
+  // Block body scroll on mobile when modal is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.classList.add('modal-open');
+      return () => {
+        document.body.classList.remove('modal-open');
+      };
+    }
+  }, [isMobile, isOpen]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -256,7 +268,7 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[95vh] sm:max-h-[90vh] sm:h-auto overflow-y-auto overscroll-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-y'}}>
+      <DialogContent className="max-w-md h-[95vh] sm:max-h-[90vh] sm:h-auto mobile-scroll-container">
         <DialogHeader>
           <DialogTitle>Report Incident</DialogTitle>
         </DialogHeader>
