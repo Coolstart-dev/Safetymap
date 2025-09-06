@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -19,6 +19,13 @@ export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [moderationPrompt, setModerationPrompt] = useState<string>('');
+
+  // Update moderationPrompt when query data is available
+  React.useEffect(() => {
+    if (promptData?.prompt) {
+      setModerationPrompt(promptData.prompt);
+    }
+  }, [promptData]);
   const [promptLoading, setPromptLoading] = useState(false);
 
   const menuItems = [
@@ -40,6 +47,18 @@ export default function AdminPage() {
     enabled: true,
     retry: 3,
     refetchOnMount: true,
+  });
+
+  // Fetch existing moderation prompt on component mount
+  const { data: promptData } = useQuery({
+    queryKey: ['/api/admin/moderation-prompt'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/moderation-prompt');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setModerationPrompt(data.prompt || '');
+    }
   });
 
   const fetchModerationPrompt = async () => {
