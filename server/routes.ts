@@ -79,13 +79,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const category = req.query.category as string;
       let reports;
-      
+
       if (category && category !== 'all') {
         reports = await storage.getPublicReportsByCategory(category);
       } else {
         reports = await storage.getAllPublicReports();
       }
-      
+
       res.json(reports);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch reports" });
@@ -110,13 +110,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const postalCode = req.params.postalCode;
       const category = req.query.category as string;
-      
+
       // Get postal code boundaries
       const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
       if (!postalInfo) {
         return res.status(404).json({ error: "Postal code not found" });
       }
-      
+
       // Get all reports and filter by proximity to postal code center
       let allReports;
       if (category && category !== 'all') {
@@ -124,22 +124,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         allReports = await storage.getAllPublicReports();
       }
-      
+
       // Filter reports within ~2km radius of postal code center
       const radiusKm = 2;
       const reportsInPostalCode = allReports.filter(report => {
         if (!report.latitude || !report.longitude) return false;
-        
+
         const distance = calculateDistance(
           postalInfo.latitude, 
           postalInfo.longitude,
           report.latitude,
           report.longitude
         );
-        
+
         return distance <= radiusKm;
       });
-      
+
       res.json({
         postalCode: postalInfo,
         reports: reportsInPostalCode,
@@ -155,49 +155,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/region/:postalCode/ai-summary", async (req, res) => {
     try {
       const postalCode = req.params.postalCode;
-      
+
       // Get postal code info
       const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
       if (!postalInfo) {
         return res.status(404).json({ error: "Postal code not found" });
       }
-      
+
       // Get all reports for this postal code (no radius limit)
       const allReports = await storage.getAllPublicReports();
       const reportsInPostalCode = allReports.filter(report => {
         if (!report.latitude || !report.longitude) return false;
-        
+
         const distance = calculateDistance(
           postalInfo.latitude, 
           postalInfo.longitude,
           report.latitude,
           report.longitude
         );
-        
+
         return distance <= 2; // Keep minimal radius for exact postal code area
       });
-      
+
       if (reportsInPostalCode.length === 0) {
         return res.json({ summary: "Geen recente meldingen in deze regio." });
       }
-      
+
       // Generate AI summary
       const moderator = new AIContentModerator();
-      const reportTexts = reportsInPostalCode.map(r => `${r.category}: ${r.description}`).join('. ');
-      
-      const prompt = `Je bent een stadsmanager die rapporteert aan de burgemeester. Analyseer deze regiomeldingen en geef een korte, professionele samenvatting: ${reportTexts}
 
-Focus alleen op relevante zaken voor publieke veiligheid en openbare ruimte:
-- Criminaliteit, overlast, vandalisme
-- Verkeersveiligheid, gevaarlijke situaties  
-- Vervuiling, onderhoud openbare ruimte
+      // Group reports by category
+      const reportsByCategory = reportsInPostalCode.reduce((acc, report) => {
+        if (!acc[report.category]) {
+          acc[report.category] = [];
+        }
+        acc[report.category].push(report.description);
+        return acc;
+      }, {} as Record<string, string[]>);
 
-Rapporteer stijl:
-- Maximaal 2-3 zakelijke zinnen
-- Geen uitspraken over "veiligheid" of "rust" van de regio
-- Vermeld concrete feiten en aantallen
-- Professionele, neutrale toon zonder overdreven details`;
-      
+      const categoryTexts = Object.entries(reportsByCategory)
+        .map(([category, descriptions]) => `${category} (${descriptions.length} meldingen): ${descriptions.join(', ')}`)
+        .join('. ');
+
+      const prompt = `Je bent een stadsmanager die rapporteert aan de burgemeester. Groepeer deze buurtmeldingen per hoofdcategorie: ${categoryTexts}
+
+Maak een samenvatting per categorie:
+- Vermeld aantal meldingen per categorie
+- Beschrijf kort wat de hoofdproblemen zijn binnen elke categorie
+- Focus op publieke veiligheid en openbare ruimte
+- Negeer administratieve/private zaken
+
+Format: 
+**[Categorie naam] ({aantal} meldingen):** korte beschrijving
+
+Maximaal 3-4 categorieën, professionele toon.`;
+
       try {
         const summary = await moderator.generateSummary(prompt);
         res.json({ summary: summary || "Gemengde meldingen in de buurt." });
@@ -207,14 +219,14 @@ Rapporteer stijl:
           acc[report.category] = (acc[report.category] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
-        
+
         const topCategory = Object.entries(categoryCount)
           .sort(([,a], [,b]) => b - a)[0];
-        
+
         const fallbackSummary = `${reportsInPostalCode.length} meldingen in deze regio. Meest voorkomend: ${topCategory[0]} (${topCategory[1]} meldingen).`;
         res.json({ summary: fallbackSummary });
       }
-      
+
     } catch (error) {
       console.error('AI summary error:', error);
       res.status(500).json({ error: "Failed to generate AI summary" });
@@ -226,11 +238,11 @@ Rapporteer stijl:
     try {
       const postalCode = req.params.postalCode;
       const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
-      
+
       if (!postalInfo) {
         return res.status(404).json({ error: "Postal code not found" });
       }
-      
+
       res.json(postalInfo);
     } catch (error) {
       res.status(500).json({ error: "Failed to geocode postal code" });
@@ -241,7 +253,7 @@ Rapporteer stijl:
   app.post("/api/reports", upload.single('image'), async (req: any, res) => {
     try {
       console.log("DEBUG - Raw request body:", req.body);
-      
+
       const reportData = {
         ...req.body,
         latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
@@ -254,11 +266,11 @@ Rapporteer stijl:
       if (req.file) {
         reportData.imageUrl = `/uploads/${req.file.filename}`;
       }
-      
+
       console.log("DEBUG - Processed data:", reportData);
-      
+
       const validatedData = insertReportSchema.parse(reportData);
-      
+
       // Run AI content moderation
       const moderator = new AIContentModerator();
       const customPrompt = await storage.getModerationPrompt();
@@ -267,12 +279,12 @@ Rapporteer stijl:
         validatedData.description || '',
         customPrompt || undefined
       );
-      
+
       console.log("DEBUG - Moderation result:", moderationResult);
-      
+
       // NEW STRATEGY: Save ALL reports, use isPublic flag for visibility
       const shouldReject = moderator.shouldAutoReject(moderationResult);
-      
+
       // Prepare report data with moderation results - ALWAYS save with original + moderated content
       const finalReportData = {
         ...validatedData,
@@ -290,7 +302,7 @@ Rapporteer stijl:
         isModerated: true, // AI always processes content
         isPublic: !shouldReject, // Only approved content is public
       };
-      
+
       console.log("DEBUG - Final report data before save:", {
         id: 'will-be-generated',
         title: finalReportData.title,
@@ -298,11 +310,11 @@ Rapporteer stijl:
         isPublic: finalReportData.isPublic,
         moderationStatus: finalReportData.moderationStatus
       });
-      
+
       // ALWAYS save the report first, regardless of moderation result
       const report = await storage.createReportWithModeration(finalReportData);
       console.log("DEBUG - Report saved with ID:", report.id, "isPublic:", report.isPublic);
-      
+
       // If rejected, return error to user but report is already saved in admin area
       if (shouldReject) {
         return res.status(400).json({ 
@@ -311,7 +323,7 @@ Rapporteer stijl:
           reportId: report.id // Include for debugging
         });
       }
-      
+
       res.status(201).json(report);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -353,7 +365,7 @@ Rapporteer stijl:
       if (typeof prompt !== 'string') {
         return res.status(400).json({ error: "Prompt must be a string" });
       }
-      
+
       await storage.saveModerationPrompt(prompt);
       res.json({ success: true });
     } catch (error) {
@@ -368,13 +380,13 @@ Rapporteer stijl:
     try {
       const category = req.query.category as string;
       let reports;
-      
+
       if (category && category !== 'all') {
         reports = await storage.getReportsByCategory(category);
       } else {
         reports = await storage.getAllReports();
       }
-      
+
       console.log("DEBUG - Admin reports fetched:", reports.length, "reports");
       if (reports.length > 0) {
         console.log("DEBUG - First report:", {
@@ -385,7 +397,7 @@ Rapporteer stijl:
           moderationStatus: reports[0].moderationStatus
         });
       }
-      
+
       res.json(reports);
     } catch (error) {
       console.log("DEBUG - Admin reports error:", error);
