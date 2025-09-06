@@ -149,7 +149,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const moderator = new AIContentModerator();
       const reportTexts = reportsInPostalCode.map(r => `${r.category}: ${r.description}`).join('. ');
       
-      const prompt = `Geef een korte samenvatting van de veiligheidssituatie in deze buurt op basis van deze meldingen: ${reportTexts}. Houd het beknopt en feitelijk.`;
+      const prompt = `Analyseer deze buurtmeldingen en focus alleen op zaken die relevant zijn voor publieke veiligheid en de openbare ruimte: ${reportTexts}. 
+
+Negeer: administratieve zaken, woningsubsidies, privé-aangelegenheden, persoonlijke geschillen.
+Focus op: criminaliteit, overlast in openbare ruimte, vandalisme, verkeersveiligheid, gevaarlijke situaties.
+
+Geef een korte, feitelijke analyse van max 2-3 zinnen. Maak geen uitspraken over hoe "rustig" of "veilig" de buurt is. Vermeld alleen wat er daadwerkelijk gemeld is.`;
       
       try {
         const summary = await moderator.generateSummary(prompt);
