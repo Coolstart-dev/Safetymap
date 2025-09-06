@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Users, Heart, Search, Loader2, Brain } from "lucide-react";
@@ -9,7 +8,7 @@ import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
-interface NeighborhoodData {
+interface RegionData {
   postalCode: {
     postalCode: string;
     municipality: string;
@@ -20,19 +19,19 @@ interface NeighborhoodData {
   count: number;
 }
 
-interface MyNeighborhoodProps {
+interface MyRegionProps {
   onReportClick: (reportId: string) => void;
 }
 
-export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
+export default function MyRegion({ onReportClick }: MyRegionProps) {
   const [postalCode, setPostalCode] = useState("");
   const [searchedPostalCode, setSearchedPostalCode] = useState<string | null>(null);
 
-  const { data: neighborhoodData, isLoading, error } = useQuery<NeighborhoodData>({
-    queryKey: ["/api/neighborhood", searchedPostalCode, "reports"],
+  const { data: regionData, isLoading, error } = useQuery<RegionData>({
+    queryKey: ["/api/region", searchedPostalCode, "reports"],
     queryFn: async () => {
       if (!searchedPostalCode) return null;
-      const response = await fetch(`/api/neighborhood/${searchedPostalCode}/reports`);
+      const response = await fetch(`/api/region/${searchedPostalCode}/reports`);
       if (!response.ok) {
         throw new Error('Postal code not found');
       }
@@ -42,16 +41,16 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
   });
 
   const { data: aiSummary, isLoading: isLoadingSummary } = useQuery<{summary: string}>({
-    queryKey: ["/api/neighborhood", searchedPostalCode, "ai-summary"],
+    queryKey: ["/api/region", searchedPostalCode, "ai-summary"],
     queryFn: async () => {
       if (!searchedPostalCode) return null;
-      const response = await fetch(`/api/neighborhood/${searchedPostalCode}/ai-summary`);
+      const response = await fetch(`/api/region/${searchedPostalCode}/ai-summary`);
       if (!response.ok) {
         throw new Error('Failed to get AI summary');
       }
       return response.json();
     },
-    enabled: !!searchedPostalCode && !!neighborhoodData?.reports.length,
+    enabled: !!searchedPostalCode && !!regionData?.reports.length,
   });
 
   const handleSearch = () => {
@@ -74,7 +73,7 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
           <MapPin className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">My Neighborhood</h3>
+          <h3 className="text-lg font-semibold">My Region</h3>
         </div>
         
         <div className="flex gap-2">
@@ -109,23 +108,23 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
         </div>
       )}
 
-      {neighborhoodData && (
+      {regionData && (
         <div className="flex-1 overflow-hidden">
           {/* Header */}
           <div className="mb-4 p-4 bg-muted/50 rounded-lg">
             <h4 className="font-semibold text-primary">
-              {neighborhoodData.postalCode.municipality}
+              {regionData.postalCode.municipality}
             </h4>
             <p className="text-sm text-muted-foreground">
-              Postal Code: {neighborhoodData.postalCode.postalCode}
+              Postal Code: {regionData.postalCode.postalCode}
             </p>
             <p className="text-sm text-muted-foreground">
-              {neighborhoodData.count} local reports
+              {regionData.count} local reports
             </p>
           </div>
 
           {/* AI Summary */}
-          {neighborhoodData.reports.length > 0 && (
+          {regionData.reports.length > 0 && (
             <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Brain className="w-4 h-4 text-blue-600" />
@@ -134,7 +133,7 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
               {isLoadingSummary ? (
                 <div className="flex items-center gap-2 text-sm text-blue-600">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Analyzing neighborhood reports...</span>
+                  <span>Analyzing region reports...</span>
                 </div>
               ) : aiSummary ? (
                 <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -150,17 +149,17 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
 
           {/* Reports List */}
           <div className="flex-1 overflow-y-auto space-y-3">
-            {neighborhoodData.reports.length === 0 ? (
+            {regionData.reports.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
                   <Heart className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  No reports in your neighborhood yet
+                  No reports in your region yet
                 </p>
               </div>
             ) : (
-              neighborhoodData.reports.map((report) => (
+              regionData.reports.map((report) => (
                 <div
                   key={report.id}
                   onClick={() => onReportClick(report.id)}
@@ -207,7 +206,7 @@ export default function MyNeighborhood({ onReportClick }: MyNeighborhoodProps) {
             
             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
               <Heart className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Neighborhood safety</span>
+              <span className="text-sm text-muted-foreground">Regional safety</span>
             </div>
           </div>
         </div>

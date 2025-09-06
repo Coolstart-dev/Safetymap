@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FilterSheet from "./FilterSheet";
-import MyNeighborhood from "./MyNeighborhood";
+import MyRegion from "./MyRegion";
 
 interface ReportsListProps {
   onReportClick: (reportId: string) => void;
@@ -16,8 +16,8 @@ interface ReportsListProps {
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
   onListScroll?: () => void;
-  activeTab: 'recent' | 'neighborhood';
-  onTabChange: (tab: 'recent' | 'neighborhood') => void;
+  activeTab: 'recent' | 'region';
+  onTabChange: (tab: 'recent' | 'region') => void;
 }
 
 export default function ReportsList({ 
@@ -84,14 +84,14 @@ export default function ReportsList({
               Recent Reports
             </Button>
             <Button
-              variant={activeTab === 'neighborhood' ? 'default' : 'ghost'}
+              variant={activeTab === 'region' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => onTabChange('neighborhood')}
+              onClick={() => onTabChange('region')}
               className="flex items-center gap-2"
-              data-testid="tab-my-neighborhood"
+              data-testid="tab-my-region"
             >
               <MapPin className="w-4 h-4" />
-              My Neighborhood
+              My Region
             </Button>
           </div>
           {activeTab === 'recent' && (
@@ -229,7 +229,7 @@ export default function ReportsList({
         )}
         </div>
       ) : (
-        <MyNeighborhood onReportClick={onReportClick} />
+        <MyRegion onReportClick={onReportClick} />
       )}
     </div>
   );

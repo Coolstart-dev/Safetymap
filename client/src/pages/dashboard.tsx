@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recent' | 'neighborhood'>('recent');
+  const [activeTab, setActiveTab] = useState<'recent' | 'region'>('recent');
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   // Debounced function to snap bottom sheet to position
