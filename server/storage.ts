@@ -14,8 +14,12 @@ export interface IStorage {
   createReportWithModeration(report: any): Promise<Report>; // For AI moderated reports
   deleteReport(id: string): Promise<boolean>;
   deleteAllReports(): Promise<boolean>; // Add admin function
+  // Legacy moderation prompt methods
   getModerationPrompt(): Promise<string | null>;
   saveModerationPrompt(prompt: string): Promise<void>;
+  // New separated moderation prompt methods
+  getModerationPrompts(): Promise<{contentFilter: string | null, textFormalization: string | null}>;
+  saveModerationPrompts(prompts: {contentFilter: string, textFormalization: string}): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,7 +83,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAllReports(): Promise<boolean> {
     try {
-      await this.db.delete(reports);
+      await db.delete(reports);
       console.log("All reports deleted from database");
       return true;
     } catch (error) {
@@ -88,16 +92,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Legacy methods for backward compatibility
   async getModerationPrompt(): Promise<string | null> {
     try {
-      // Simple storage - could be extended to use a proper settings table
       const promptPath = path.join(process.cwd(), 'moderation-prompt.txt');
-
       try {
         const prompt = await fs.readFile(promptPath, 'utf-8');
         return prompt;
       } catch (error) {
-        // File doesn't exist yet
         return null;
       }
     } catch (error) {
@@ -109,11 +111,55 @@ export class DatabaseStorage implements IStorage {
   async saveModerationPrompt(prompt: string): Promise<void> {
     try {
       const promptPath = path.join(process.cwd(), 'moderation-prompt.txt');
-
       await fs.writeFile(promptPath, prompt, 'utf-8');
       console.log("Moderation prompt saved successfully");
     } catch (error) {
       console.error("Error saving moderation prompt:", error);
+      throw error;
+    }
+  }
+
+  // New methods for separated moderation prompts
+  async getModerationPrompts(): Promise<{contentFilter: string | null, textFormalization: string | null}> {
+    try {
+      const contentFilterPath = path.join(process.cwd(), 'content-filter-prompt.txt');
+      const textFormalizationPath = path.join(process.cwd(), 'text-formalization-prompt.txt');
+      
+      let contentFilter = null;
+      let textFormalization = null;
+      
+      try {
+        contentFilter = await fs.readFile(contentFilterPath, 'utf-8');
+      } catch (error) {
+        // File doesn't exist yet
+      }
+      
+      try {
+        textFormalization = await fs.readFile(textFormalizationPath, 'utf-8');
+      } catch (error) {
+        // File doesn't exist yet
+      }
+      
+      return { contentFilter, textFormalization };
+    } catch (error) {
+      console.error("Error fetching moderation prompts:", error);
+      return { contentFilter: null, textFormalization: null };
+    }
+  }
+
+  async saveModerationPrompts(prompts: {contentFilter: string, textFormalization: string}): Promise<void> {
+    try {
+      const contentFilterPath = path.join(process.cwd(), 'content-filter-prompt.txt');
+      const textFormalizationPath = path.join(process.cwd(), 'text-formalization-prompt.txt');
+      
+      await Promise.all([
+        fs.writeFile(contentFilterPath, prompts.contentFilter, 'utf-8'),
+        fs.writeFile(textFormalizationPath, prompts.textFormalization, 'utf-8')
+      ]);
+      
+      console.log("Moderation prompts saved successfully");
+    } catch (error) {
+      console.error("Error saving moderation prompts:", error);
       throw error;
     }
   }

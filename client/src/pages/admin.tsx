@@ -18,7 +18,8 @@ export default function AdminPage() {
   const [showOriginalContent, setShowOriginalContent] = useState<{[key: string]: boolean}>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [moderationPrompt, setModerationPrompt] = useState<string>('');
+  const [contentFilterPrompt, setContentFilterPrompt] = useState<string>('');
+  const [textFormalizationPrompt, setTextFormalizationPrompt] = useState<string>('');
   const [promptLoading, setPromptLoading] = useState(false);
 
   const menuItems = [
@@ -42,51 +43,63 @@ export default function AdminPage() {
     refetchOnMount: true,
   });
 
-  // Fetch existing moderation prompt on component mount
+  // Fetch existing moderation prompts on component mount
   const { data: promptData } = useQuery({
-    queryKey: ['/api/admin/moderation-prompt'],
+    queryKey: ['/api/admin/moderation-prompts'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/moderation-prompt');
+      const response = await fetch('/api/admin/moderation-prompts');
       return response.json();
     }
   });
 
-  // Update moderationPrompt when query data is available
+  // Update prompts when query data is available
   React.useEffect(() => {
-    if (promptData?.prompt) {
-      setModerationPrompt(promptData.prompt);
+    if (promptData) {
+      setContentFilterPrompt(promptData.contentFilter || '');
+      setTextFormalizationPrompt(promptData.textFormalization || '');
     }
   }, [promptData]);
 
-  const fetchModerationPrompt = async () => {
+  const fetchModerationPrompts = async () => {
     try {
-      const response = await fetch('/api/admin/moderation-prompt');
+      const response = await fetch('/api/admin/moderation-prompts');
       const data = await response.json();
-      setModerationPrompt(data.prompt || '');
+      setContentFilterPrompt(data.contentFilter || '');
+      setTextFormalizationPrompt(data.textFormalization || '');
     } catch (error) {
-      console.error('Error fetching moderation prompt:', error);
+      console.error('Error fetching moderation prompts:', error);
     }
   };
 
-  const saveModerationPrompt = async () => {
+  const saveModerationPrompts = async () => {
     setPromptLoading(true);
     try {
-      const response = await fetch('/api/admin/moderation-prompt', {
+      const response = await fetch('/api/admin/moderation-prompts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: moderationPrompt }),
+        body: JSON.stringify({ 
+          contentFilter: contentFilterPrompt,
+          textFormalization: textFormalizationPrompt 
+        }),
       });
 
       if (response.ok) {
-        alert('Moderatie instructies succesvol opgeslagen!');
+        toast({
+          title: "Success",
+          description: "Moderatie instructies succesvol opgeslagen!",
+        });
       } else {
-        alert('Er is een fout opgetreden bij het opslaan.');
+        throw new Error('Save failed');
       }
     } catch (error) {
-      console.error('Error saving moderation prompt:', error);
-      alert('Er is een fout opgetreden bij het opslaan.');
+      console.error('Error saving moderation prompts:', error);
+      toast({
+        title: "Error",
+        description: "Er is een fout opgetreden bij het opslaan.",
+        variant: "destructive",
+      });
     } finally {
       setPromptLoading(false);
     }
@@ -308,56 +321,93 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="moderation">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  AI Moderatie Instellingen
-                </CardTitle>
-                <CardDescription>
-                  Configureer de AI moderatie instructies voor content filtering
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="moderation-prompt">Moderatie Instructies</Label>
-                  <Textarea
-                    id="moderation-prompt"
-                    placeholder="Voer hier de AI moderatie instructies in..."
-                    value={moderationPrompt}
-                    onChange={(e) => setModerationPrompt(e.target.value)}
-                    className="min-h-[300px]"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Geef duidelijke instructies over wat wel en niet toegestaan is. 
-                    Gebruik positieve voorbeelden van wat toegestaan is en negatieve voorbeelden van wat niet kan.
-                  </p>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h3 className="font-medium mb-2">Voorbeeld Format:</h3>
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    <p><strong>✅ Toegestaan:</strong></p>
-                    <p>• Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)</p>
-                    <p>• Overlast in openbare ruimte</p>
-                    <p>• Constructieve observaties over buurt problemen</p>
-                    <p></p>
-                    <p><strong>❌ Niet toegestaan:</strong></p>
-                    <p>• Algemene complimenten zonder specifiek incident</p>
-                    <p>• Test berichten of spam</p>
-                    <p>• Persoonlijke informatie (namen, telefoonnummers)</p>
+            <div className="space-y-6">
+              {/* Type 1: Content Filtering */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-red-600" />
+                    Type 1: Content Filtering
+                  </CardTitle>
+                  <CardDescription>
+                    Configureer wat wel/niet toegestaan is - bepaalt of meldingen worden goedgekeurd of afgewezen
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="content-filter-prompt">Content Filter Instructies</Label>
+                    <Textarea
+                      id="content-filter-prompt"
+                      placeholder="Instructies voor het bepalen wat wel/niet toegestaan is..."
+                      value={contentFilterPrompt}
+                      onChange={(e) => setContentFilterPrompt(e.target.value)}
+                      className="min-h-[200px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Focus op criteria voor goedkeuring/afwijzing. Bijvoorbeeld: "Sta echte incidenten toe, wijs spam af"
+                    </p>
                   </div>
-                </div>
 
-                <Button 
-                  onClick={saveModerationPrompt}
-                  disabled={promptLoading}
-                  className="w-full"
-                >
-                  {promptLoading ? 'Opslaan...' : 'Moderatie Instructies Opslaan'}
-                </Button>
-              </CardContent>
-            </Card>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h3 className="font-medium mb-2 text-red-800">Voorbeeld Content Filter:</h3>
+                    <div className="text-sm text-red-700 space-y-1">
+                      <p><strong>✅ Toestaan:</strong> Echte veiligheidsincidenten, overlast, observaties</p>
+                      <p><strong>❌ Afwijzen:</strong> Test berichten, spam, persoonlijke informatie, grove taal</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Type 2: Text Formalization */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-blue-600" />
+                    Type 2: Text Formalization
+                  </CardTitle>
+                  <CardDescription>
+                    Configureer hoe goedgekeurde teksten worden herschreven naar formele versies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="text-formalization-prompt">Text Formalization Instructies</Label>
+                    <Textarea
+                      id="text-formalization-prompt"
+                      placeholder="Instructies voor het herschrijven van teksten naar formele versie..."
+                      value={textFormalizationPrompt}
+                      onChange={(e) => setTextFormalizationPrompt(e.target.value)}
+                      className="min-h-[200px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Focus op stijl en formulering. Bijvoorbeeld: "Maak formeel, verwijder emoties, behoud feiten"
+                    </p>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="font-medium mb-2 text-blue-800">Voorbeeld Text Formalization:</h3>
+                    <div className="text-sm text-blue-700 space-y-1">
+                      <p><strong>Input:</strong> "Mijn fiets is gejat door een of andere idioot!"</p>
+                      <p><strong>Output:</strong> "Fietsdiefstal gemeld door eigenaar"</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Save Button */}
+              <Card>
+                <CardContent className="pt-6">
+                  <Button 
+                    onClick={saveModerationPrompts}
+                    disabled={promptLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {promptLoading ? 'Opslaan...' : 'Beide Moderatie Instructies Opslaan'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="database">

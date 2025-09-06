@@ -8,6 +8,7 @@ import path from "path";
 import { AIContentModerator } from "./ai";
 import { GeocodingService } from "./geocoding";
 
+// Legacy default moderation prompt
 function getDefaultModerationPrompt(): string {
   return `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
 
@@ -40,6 +41,58 @@ Richtlijnen voor herschrijven:
 - Behoud belangrijke details over het incident zelf
 - Maak het professioneel maar begrijpelijk
 - Verwijder emotionele taal en vervang door feitelijke beschrijving
+
+BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
+}
+
+// Default content filter prompt (Type 1: What is allowed/not allowed)
+function getDefaultContentFilterPrompt(): string {
+  return `Je bent een content filter voor een community safety platform.
+
+Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug met:
+- isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
+- isSpam: boolean (true als het een grap, meme, test of spam lijkt)
+- hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
+- hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
+- reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
+
+✅ Toegestaan:
+- Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)
+- Overlast in openbare ruimte
+- Positieve observaties over de buurt
+- Status updates over publieke ruimtes
+
+❌ Niet toegestaan:
+- Test berichten of spam ("test", "proberen")
+- Algemene complimenten zonder specifiek incident
+- Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
+- Racistische, discriminerende of grove taal
+- Memes of grappen
+
+BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
+}
+
+// Default text formalization prompt (Type 2: How to rewrite text formally)
+function getDefaultTextFormalizationPrompt(): string {
+  return `Je bent een tekst editor die meldingen herschrijft naar formele, professionele taal.
+
+Herschrijf de volgende melding naar een formele versie en geef een JSON response terug met:
+- formalizedTitle: string (herschreven titel in formele, neutrale taal)
+- formalizedDescription: string (herschreven beschrijving in formele, neutrale taal)
+
+Richtlijnen voor herschrijven:
+- Gebruik formele, neutrale taal
+- Verwijder emotionele uitingen en vervang door feitelijke beschrijving
+- Verwijder persoonlijke informatie (volledige namen, telefoonnummers, specifieke adressen)
+- Behoud algemene locatie-informatie ("bij de supermarkt", "in het park")
+- Behoud alle belangrijke details over het incident
+- Maak het professioneel maar nog steeds begrijpelijk
+- Gebruik Nederlandse spelling en grammatica
+
+Voorbeelden:
+- "Mijn fiets is gejat door een of andere idioot!" → "Fietsdiefstal gemeld door eigenaar"
+- "Super mooi park vandaag, echt geweldig!" → "Positieve waarneming betreffende staat van het park"
+- "Jan de Vries (06-12345678) heeft mijn auto bekrast" → "Eigendomsschade aan voertuig door onbekende persoon"
 
 BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
 }
@@ -348,7 +401,7 @@ Maximaal 3-4 categorieën, professionele toon.`;
     }
   });
 
-  // Moderation prompt routes
+  // Legacy moderation prompt routes (backward compatibility)
   app.get("/api/admin/moderation-prompt", async (req, res) => {
     try {
       const prompt = await storage.getModerationPrompt();
@@ -371,6 +424,36 @@ Maximaal 3-4 categorieën, professionele toon.`;
     } catch (error) {
       console.error('Error saving moderation prompt:', error);
       res.status(500).json({ error: "Failed to save moderation prompt" });
+    }
+  });
+
+  // New separated moderation prompts routes
+  app.get("/api/admin/moderation-prompts", async (req, res) => {
+    try {
+      const prompts = await storage.getModerationPrompts();
+      res.json({
+        contentFilter: prompts.contentFilter || getDefaultContentFilterPrompt(),
+        textFormalization: prompts.textFormalization || getDefaultTextFormalizationPrompt()
+      });
+    } catch (error) {
+      console.error('Error fetching moderation prompts:', error);
+      res.status(500).json({ error: "Failed to fetch moderation prompts" });
+    }
+  });
+
+  app.post("/api/admin/moderation-prompts", async (req, res) => {
+    try {
+      const { contentFilter, textFormalization } = req.body;
+      
+      if (typeof contentFilter !== 'string' || typeof textFormalization !== 'string') {
+        return res.status(400).json({ error: "Both contentFilter and textFormalization must be strings" });
+      }
+
+      await storage.saveModerationPrompts({ contentFilter, textFormalization });
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error saving moderation prompts:', error);
+      res.status(500).json({ error: "Failed to save moderation prompts" });
     }
   });
 

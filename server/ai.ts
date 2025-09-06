@@ -16,6 +16,20 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+export interface ContentFilterResult {
+  isApproved: boolean;
+  isSpam: boolean;
+  hasInappropriateContent: boolean;
+  hasPII: boolean;
+  reason?: string;
+}
+
+export interface TextFormalizationResult {
+  formalizedTitle: string;
+  formalizedDescription: string;
+}
+
+// Legacy interface for backward compatibility
 export interface ContentModerationResult {
   isApproved: boolean;
   isSpam: boolean;
@@ -27,40 +41,37 @@ export interface ContentModerationResult {
 }
 
 export class AIContentModerator {
-  async moderateContent(title: string, description: string, customPrompt?: string): Promise<ContentModerationResult> {
+  // Type 1: Content Filtering - bepaalt alleen wat wel/niet toegestaan is
+  async filterContent(title: string, description: string, customPrompt?: string): Promise<ContentFilterResult> {
     try {
-      const basePrompt = customPrompt || `Je bent een content moderator voor een community safety platform waar burgers incidenten rapporteren.
+      const basePrompt = customPrompt || `Je bent een content filter voor een community safety platform.
 
-Analyseer de volgende melding en geef een JSON response terug met:
+Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug met:
 - isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
 - isSpam: boolean (true als het een grap, meme, test of spam lijkt)
 - hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
 - hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
-- moderatedTitle: string (ALTIJD herschreven titel in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
-- moderatedDescription: string (ALTIJD herschreven beschrijving in formele, neutrale taal zonder persoonlijke info - ook bij afwijzing)
 - reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
 
-Richtlijnen voor herschrijven:
-- Verander naar formele, neutrale taal
-- Verwijder namen, telefoonnummers, specifieke adressen (maar behoud algemene locatie zoals "bij de supermarkt")
-- Behoud belangrijke details over het incident zelf
-- Maak het professioneel maar begrijpelijk
-- Verwijder emotionele taal en vervang door feitelijke beschrijving
-- KRITIEK: Je MOET ALTIJD moderatedTitle en moderatedDescription invullen, ook bij afwijzing!
-- Voor afgewezen content: herschrijf naar neutrale, professionele taal zonder de problematische elementen
-- Geef NOOIT lege strings terug voor moderatedTitle en moderatedDescription
+✅ Toegestaan:
+- Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)
+- Overlast in openbare ruimte
+- Positieve observaties over de buurt
+- Status updates over publieke ruimtes
 
-Voorbeelden van VERPLICHTE herschrijving bij afgewezen content:
-- "neger pikt fiets" → "Vermoedelijke fietsdiefstal door onbekende persoon"
-- Racistische beschrijving → "Incident gemeld door getuige in woongebied zonder verdere specificaties"
-- Grove taal → "Verstoring van openbare orde gerapporteerd"
+❌ Niet toegestaan:
+- Test berichten of spam ("test", "proberen")
+- Algemene complimenten zonder specifiek incident
+- Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
+- Racistische, discriminerende of grove taal
+- Memes of grappen
 
 Titel: ${title}
 Beschrijving: ${description}`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1000,
+        max_tokens: 500,
         messages: [{ role: 'user', content: basePrompt }],
       });
 
@@ -68,10 +79,7 @@ Beschrijving: ${description}`;
       let result;
       if (contentBlock.type === 'text') {
         let responseText = contentBlock.text;
-
-        // Remove markdown code blocks if present
         responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
-
         result = JSON.parse(responseText);
       } else {
         throw new Error('Unexpected content type from AI response');
@@ -81,16 +89,111 @@ Beschrijving: ${description}`;
       if (typeof result.isApproved !== 'boolean' ||
           typeof result.isSpam !== 'boolean' ||
           typeof result.hasInappropriateContent !== 'boolean' ||
-          typeof result.hasPII !== 'boolean' ||
-          typeof result.moderatedTitle !== 'string' ||
-          typeof result.moderatedDescription !== 'string') {
+          typeof result.hasPII !== 'boolean') {
         throw new Error('Invalid response structure from AI');
       }
 
-      return result as ContentModerationResult;
+      return result as ContentFilterResult;
+    } catch (error) {
+      console.error('AI content filtering error:', error);
+      // Fallback: allow content
+      return {
+        isApproved: true,
+        isSpam: false,
+        hasInappropriateContent: false,
+        hasPII: false,
+        reason: 'Content filter temporarily unavailable'
+      };
+    }
+  }
+
+  // Type 2: Text Formalization - herschrijft goedgekeurde tekst naar formele versie
+  async formalizeText(title: string, description: string, customPrompt?: string): Promise<TextFormalizationResult> {
+    try {
+      const basePrompt = customPrompt || `Je bent een tekst editor die meldingen herschrijft naar formele, professionele taal.
+
+Herschrijf de volgende melding naar een formele versie en geef een JSON response terug met:
+- formalizedTitle: string (herschreven titel in formele, neutrale taal)
+- formalizedDescription: string (herschreven beschrijving in formele, neutrale taal)
+
+Richtlijnen voor herschrijven:
+- Gebruik formele, neutrale taal
+- Verwijder emotionele uitingen en vervang door feitelijke beschrijving
+- Verwijder persoonlijke informatie (volledige namen, telefoonnummers, specifieke adressen)
+- Behoud algemene locatie-informatie ("bij de supermarkt", "in het park")
+- Behoud alle belangrijke details over het incident
+- Maak het professioneel maar nog steeds begrijpelijk
+- Gebruik Nederlandse spelling en grammatica
+
+Voorbeelden:
+- "Mijn fiets is gejat door een of andere idioot!" → "Fietsdiefstal gemeld door eigenaar"
+- "Super mooi park vandaag, echt geweldig!" → "Positieve waarneming betreffende staat van het park"
+- "Jan de Vries (06-12345678) heeft mijn auto bekrast" → "Eigendomsschade aan voertuig door onbekende persoon"
+
+Originele titel: ${title}
+Originele beschrijving: ${description}`;
+
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 600,
+        messages: [{ role: 'user', content: basePrompt }],
+      });
+
+      const contentBlock = response.content[0];
+      let result;
+      if (contentBlock.type === 'text') {
+        let responseText = contentBlock.text;
+        responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+        result = JSON.parse(responseText);
+      } else {
+        throw new Error('Unexpected content type from AI response');
+      }
+
+      // Validate the response structure
+      if (typeof result.formalizedTitle !== 'string' ||
+          typeof result.formalizedDescription !== 'string') {
+        throw new Error('Invalid response structure from AI');
+      }
+
+      return result as TextFormalizationResult;
+    } catch (error) {
+      console.error('AI text formalization error:', error);
+      // Fallback: return original text
+      return {
+        formalizedTitle: title,
+        formalizedDescription: description
+      };
+    }
+  }
+
+  // Legacy method - combineert beide processen voor backward compatibility
+  async moderateContent(title: string, description: string, customPrompt?: string): Promise<ContentModerationResult> {
+    try {
+      // Stap 1: Content filtering
+      const filterResult = await this.filterContent(title, description, customPrompt);
+      
+      // Stap 2: Text formalization (alleen als goedgekeurd)
+      let moderatedTitle = title;
+      let moderatedDescription = description;
+      
+      if (filterResult.isApproved) {
+        const formalizationResult = await this.formalizeText(title, description);
+        moderatedTitle = formalizationResult.formalizedTitle;
+        moderatedDescription = formalizationResult.formalizedDescription;
+      }
+      
+      // Combineer resultaten voor legacy interface
+      return {
+        isApproved: filterResult.isApproved,
+        isSpam: filterResult.isSpam,
+        hasInappropriateContent: filterResult.hasInappropriateContent,
+        hasPII: filterResult.hasPII,
+        moderatedTitle,
+        moderatedDescription,
+        reason: filterResult.reason
+      };
     } catch (error) {
       console.error('AI moderation error:', error);
-
       // Fallback: allow content but don't modify it
       return {
         isApproved: true,
