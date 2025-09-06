@@ -112,21 +112,36 @@
     transform: none !important;
     max-width: none !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important; /* Use dynamic viewport height */
     border-radius: 0 !important;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: 9999;
   }
   
-  .ios-modal-container > div {
+  .ios-modal-container .dialog-content-scroll {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
+    touch-action: pan-y;
     overscroll-behavior: contain;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Force enable scrolling on iOS */
+  .ios-modal-container .dialog-content-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Additional iOS fixes */
+  @supports (-webkit-touch-callout: none) {
+    .ios-modal-container {
+      height: -webkit-fill-available !important;
+    }
   }
 
   /* Mobile specific scrolling improvements */
