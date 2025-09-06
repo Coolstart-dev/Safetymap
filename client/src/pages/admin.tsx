@@ -19,13 +19,6 @@ export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [moderationPrompt, setModerationPrompt] = useState<string>('');
-
-  // Update moderationPrompt when query data is available
-  React.useEffect(() => {
-    if (promptData?.prompt) {
-      setModerationPrompt(promptData.prompt);
-    }
-  }, [promptData]);
   const [promptLoading, setPromptLoading] = useState(false);
 
   const menuItems = [
@@ -55,11 +48,15 @@ export default function AdminPage() {
     queryFn: async () => {
       const response = await fetch('/api/admin/moderation-prompt');
       return response.json();
-    },
-    onSuccess: (data) => {
-      setModerationPrompt(data.prompt || '');
     }
   });
+
+  // Update moderationPrompt when query data is available
+  React.useEffect(() => {
+    if (promptData?.prompt) {
+      setModerationPrompt(promptData.prompt);
+    }
+  }, [promptData]);
 
   const fetchModerationPrompt = async () => {
     try {
