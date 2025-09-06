@@ -229,7 +229,7 @@ export default function ReportsList({
         )}
         </div>
       ) : (
-        <MyNeighborhood />
+        <MyNeighborhood onReportClick={onReportClick} />
       )}
     </div>
   );

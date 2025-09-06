@@ -6,6 +6,20 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import { AIContentModerator } from "./ai";
+import { GeocodingService } from "./geocoding";
+
+// Distance calculation helper (Haversine formula)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 // Configure multer for file uploads
 const upload = multer({
@@ -23,6 +37,7 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const geocodingService = new GeocodingService();
   // Get public reports only (for main dashboard)
   app.get("/api/reports", async (req, res) => {
     try {
@@ -51,6 +66,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(report);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch report" });
+    }
+  });
+
+  // Get reports by postal code
+  app.get("/api/neighborhood/:postalCode/reports", async (req, res) => {
+    try {
+      const postalCode = req.params.postalCode;
+      const category = req.query.category as string;
+      
+      // Get postal code boundaries
+      const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
+      if (!postalInfo) {
+        return res.status(404).json({ error: "Postal code not found" });
+      }
+      
+      // Get all reports and filter by proximity to postal code center
+      let allReports;
+      if (category && category !== 'all') {
+        allReports = await storage.getPublicReportsByCategory(category);
+      } else {
+        allReports = await storage.getAllPublicReports();
+      }
+      
+      // Filter reports within ~2km radius of postal code center
+      const radiusKm = 2;
+      const reportsInPostalCode = allReports.filter(report => {
+        if (!report.latitude || !report.longitude) return false;
+        
+        const distance = calculateDistance(
+          postalInfo.latitude, 
+          postalInfo.longitude,
+          report.latitude,
+          report.longitude
+        );
+        
+        return distance <= radiusKm;
+      });
+      
+      res.json({
+        postalCode: postalInfo,
+        reports: reportsInPostalCode,
+        count: reportsInPostalCode.length
+      });
+    } catch (error) {
+      console.error('Postal code reports error:', error);
+      res.status(500).json({ error: "Failed to fetch neighborhood reports" });
+    }
+  });
+
+  // Get postal code info
+  app.get("/api/geocode/:postalCode", async (req, res) => {
+    try {
+      const postalCode = req.params.postalCode;
+      const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
+      
+      if (!postalInfo) {
+        return res.status(404).json({ error: "Postal code not found" });
+      }
+      
+      res.json(postalInfo);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to geocode postal code" });
     }
   });
 
