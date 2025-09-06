@@ -10,6 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { z } from "zod";
 
+// Detect iOS
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
 import {
   Dialog,
   DialogContent,
@@ -234,9 +240,27 @@ export default function ReportModal({
     }
   }, [selectedLocation, form]);
 
-  // Block body scroll on mobile when modal is open
+  // iOS-specific scroll handling
   useEffect(() => {
-    if (isMobile && isOpen) {
+    if (isOpen && isIOS()) {
+      // Store the current scroll position
+      const scrollY = window.scrollY;
+      
+      // Apply iOS-specific fixes
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        // Restore the previous state
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+      };
+    } else if (isMobile && isOpen) {
       document.body.classList.add('modal-open');
       return () => {
         document.body.classList.remove('modal-open');
@@ -268,7 +292,7 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[95vh] sm:max-h-[90vh] sm:h-auto mobile-scroll-container">
+      <DialogContent className={`max-w-md ${isIOS() ? 'ios-modal-container' : 'mobile-scroll-container'} h-[95vh] sm:max-h-[90vh] sm:h-auto`}>
         <DialogHeader>
           <DialogTitle>Report Incident</DialogTitle>
         </DialogHeader>
