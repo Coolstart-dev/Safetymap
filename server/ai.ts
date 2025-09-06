@@ -126,35 +126,25 @@ BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks. Alleen de J
 
   async generateSummary(prompt: string): Promise<string> {
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: 'Je bent een AI assistent die korte, feitelijke samenvattingen maakt van buurtmeldingen. Houd het neutraal en informatief.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 150,
-          temperature: 0.3,
-        }),
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 200,
+        temperature: 0.3,
+        system: 'Je bent een AI assistent die korte, boeiende samenvattingen maakt van buurtmeldingen. Maak het interessant en leesbaar, maar blijf wel feitelijk. Gebruik een vriendelijke, informatieve toon.',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
       });
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+      const contentBlock = response.content[0];
+      if (contentBlock.type === 'text') {
+        return contentBlock.text.trim() || '';
+      } else {
+        throw new Error('Unexpected content type from AI response');
       }
-
-      const data = await response.json();
-      return data.choices[0]?.message?.content?.trim() || '';
     } catch (error) {
       console.error('Error generating AI summary:', error);
       throw error;
