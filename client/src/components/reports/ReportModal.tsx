@@ -292,15 +292,15 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`max-w-md ${isIOS() ? 'ios-modal-container' : 'mobile-scroll-container'} h-[95vh] sm:max-h-[90vh] sm:h-auto`}>
-        {isIOS() ? (
-          <div className="dialog-content-scroll">
-            <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
-              <DialogTitle>Report Incident</DialogTitle>
-            </DialogHeader>
+      <DialogContent className={`max-w-md ${isIOS() ? 'ios-modal-container' : 'mobile-modal-container'} h-[100dvh] sm:max-h-[90vh] sm:h-auto`}>
+        <div className={`${isIOS() ? 'ios-modal-wrapper' : 'mobile-modal-wrapper'} h-full flex flex-col`}>
+          <DialogHeader className="flex-shrink-0 sticky top-0 bg-background z-10 pb-4 border-b">
+            <DialogTitle>Report Incident</DialogTitle>
+          </DialogHeader>
 
+          <div className="flex-1 overflow-y-auto overflow-x-hidden mobile-scroll-content">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 pb-8">
             {/* Category Selection */}
             <FormField
               control={form.control}
@@ -601,317 +601,6 @@ export default function ReportModal({
             />
 
             <Button
-              type="submit"
-              className="w-full"
-              disabled={createReportMutation.isPending}
-              data-testid="button-submit-report"
-            >
-              {createReportMutation.isPending ? "Submitting..." : "Submit Report"}
-            </Button>
-          </form>
-        </Form>
-          </div>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Report Incident</DialogTitle>
-            </DialogHeader>
-
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-8">
-                {/* All the same form fields but duplicated for non-iOS */}
-                {/* Category Selection */}
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium mb-3 block">
-                        What type of incident? <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <div className="grid grid-cols-2 gap-3">
-                        {Object.entries(categories).map(([key, category]) => (
-                          <button
-                            key={key}
-                            type="button"
-                            className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
-                              field.value === key ? 'border-primary bg-primary/5' : 'border-border'
-                            }`}
-                            onClick={() => {
-                              field.onChange(key);
-                              setSelectedCategory(key);
-                            }}
-                            data-testid={`category-${key}`}
-                          >
-                            <div 
-                              className="w-6 h-6 rounded-full mb-2"
-                              style={{ backgroundColor: category.color }}
-                            />
-                            <div className="text-sm font-medium text-foreground">{category.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {category.subcategories[0]}...
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* All other form fields here - duplicated for brevity */}
-                {(selectedCategory || form.watch("category")) && (
-                  <FormField
-                    control={form.control}
-                    name="subcategory"
-                    render={({ field }) => {
-                      const currentCategory = selectedCategory || form.watch("category");
-                      return (
-                        <FormItem>
-                          <FormLabel>Specific type</FormLabel>
-                          <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value}>
-                              {categories[currentCategory as keyof typeof categories]?.subcategories.map((sub) => (
-                                <div key={sub} className="flex items-center space-x-2">
-                                  <RadioGroupItem value={sub} id={sub} />
-                                  <Label htmlFor={sub} className="text-sm">{sub}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Brief title <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Quick summary of the incident" 
-                          {...field} 
-                          data-testid="input-title"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Description <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Provide details about the incident..."
-                          rows={4}
-                          {...field}
-                          data-testid="textarea-description"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div>
-                  <Label className="block text-sm font-medium mb-2">Location</Label>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        onClick={handleHereAndNow}
-                        disabled={locationLoading}
-                        data-testid="button-here-now"
-                        variant={selectedLocation && !locationSelectionMode ? "default" : "outline"}
-                      >
-                        <Navigation className="h-4 w-4 mr-2" />
-                        {locationLoading ? "Getting..." : "Use Here"}
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={handleSelectOnMap}
-                        data-testid="button-select-map"
-                        variant={locationSelectionMode ? "default" : "outline"}
-                      >
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {locationSelectionMode ? "Exit Map" : "Select on Map"}
-                      </Button>
-                    </div>
-
-                    {selectedLocation && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <div className="text-sm text-green-800">
-                          ✓ Location selected: {selectedLocation.lat.toFixed(5)}, {selectedLocation.lng.toFixed(5)}
-                        </div>
-                      </div>
-                    )}
-
-                    {locationSelectionMode && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <div className="text-sm text-blue-800">
-                          📍 Click anywhere on the map to set the location, or drag the red marker
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="text-center text-xs text-muted-foreground">or</div>
-                    <FormField
-                      control={form.control}
-                      name="locationDescription"
-                      render={({ field }) => (
-                        <FormControl>
-                          <Input
-                            placeholder="Describe the location manually"
-                            {...field}
-                            value={field.value || ""}
-                            data-testid="input-location"
-                          />
-                        </FormControl>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="incidentDateTime"
-                  render={({ field }) => {
-                    const currentDateTime = field.value || new Date().toISOString().slice(0, 16);
-
-                    return (
-                      <FormItem>
-                        <FormLabel>When did this happen?</FormLabel>
-                        <FormControl>
-                          <div className="space-y-3">
-                            <input
-                              type="datetime-local"
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                              value={currentDateTime}
-                              onChange={(e) => field.onChange(e.target.value)}
-                              data-testid="input-datetime"
-                            />
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  const now = new Date().toISOString().slice(0, 16);
-                                  field.onChange(now);
-                                }}
-                                data-testid="button-now"
-                              >
-                                <Clock className="mr-1 h-3 w-3" />
-                                Now
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => field.onChange("")}
-                                data-testid="button-clear"
-                              >
-                                Clear
-                              </Button>
-                            </div>
-                          </div>
-                        </FormControl>
-                        <div className="text-xs text-muted-foreground">
-                          Defaults to current time - adjust above if the incident happened at a different time
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-
-                <div>
-                  <Label className="block text-sm font-medium mb-2">Add photo (optional)</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" className="cursor-pointer" data-testid="input-image">
-                      <Camera className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {imageFile ? imageFile.name : "Tap to add photo for credibility"}
-                      </p>
-                    </label>
-                  </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="authoritiesContacted"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Were authorities contacted?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={(value) => field.onChange(value === 'true')}
-                          value={field.value ? 'true' : 'false'}
-                        >
-                          <div className="flex space-x-6">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="true" id="auth-yes" />
-                              <Label htmlFor="auth-yes">Yes</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="false" id="auth-no" />
-                              <Label htmlFor="auth-no">No</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="involvementType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your involvement</FormLabel>
-                      <FormControl>
-                        <RadioGroup onValueChange={field.onChange} value={field.value}>
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="victim" id="victim" />
-                              <Label htmlFor="victim">I was the victim/directly affected</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="witness" id="witness" />
-                              <Label htmlFor="witness">I witnessed this happen to someone else</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
                   type="submit"
                   className="w-full"
                   disabled={createReportMutation.isPending}
@@ -921,9 +610,12 @@ export default function ReportModal({
                 </Button>
               </form>
             </Form>
-          </>
-        )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
+  );
+}
+          
   );
 }

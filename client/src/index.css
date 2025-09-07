@@ -127,7 +127,8 @@
     position: relative;
   }
 
-  /* iOS-specific modal container */
+  /* Mobile modal containers */
+  .mobile-modal-container,
   .ios-modal-container {
     position: fixed !important;
     top: 0 !important;
@@ -140,11 +141,27 @@
     height: 100vh !important;
     height: 100dvh !important;
     border-radius: 0 !important;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     z-index: 9999;
     background: white;
+  }
+
+  .mobile-modal-wrapper,
+  .ios-modal-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .mobile-scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
   }
 
   .ios-scroll-wrapper {
@@ -189,20 +206,18 @@
 
   /* Mobile specific scrolling improvements */
   @media (max-width: 768px) {
-    .mobile-scroll-container {
-      height: 95vh !important;
-      max-height: 95vh !important;
-      display: flex;
-      flex-direction: column;
+    .mobile-modal-container,
+    .ios-modal-container {
+      height: 100vh !important;
+      height: 100dvh !important;
     }
 
-    .mobile-scroll-container > div {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
+    .mobile-scroll-content {
+      /* Enhanced touch scrolling for mobile */
+      overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
-      touch-action: pan-y;
-      scroll-behavior: smooth;
+      transform: translateZ(0); /* Force GPU acceleration */
+      will-change: scroll-position;
     }
 
     /* Prevent body scroll when modal is open on mobile */
@@ -211,6 +226,7 @@
       position: fixed;
       width: 100%;
       height: 100%;
+      touch-action: none;
     }
   }
 }
