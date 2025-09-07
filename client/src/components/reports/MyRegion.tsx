@@ -96,180 +96,124 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     .sort((a, b) => b.reports.length - a.reports.length) // Sort by number of reports
     : [];
 
-  const FeaturedArticle = ({ report, large = false }: { report: Report; large?: boolean }) => (
-    <article 
-      onClick={() => onReportClick(report.id)}
-      className={`group cursor-pointer bg-white border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg ${
-        large ? 'col-span-2 row-span-2' : ''
-      }`}
-      data-testid={`featured-article-${report.id}`}
-    >
-      {/* Image Section */}
-      {report.imageUrl ? (
-        <div className={`relative overflow-hidden bg-gray-100 ${large ? 'h-64' : 'h-48'}`}>
-          <img 
-            src={report.imageUrl} 
-            alt={report.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-          <div className="absolute top-3 left-3">
-            <Badge 
-              variant="secondary"
-              className="text-xs font-medium text-white border-0"
-              style={{ backgroundColor: getCategoryColor(report.category) }}
+  const ReportCard = ({ report, size = 'normal' }: { report: Report; size?: 'normal' | 'large' }) => {
+    const categoryColor = getCategoryColor(report.category);
+    const isLarge = size === 'large';
+
+    return (
+      <article 
+        className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 ${
+          isLarge ? 'w-80' : 'w-64'
+        }`}
+        onClick={() => onReportClick(report.id)}
+        data-testid={`report-card-${report.id}`}
+      >
+        {/* Image or Placeholder */}
+        <div className={`${isLarge ? 'h-48' : 'h-32'} bg-gray-100 relative`}>
+          {report.imageUrl ? (
+            <img
+              src={report.imageUrl}
+              alt={report.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              style={{ 
+                backgroundColor: `${categoryColor}15`,
+                border: `2px dashed ${categoryColor}40`
+              }}
             >
-              {getCategoryName(report.category)}
-            </Badge>
-          </div>
+              <div className="text-center">
+                <div 
+                  className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center"
+                  style={{ backgroundColor: `${categoryColor}25` }}
+                >
+                  <svg 
+                    width="24" 
+                    height="24" 
+                    fill="none" 
+                    stroke={categoryColor} 
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-4.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  </svg>
+                </div>
+                <p className="text-xs font-medium" style={{ color: `${categoryColor}80` }}>
+                  {getCategoryName(report.category)}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className={`relative bg-gray-50 border-b border-gray-200 ${large ? 'h-32' : 'h-24'} flex items-center justify-center`}>
-          <div className="text-center">
-            <Image className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+
+        {/* Content */}
+        <div className={`p-4 space-y-2`}>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className={`font-semibold text-gray-900 line-clamp-2 ${
+              isLarge ? 'text-base' : 'text-sm'
+            }`}>
+              {report.title}
+            </h3>
+            <span className="text-xs text-gray-500 whitespace-nowrap">
+              {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+            </span>
+          </div>
+
+          <p className={`text-gray-600 line-clamp-2 ${
+            isLarge ? 'text-sm' : 'text-xs'
+          }`}>
+            {report.description}
+          </p>
+
+          <div className="flex items-center justify-between">
             <Badge 
               variant="secondary"
               className="text-xs"
               style={{ 
-                backgroundColor: `${getCategoryColor(report.category)}20`,
-                color: getCategoryColor(report.category)
+                backgroundColor: `${categoryColor}20`,
+                color: categoryColor
               }}
             >
               {getCategoryName(report.category)}
             </Badge>
           </div>
         </div>
-      )}
-
-      {/* Content Section */}
-      <div className="p-4 space-y-3">
-        <div className="space-y-2">
-          <h3 className={`font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight ${
-            large ? 'text-xl' : 'text-lg'
-          }`}>
-            {report.title}
-          </h3>
-          <p className={`text-gray-600 leading-relaxed ${large ? 'text-base' : 'text-sm'} line-clamp-3`}>
-            {report.description}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between text-xs text-gray-500 border-t pt-3">
-          <div className="flex items-center gap-2">
-            <Clock className="h-3 w-3" />
-            <span>{formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}</span>
-          </div>
-          <ChevronRight className="h-3 w-3 group-hover:text-blue-600" />
-        </div>
-      </div>
-    </article>
-  );
+      </article>
+    );
+  };
 
   const CategorySection = ({ section }: { section: CategorySection }) => {
     const [featuredReport, ...otherReports] = section.reports;
-    
+
     return (
-      <section className="mb-12" data-testid={`category-section-${section.category}`}>
+      <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <div className="flex items-center gap-3 mb-6 pb-3 border-b-2" style={{ borderColor: section.color }}>
+        <div className="flex items-center gap-3 mb-4 pb-2 border-b" style={{ borderColor: `${section.color}40` }}>
           <div 
-            className="w-3 h-8 rounded-sm"
+            className="w-1 h-6 rounded-full"
             style={{ backgroundColor: section.color }}
           />
-          <h2 className="text-2xl font-bold text-gray-900">{section.name}</h2>
-          <Badge variant="outline" className="text-sm">
+          <h2 className="text-xl font-bold text-gray-900">{section.name}</h2>
+          <Badge variant="outline" className="text-sm ml-auto">
             {section.reports.length} {section.reports.length === 1 ? 'report' : 'reports'}
           </Badge>
         </div>
 
-        {/* Featured Report */}
-        {featuredReport && (
-          <div className="mb-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <FeaturedArticle report={featuredReport} large />
-              
-              {/* Side stories */}
-              <div className="space-y-4">
-                {otherReports.slice(0, 3).map((report) => (
-                  <article 
-                    key={report.id}
-                    onClick={() => onReportClick(report.id)}
-                    className="group cursor-pointer border-b border-gray-200 pb-4 hover:border-gray-300 transition-colors"
-                    data-testid={`side-article-${report.id}`}
-                  >
-                    <div className="flex gap-3">
-                      {report.imageUrl && (
-                        <div className="w-20 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                          <img 
-                            src={report.imageUrl} 
-                            alt={report.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">
-                          {report.title}
-                        </h4>
-                        <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-                          {report.description}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          <span>{formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Horizontal Scrolling Reports */}
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {/* Featured Report (large) */}
+          {featuredReport && (
+            <ReportCard report={featuredReport} size="large" />
+          )}
 
-        {/* Additional Reports Grid */}
-        {otherReports.length > 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {otherReports.slice(3).map((report) => (
-              <article 
-                key={report.id}
-                onClick={() => onReportClick(report.id)}
-                className="group cursor-pointer bg-white border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
-                data-testid={`grid-article-${report.id}`}
-              >
-                {report.imageUrl && (
-                  <div className="h-32 bg-gray-100 overflow-hidden">
-                    <img 
-                      src={report.imageUrl} 
-                      alt={report.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-                <div className="p-3 space-y-2">
-                  <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {report.title}
-                  </h4>
-                  <p className="text-xs text-gray-600 line-clamp-2">
-                    {report.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 pt-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}</span>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+          {/* Other Reports (normal size) */}
+          {otherReports.map((report) => (
+            <ReportCard key={report.id} report={report} size="normal" />
+          ))}
+        </div>
       </section>
     );
   };
@@ -282,7 +226,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
           <MapPin className="w-5 h-5 text-red-600" />
           <h1 className="text-xl font-bold text-gray-900">Regional News</h1>
         </div>
-        
+
         <div className="flex gap-2">
           <Input
             placeholder="Enter postal code (e.g. 2000)"
@@ -391,7 +335,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
                 Stay informed about what's happening in your area. Enter a postal code above to see the latest reports organized by category.
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
                   <Users className="w-8 h-8 text-blue-600 mb-3" />
@@ -400,7 +344,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                     Local reports organized by category for easy browsing
                   </p>
                 </div>
-                
+
                 <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
                   <Image className="w-8 h-8 text-green-600 mb-3" />
                   <h3 className="font-semibold text-gray-900 mb-2">Visual Stories</h3>
@@ -408,7 +352,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                     Photos and detailed descriptions from residents
                   </p>
                 </div>
-                
+
                 <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
                   <Heart className="w-8 h-8 text-red-600 mb-3" />
                   <h3 className="font-semibold text-gray-900 mb-2">Regional Safety</h3>
