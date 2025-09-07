@@ -85,31 +85,33 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return groups;
   }, {} as Record<string, Report[]>) || {};
 
-  // Fetch category analyses for categories with 2+ reports
-  const categoryAnalysisQueries = Object.entries(reportsByCategory)
+  // Get list of categories with 2+ reports for analysis
+  const categoriesNeedingAnalysis = Object.entries(reportsByCategory)
     .filter(([_, reports]) => reports.length >= 2)
-    .map(([category, _]) => ({
-      category,
-      query: useQuery({
-        queryKey: ['/api/region', searchedPostalCode, 'category', category, 'analysis'],
-        queryFn: async () => {
-          if (!searchedPostalCode) return null;
-          const response = await fetch(`/api/region/${searchedPostalCode}/category/${category}/analysis`);
-          if (!response.ok) {
-            throw new Error(`Failed to get analysis for category ${category}`);
-          }
-          return response.json();
-        },
-        enabled: !!searchedPostalCode,
-      })
-    }));
+    .map(([category, _]) => category);
 
-  const categoryAnalyses = categoryAnalysisQueries.reduce((acc, { category, query }) => {
-    if (query.data?.analysis) {
-      acc[category] = query.data.analysis;
+  // Create stable queries for each category that needs analysis
+  const categoryAnalyses: Record<string, string> = {};
+  
+  // Use individual queries for each category (React requires stable hook order)
+  categoriesNeedingAnalysis.forEach(category => {
+    const { data } = useQuery({
+      queryKey: ['/api/region', searchedPostalCode, 'category', category, 'analysis'],
+      queryFn: async () => {
+        if (!searchedPostalCode) return null;
+        const response = await fetch(`/api/region/${searchedPostalCode}/category/${category}/analysis`);
+        if (!response.ok) {
+          throw new Error(`Failed to get analysis for category ${category}`);
+        }
+        return response.json();
+      },
+      enabled: !!searchedPostalCode,
+    });
+    
+    if (data?.analysis) {
+      categoryAnalyses[category] = data.analysis;
     }
-    return acc;
-  }, {} as Record<string, string>);
+  });
 
   // Group reports by category and sort by recency
   const groupedReports: CategorySection[] = regionData ? 
