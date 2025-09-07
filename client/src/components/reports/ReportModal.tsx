@@ -25,6 +25,7 @@ import {
   DialogPortal,
   DialogOverlay,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Form,
   FormControl,
@@ -243,18 +244,7 @@ export default function ReportModal({
     }
   }, [selectedLocation, form]);
 
-  // Manage body scroll for mobile modals
-  useEffect(() => {
-    if (isMobile && isOpen) {
-      // Allow body scroll on mobile for modal content
-      document.body.style.overflow = "auto";
-      
-      return () => {
-        // Restore original behavior when closing
-        document.body.style.overflow = "";
-      };
-    }
-  }, [isMobile, isOpen]);
+  // Note: Using ScrollArea component for proper modal scroll behavior as per Radix UI best practices
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -278,44 +268,21 @@ export default function ReportModal({
     createReportMutation.mutate(data);
   };
 
-  // Mobile: use fullscreen approach for native scroll
+  // Mobile: use fullscreen with ScrollArea for proper Radix modal behavior
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent 
-          className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !w-full !h-full !max-w-none !transform-none !translate-x-0 !translate-y-0 !rounded-none !border-0 !p-0 !m-0 z-[9999]"
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            width: '100vw', 
-            height: '100vh',
-            maxWidth: 'none',
-            transform: 'none',
-            zIndex: 9999
-          }}
-        >
-          <div className="h-full w-full flex flex-col bg-background">
-            <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b relative">
+        <DialogContent className="fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden">
+          <div className="h-full flex flex-col bg-background">
+            <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b">
               <DialogTitle>Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
                 Create a new incident report with location, category, and details
               </DialogDescription>
             </DialogHeader>
 
-            <div 
-              className="flex-1 overflow-y-scroll overflow-x-hidden"
-              style={{
-                WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y',
-                overscrollBehavior: 'contain',
-                height: 'calc(100vh - 80px)', // Subtract header height
-                maxHeight: 'calc(100vh - 80px)'
-              }}
-            >
-              <div className="p-4">
+            <ScrollArea className="flex-1">
+              <div className="p-4 pb-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
             {/* Category Selection */}
@@ -628,28 +595,26 @@ export default function ReportModal({
               </form>
             </Form>
               </div>
-            </div>
+            </ScrollArea>
           </div>
         </DialogContent>
       </Dialog>
     );
   }
 
-  // Desktop: use DialogOverlay approach
+  // Desktop: use DialogContent with ScrollArea for consistent behavior
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/80 overflow-y-auto">
-          <div className="min-h-screen flex items-start justify-center p-4">
-            <DialogContent className="w-full max-w-md max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
-              <div className="flex flex-col max-h-full">
-                <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
-                  <DialogTitle>Report Incident</DialogTitle>
-                  <DialogDescription className="sr-only">
-                    Create a new incident report with location, category, and details
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-6 pt-4">
+      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-hidden">
+        <DialogHeader className="flex-shrink-0 pb-4 border-b">
+          <DialogTitle>Report Incident</DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new incident report with location, category, and details
+          </DialogDescription>
+        </DialogHeader>
+        
+        <ScrollArea className="flex-1 max-h-[calc(90vh-120px)]">
+          <div className="pr-4">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <div className="space-y-6">
@@ -682,12 +647,9 @@ export default function ReportModal({
                       </Button>
                     </form>
                   </Form>
-                </div>
-              </div>
-            </DialogContent>
           </div>
-        </DialogOverlay>
-      </DialogPortal>
+        </ScrollArea>
+      </DialogContent>
     </Dialog>
   );
 }
