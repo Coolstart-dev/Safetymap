@@ -268,21 +268,28 @@ export default function ReportModal({
     createReportMutation.mutate(data);
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/80 overflow-y-auto">
-          <div className="min-h-screen flex items-start justify-center p-4">
-            <DialogContent className="w-full max-w-md max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
-              <div className="flex flex-col max-h-full">
-                <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
-                  <DialogTitle>Report Incident</DialogTitle>
-                  <DialogDescription className="sr-only">
-                    Create a new incident report with location, category, and details
-                  </DialogDescription>
-                </DialogHeader>
+  // Mobile: use fullscreen approach for native scroll
+  if (isMobile) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full max-w-none rounded-none border-0 p-0">
+          <div className="h-full flex flex-col bg-background">
+            <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b relative">
+              <DialogTitle>Report Incident</DialogTitle>
+              <DialogDescription className="sr-only">
+                Create a new incident report with location, category, and details
+              </DialogDescription>
+            </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 pt-4">
+            <div 
+              className="flex-1 overflow-y-auto overflow-x-hidden"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                overscrollBehavior: 'contain'
+              }}
+            >
+              <div className="p-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
             {/* Category Selection */}
@@ -594,6 +601,61 @@ export default function ReportModal({
                 </Button>
               </form>
             </Form>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Desktop: use DialogOverlay approach
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogPortal>
+        <DialogOverlay className="fixed inset-0 bg-black/80 overflow-y-auto">
+          <div className="min-h-screen flex items-start justify-center p-4">
+            <DialogContent className="w-full max-w-md max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
+              <div className="flex flex-col max-h-full">
+                <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
+                  <DialogTitle>Report Incident</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Create a new incident report with location, category, and details
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex-1 overflow-y-auto p-6 pt-4">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <div className="space-y-6">
+                        {/* Test content to force scrolling */}
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="text-sm text-muted-foreground">
+                            Voor test doeleinden - dit formulier heeft extra content om scroll functionaliteit te testen.
+                          </p>
+                        </div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="text-sm">Extra test content...</p>
+                        </div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="text-sm">Meer test content...</p>
+                        </div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="text-sm">Nog meer test content...</p>
+                        </div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <p className="text-sm">Test scroll functionaliteit...</p>
+                        </div>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={createReportMutation.isPending}
+                        data-testid="button-submit-report"
+                      >
+                        {createReportMutation.isPending ? "Submitting..." : "Submit Report"}
+                      </Button>
+                    </form>
+                  </Form>
                 </div>
               </div>
             </DialogContent>
