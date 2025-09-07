@@ -272,8 +272,22 @@ export default function ReportModal({
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full max-w-none rounded-none border-0 p-0">
-          <div className="h-full flex flex-col bg-background">
+        <DialogContent 
+          className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !w-full !h-full !max-w-none !transform-none !translate-x-0 !translate-y-0 !rounded-none !border-0 !p-0 !m-0 z-[9999]"
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            width: '100vw', 
+            height: '100vh',
+            maxWidth: 'none',
+            transform: 'none',
+            zIndex: 9999
+          }}
+        >
+          <div className="h-full w-full flex flex-col bg-background">
             <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b relative">
               <DialogTitle>Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
