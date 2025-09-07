@@ -140,8 +140,8 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
     return (
       <article 
-        className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 ${
-          isLarge ? 'w-80 min-w-80' : 'w-64 min-w-64'
+        className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col ${
+          isLarge ? 'w-80 min-w-80 h-96' : 'w-64 min-w-64 h-80'
         }`}
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
@@ -182,25 +182,27 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         </div>
 
         {/* Content */}
-        <div className={`p-4 space-y-2`}>
-          <div className="flex items-start justify-between gap-2">
-            <h3 className={`font-semibold text-gray-900 line-clamp-2 flex-1 ${
-              isLarge ? 'text-base' : 'text-sm'
+        <div className={`p-4 space-y-2 flex-1 flex flex-col justify-between`}>
+          <div className="flex-1 flex flex-col">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className={`font-semibold text-gray-900 line-clamp-2 flex-1 ${
+                isLarge ? 'text-base' : 'text-sm'
+              }`}>
+                {report.title}
+              </h3>
+              <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+                {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+              </span>
+            </div>
+
+            <p className={`text-gray-600 line-clamp-3 flex-1 ${
+              isLarge ? 'text-sm' : 'text-xs'
             }`}>
-              {report.title}
-            </h3>
-            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
-              {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
-            </span>
+              {report.description}
+            </p>
           </div>
 
-          <p className={`text-gray-600 line-clamp-3 ${
-            isLarge ? 'text-sm' : 'text-xs'
-          }`}>
-            {report.description}
-          </p>
-
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <Badge 
               variant="secondary"
               className="text-xs border-0"
