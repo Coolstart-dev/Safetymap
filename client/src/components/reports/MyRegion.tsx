@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Users, Heart, Search, Loader2, Brain, Clock, Image, ChevronRight } from "lucide-react";
+import { MapPin, Users, Heart, Search, Loader2, Brain, Clock, Image, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
@@ -74,18 +75,45 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return categories[category as keyof typeof categories]?.name || category;
   };
 
+  // Group reports by category
+  const reportsByCategory = regionData?.reports.reduce((groups, report) => {
+    const category = report.category;
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(report);
+    return groups;
+  }, {} as Record<string, Report[]>) || {};
+
+  // Fetch category analyses for categories with 2+ reports
+  const categoryAnalysisQueries = Object.entries(reportsByCategory)
+    .filter(([_, reports]) => reports.length >= 2)
+    .map(([category, _]) => ({
+      category,
+      query: useQuery({
+        queryKey: ['/api/region', searchedPostalCode, 'category', category, 'analysis'],
+        queryFn: async () => {
+          if (!searchedPostalCode) return null;
+          const response = await fetch(`/api/region/${searchedPostalCode}/category/${category}/analysis`);
+          if (!response.ok) {
+            throw new Error(`Failed to get analysis for category ${category}`);
+          }
+          return response.json();
+        },
+        enabled: !!searchedPostalCode,
+      })
+    }));
+
+  const categoryAnalyses = categoryAnalysisQueries.reduce((acc, { category, query }) => {
+    if (query.data?.analysis) {
+      acc[category] = query.data.analysis;
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
   // Group reports by category and sort by recency
   const groupedReports: CategorySection[] = regionData ? 
-    Object.entries(
-      regionData.reports.reduce((groups, report) => {
-        const category = report.category;
-        if (!groups[category]) {
-          groups[category] = [];
-        }
-        groups[category].push(report);
-        return groups;
-      }, {} as Record<string, Report[]>)
-    )
+    Object.entries(reportsByCategory)
     .map(([category, reports]) => ({
       category,
       name: getCategoryName(category),
@@ -191,29 +219,48 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <div className="flex items-center gap-3 mb-4 pb-2 border-b" style={{ borderColor: `${section.color}40` }}>
-          <div 
-            className="w-1 h-6 rounded-full"
-            style={{ backgroundColor: section.color }}
-          />
-          <h2 className="text-xl font-bold text-gray-900">{section.name}</h2>
-          <Badge variant="outline" className="text-sm ml-auto">
-            {section.reports.length} {section.reports.length === 1 ? 'report' : 'reports'}
-          </Badge>
-        </div>
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: section.color }}
+                />
+                <span>{section.name}</span>
+                <Badge variant="secondary">{section.reports.length}</Badge>
+              </div>
+            </CardTitle>
 
-        {/* Horizontal Scrolling Reports */}
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {/* Featured Report (large) */}
-          {featuredReport && (
-            <ReportCard report={featuredReport} size="large" />
-          )}
+            {/* AI Journalism Analysis */}
+            {categoryAnalyses[section.category] && (
+              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-md border-l-4 border-blue-500">
+                <div className="flex items-start space-x-2">
+                  <FileText className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-blue-900 dark:text-blue-100">
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: categoryAnalyses[section.category].replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                    }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {/* Horizontal Scrolling Reports */}
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {/* Featured Report (large) */}
+              {featuredReport && (
+                <ReportCard report={featuredReport} size="large" />
+              )}
 
-          {/* Other Reports (normal size) */}
-          {otherReports.map((report) => (
-            <ReportCard key={report.id} report={report} size="normal" />
-          ))}
-        </div>
+              {/* Other Reports (normal size) */}
+              {otherReports.map((report) => (
+                <ReportCard key={report.id} report={report} size="normal" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </section>
     );
   };

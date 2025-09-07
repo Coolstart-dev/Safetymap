@@ -286,6 +286,96 @@ Maximaal 3-4 categorieën, professionele toon.`;
     }
   });
 
+  // Get AI journalism analysis for specific category in postal code
+  app.get("/api/region/:postalCode/category/:category/analysis", async (req, res) => {
+    try {
+      const postalCode = req.params.postalCode;
+      const category = req.params.category;
+
+      // Get postal code info
+      const postalInfo = await geocodingService.getPostalCodeInfo(postalCode);
+      if (!postalInfo) {
+        return res.status(404).json({ error: "Postal code not found" });
+      }
+
+      // Get all reports for this category in this postal code
+      const allReports = await storage.getAllPublicReports();
+      const categoryReports = allReports.filter(report => {
+        if (report.category !== category) return false;
+        if (!report.latitude || !report.longitude) return false;
+
+        const distance = calculateDistance(
+          postalInfo.latitude, 
+          postalInfo.longitude,
+          report.latitude,
+          report.longitude
+        );
+
+        return distance <= 2;
+      });
+
+      if (categoryReports.length < 2) {
+        return res.json({ analysis: null }); // Not enough data for pattern analysis
+      }
+
+      // Prepare detailed data for AI analysis
+      const detailedReports = categoryReports.map(report => ({
+        description: report.description,
+        location: report.locationDescription || `${report.latitude?.toFixed(4)}, ${report.longitude?.toFixed(4)}`,
+        createdAt: new Date(report.createdAt).toLocaleDateString('nl-NL'),
+        incidentTime: report.incidentDateTime ? new Date(report.incidentDateTime).toLocaleDateString('nl-NL') : null,
+        subcategory: report.subcategory || 'Algemeen'
+      }));
+
+      const moderator = new AIContentModerator();
+
+      const prompt = `Je bent een onderzoeksjournalist die patronen analyseert in buurtmeldingen. 
+
+Analyseer deze ${categoryReports.length} meldingen in categorie "${category}":
+
+${detailedReports.map((report, i) => `
+Melding ${i+1}:
+- Beschrijving: ${report.description}
+- Locatie: ${report.location}
+- Gemeld op: ${report.createdAt}
+- Subcategorie: ${report.subcategory}
+${report.incidentTime ? `- Incident datum: ${report.incidentTime}` : ''}
+`).join('\n')}
+
+Schrijf ALLEEN een korte journalistieke notitie ALS je duidelijke patronen ziet:
+- Tijdsclusters (bijv. "3 fietsdiefstallen in één nacht")
+- Locatieclusters (bijv. "alle incidenten rond Park X")
+- Gedragspatronen (bijv. "steeds dezelfde aanpak")
+- Escalatie (bijv. "toenemende ernst")
+
+SCHRIJF NIETS als er geen opvallende patronen zijn.
+
+Als je wel patronen ziet, format zo:
+**Opvallend patroon:** [korte, pakkende kop]
+[2-3 zinnen uitleg]
+
+Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten weten.`;
+
+      try {
+        const analysis = await moderator.generateSummary(prompt);
+        
+        // Only return analysis if it's substantial (not just "geen patronen")
+        if (analysis && analysis.length > 50 && !analysis.toLowerCase().includes('geen patronen') && !analysis.toLowerCase().includes('geen opvallende')) {
+          res.json({ analysis: analysis.trim() });
+        } else {
+          res.json({ analysis: null });
+        }
+      } catch (aiError) {
+        console.error('AI journalism analysis error:', aiError);
+        res.json({ analysis: null });
+      }
+
+    } catch (error) {
+      console.error('Category analysis error:', error);
+      res.status(500).json({ error: "Failed to generate category analysis" });
+    }
+  });
+
   // Get postal code info
   app.get("/api/geocode/:postalCode", async (req, res) => {
     try {
