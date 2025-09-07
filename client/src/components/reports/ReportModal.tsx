@@ -243,8 +243,18 @@ export default function ReportModal({
     }
   }, [selectedLocation, form]);
 
-  // Note: Body scroll handling is now managed automatically by Radix Dialog with DialogOverlay
-  // No manual scroll manipulation needed
+  // Manage body scroll for mobile modals
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      // Allow body scroll on mobile for modal content
+      document.body.style.overflow = "auto";
+      
+      return () => {
+        // Restore original behavior when closing
+        document.body.style.overflow = "";
+      };
+    }
+  }, [isMobile, isOpen]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -296,11 +306,13 @@ export default function ReportModal({
             </DialogHeader>
 
             <div 
-              className="flex-1 overflow-y-auto overflow-x-hidden"
+              className="flex-1 overflow-y-scroll overflow-x-hidden"
               style={{
                 WebkitOverflowScrolling: 'touch',
                 touchAction: 'pan-y',
-                overscrollBehavior: 'contain'
+                overscrollBehavior: 'contain',
+                height: 'calc(100vh - 80px)', // Subtract header height
+                maxHeight: 'calc(100vh - 80px)'
               }}
             >
               <div className="p-4">
