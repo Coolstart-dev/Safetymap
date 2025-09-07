@@ -141,7 +141,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <article 
         className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 ${
-          isLarge ? 'w-80' : 'w-64'
+          isLarge ? 'w-80 min-w-80' : 'w-64 min-w-64'
         }`}
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
@@ -184,17 +184,17 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         {/* Content */}
         <div className={`p-4 space-y-2`}>
           <div className="flex items-start justify-between gap-2">
-            <h3 className={`font-semibold text-gray-900 line-clamp-2 ${
+            <h3 className={`font-semibold text-gray-900 line-clamp-2 flex-1 ${
               isLarge ? 'text-base' : 'text-sm'
             }`}>
               {report.title}
             </h3>
-            <span className="text-xs text-gray-500 whitespace-nowrap">
+            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
               {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
             </span>
           </div>
 
-          <p className={`text-gray-600 line-clamp-2 ${
+          <p className={`text-gray-600 line-clamp-3 ${
             isLarge ? 'text-sm' : 'text-xs'
           }`}>
             {report.description}
@@ -272,16 +272,37 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
           </CardHeader>
           <CardContent>
             {/* Horizontal Scrolling Reports */}
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {/* Featured Report (large) */}
-              {featuredReport && (
-                <ReportCard report={featuredReport} size="large" />
+            <div className="relative">
+              {/* Scroll indicators */}
+              {section.reports.length > 1 && (
+                <div className="absolute right-0 top-0 z-10 flex items-center space-x-1 bg-gradient-to-l from-white via-white to-transparent pl-8 pr-2 py-2">
+                  <div className="flex space-x-1">
+                    {Array.from({ length: Math.min(section.reports.length, 5) }).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="w-1.5 h-1.5 rounded-full bg-gray-300"
+                      />
+                    ))}
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </div>
               )}
+              
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {/* Featured Report (large) */}
+                {featuredReport && (
+                  <div className="snap-start">
+                    <ReportCard report={featuredReport} size="large" />
+                  </div>
+                )}
 
-              {/* Other Reports (normal size) */}
-              {otherReports.map((report) => (
-                <ReportCard key={report.id} report={report} size="normal" />
-              ))}
+                {/* Other Reports (normal size) */}
+                {otherReports.map((report) => (
+                  <div key={report.id} className="snap-start">
+                    <ReportCard key={report.id} report={report} size="normal" />
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
