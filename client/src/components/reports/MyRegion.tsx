@@ -232,16 +232,36 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                   style={{ backgroundColor: section.color }}
                 />
                 <span>{section.name}</span>
-                <Badge variant="secondary">{section.reports.length}</Badge>
+                <Badge 
+                  className="border-0"
+                  style={{ 
+                    backgroundColor: `${section.color}20`,
+                    color: section.color
+                  }}
+                >
+                  {section.reports.length}
+                </Badge>
               </div>
             </CardTitle>
 
             {/* AI Journalism Analysis */}
             {categoryAnalyses[section.category] && (
-              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-md border-l-4 border-blue-500">
+              <div 
+                className="mt-3 p-3 rounded-md border-l-4"
+                style={{ 
+                  backgroundColor: `${section.color}10`,
+                  borderLeftColor: section.color 
+                }}
+              >
                 <div className="flex items-start space-x-2">
-                  <FileText className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-blue-900 dark:text-blue-100">
+                  <FileText 
+                    className="h-4 w-4 mt-0.5 flex-shrink-0" 
+                    style={{ color: section.color }}
+                  />
+                  <div 
+                    className="text-sm font-medium"
+                    style={{ color: section.color }}
+                  >
                     <div dangerouslySetInnerHTML={{ 
                       __html: categoryAnalyses[section.category].replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
                     }} />
