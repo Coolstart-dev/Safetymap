@@ -22,6 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -293,25 +295,19 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !transform-none !translate-x-0 !translate-y-0 !max-w-none !w-full !h-full !rounded-none !border-0 p-6"
-        style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, transform: 'none', maxWidth: 'none' }}>
-        <div className="h-full flex flex-col">
-          <DialogHeader className="flex-shrink-0 pb-4 border-b">
-            <DialogTitle>Report Incident</DialogTitle>
-            <DialogDescription className="sr-only">
-              Create a new incident report with location, category, and details
-            </DialogDescription>
-          </DialogHeader>
+      <DialogPortal>
+        <DialogOverlay className="fixed inset-0 bg-black/80 overflow-y-auto">
+          <div className="min-h-screen flex items-start justify-center">
+            <DialogContent className="w-full max-w-md m-4 max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
+              <div className="h-full flex flex-col">
+                <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
+                  <DialogTitle>Report Incident</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Create a new incident report with location, category, and details
+                  </DialogDescription>
+                </DialogHeader>
 
-          <div 
-            className="flex-1 overflow-y-auto overflow-x-hidden pt-4" 
-            style={{ 
-              WebkitOverflowScrolling: 'touch',
-              overscrollBehavior: 'contain',
-              scrollBehavior: 'smooth',
-              minHeight: 0
-            }}
-          >
+                <div className="flex-1 overflow-y-auto p-6 pt-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
             {/* Category Selection */}
@@ -623,9 +619,12 @@ export default function ReportModal({
                 </Button>
               </form>
             </Form>
+                </div>
+              </div>
+            </DialogContent>
           </div>
-        </div>
-      </DialogContent>
+        </DialogOverlay>
+      </DialogPortal>
     </Dialog>
   );
 }
