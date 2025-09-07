@@ -139,7 +139,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
     return (
       <article 
-        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-64 min-w-64 md:w-72 md:min-w-72 h-72 md:h-80"
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-72 min-w-72 h-80"
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
       >
@@ -179,7 +179,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         </div>
 
         {/* Content */}
-        <div className="p-3 md:p-4 space-y-2 flex-1 flex flex-col justify-between">
+        <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
           <div className="flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-2 mb-2">
               <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
@@ -216,9 +216,9 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <Card className="mb-4 shadow-none border-0 md:shadow-sm md:border">
-          <CardHeader className="p-3 md:p-6">
-            <CardTitle className="flex items-center justify-between text-lg md:text-2xl">
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span 
                   className="w-3 h-3 rounded-full" 
@@ -263,12 +263,12 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               </div>
             )}
           </CardHeader>
-          <CardContent className="p-3 md:p-6 pt-0">
+          <CardContent>
             {/* Horizontal Scrolling Reports */}
             <div className="relative">
               {/* Scroll indicators */}
               {section.reports.length > 1 && (
-                <div className="absolute right-0 top-0 z-10 flex items-center space-x-1 bg-gradient-to-l from-white via-white to-transparent pl-4 pr-1 py-2">
+                <div className="absolute right-0 top-0 z-10 flex items-center space-x-1 bg-gradient-to-l from-white via-white to-transparent pl-8 pr-2 py-2">
                   <div className="flex space-x-1">
                     {Array.from({ length: Math.min(section.reports.length, 5) }).map((_, i) => (
                       <div 
@@ -281,7 +281,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                 </div>
               )}
               
-              <div className="flex gap-2 md:gap-4 overflow-x-auto scrollbar-hide pb-2 md:pb-4 snap-x snap-mandatory -mx-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {/* All Reports (same size) */}
                 {section.reports.map((report) => (
                   <div key={report.id} className="snap-start">
@@ -342,9 +342,9 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         )}
 
         {regionData && (
-          <div className="max-w-6xl mx-auto p-2 md:p-6">
+          <div className="max-w-6xl mx-auto p-6">
             {/* Region Header */}
-            <header className="bg-white rounded-lg border border-gray-200 p-3 md:p-6 mb-4 md:mb-8">
+            <header className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 {regionData.postalCode.municipality}
               </h1>
