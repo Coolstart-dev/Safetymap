@@ -21,6 +21,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -292,10 +293,13 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`max-w-md ${isIOS() ? 'ios-modal-container' : 'mobile-modal-container'} h-[100dvh] sm:max-h-[90vh] sm:h-auto`}>
+      <DialogContent className={`max-w-md ${isMobile ? 'mobile-modal-container' : ''} ${isMobile ? 'fixed inset-0 top-0 left-0 right-0 bottom-0 transform-none translate-x-0 translate-y-0 max-w-none w-full h-full rounded-none' : ''} ${!isMobile ? 'sm:max-h-[90vh] sm:h-auto' : ''}`}>
         <div className={`${isIOS() ? 'ios-modal-wrapper' : 'mobile-modal-wrapper'} h-full flex flex-col`}>
-          <DialogHeader className="flex-shrink-0 sticky top-0 bg-background z-10 pb-4 border-b">
+          <DialogHeader className="flex-shrink-0 sticky top-0 bg-background z-10 pb-4 border-b pr-12">
             <DialogTitle>Report Incident</DialogTitle>
+            <DialogDescription className="sr-only">
+              Create a new incident report with location, category, and details
+            </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden mobile-scroll-content">
