@@ -134,20 +134,17 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     .sort((a, b) => b.reports.length - a.reports.length) // Sort by number of reports
     : [];
 
-  const ReportCard = ({ report, size = 'normal' }: { report: Report; size?: 'normal' | 'large' }) => {
+  const ReportCard = ({ report }: { report: Report }) => {
     const categoryColor = getCategoryColor(report.category);
-    const isLarge = size === 'large';
 
     return (
       <article 
-        className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col ${
-          isLarge ? 'w-80 min-w-80 h-96' : 'w-64 min-w-64 h-80'
-        }`}
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-72 min-w-72 h-80"
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
       >
         {/* Image or Placeholder */}
-        <div className={`${isLarge ? 'h-48' : 'h-32'} bg-gray-100 relative`}>
+        <div className="h-32 bg-gray-100 relative">
           {report.imageUrl ? (
             <img
               src={report.imageUrl}
@@ -182,12 +179,10 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         </div>
 
         {/* Content */}
-        <div className={`p-4 space-y-2 flex-1 flex flex-col justify-between`}>
+        <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
           <div className="flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className={`font-semibold text-gray-900 line-clamp-2 flex-1 ${
-                isLarge ? 'text-base' : 'text-sm'
-              }`}>
+              <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
                 {report.title}
               </h3>
               <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
@@ -195,9 +190,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               </span>
             </div>
 
-            <p className={`text-gray-600 line-clamp-3 flex-1 ${
-              isLarge ? 'text-sm' : 'text-xs'
-            }`}>
+            <p className="text-gray-600 line-clamp-3 flex-1 text-xs">
               {report.description}
             </p>
           </div>
@@ -220,8 +213,6 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
   };
 
   const CategorySection = ({ section }: { section: CategorySection }) => {
-    const [featuredReport, ...otherReports] = section.reports;
-
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
@@ -291,17 +282,10 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               )}
               
               <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {/* Featured Report (large) */}
-                {featuredReport && (
-                  <div className="snap-start">
-                    <ReportCard report={featuredReport} size="large" />
-                  </div>
-                )}
-
-                {/* Other Reports (normal size) */}
-                {otherReports.map((report) => (
+                {/* All Reports (same size) */}
+                {section.reports.map((report) => (
                   <div key={report.id} className="snap-start">
-                    <ReportCard key={report.id} report={report} size="normal" />
+                    <ReportCard report={report} />
                   </div>
                 ))}
               </div>
