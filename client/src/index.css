@@ -113,34 +113,52 @@
     max-width: none !important;
     width: 100% !important;
     height: 100vh !important;
-    height: 100dvh !important; /* Use dynamic viewport height */
+    height: 100dvh !important;
     border-radius: 0 !important;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     z-index: 9999;
+    background: white;
   }
   
-  .ios-modal-container .dialog-content-scroll {
+  .ios-scroll-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .ios-modal-header {
+    flex-shrink: 0;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+    z-index: 10;
+  }
+  
+  .ios-form-container {
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
     overscroll-behavior: contain;
     padding: 1rem;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   }
   
-  /* Force enable scrolling on iOS */
-  .ios-modal-container .dialog-content-scroll::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Additional iOS fixes */
+  /* Ensure iOS scrolling works */
   @supports (-webkit-touch-callout: none) {
     .ios-modal-container {
       height: -webkit-fill-available !important;
+    }
+    
+    .ios-form-container {
+      /* Force momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+      transform: translateZ(0);
+      will-change: scroll-position;
     }
   }
 

@@ -88,9 +88,9 @@ export default function ReportModal({
   const createReportMutation = useMutation({
     mutationFn: async (data: FormData) => {
       console.log("Creating FormData from:", data);
-      
+
       const formData = new FormData();
-      
+
       // Always include required fields
       console.log("Adding title:", data.title);
       formData.append('title', data.title);
@@ -100,7 +100,7 @@ export default function ReportModal({
       formData.append('category', data.category);
       console.log("Adding involvementType:", data.involvementType);
       formData.append('involvementType', data.involvementType);
-      
+
       // Include optional fields only if they have values
       if (data.subcategory) {
         console.log("Adding subcategory:", data.subcategory);
@@ -118,11 +118,11 @@ export default function ReportModal({
         console.log("Adding locationDescription:", data.locationDescription);
         formData.append('locationDescription', data.locationDescription);
       }
-      
+
       // Boolean field - always include
       console.log("Adding authoritiesContacted:", data.authoritiesContacted);
       formData.append('authoritiesContacted', data.authoritiesContacted ? 'true' : 'false');
-      
+
       if (data.incidentDateTime) {
         console.log("Adding incidentDateTime:", data.incidentDateTime);
         formData.append('incidentDateTime', data.incidentDateTime);
@@ -166,11 +166,11 @@ export default function ReportModal({
     },
     onError: (error: any) => {
       console.log("Submission error:", error);
-      
+
       // Try to parse the error response for specific moderation messages
       let errorTitle = "Failed to submit report";
       let errorDescription = "Please try again later.";
-      
+
       if (error?.message?.includes("Content rejected by moderation")) {
         errorTitle = "Report niet geaccepteerd";
         errorDescription = "Je melding bevat inhoud die niet voldoet aan onze richtlijnen. Controleer op ongepaste taal of persoonlijke informatie.";
@@ -178,7 +178,7 @@ export default function ReportModal({
         errorTitle = "Melding geweigerd";
         errorDescription = "Je melding kon niet worden geaccepteerd. Controleer de inhoud en probeer opnieuw.";
       }
-      
+
       toast({
         title: errorTitle,
         description: errorDescription,
@@ -200,7 +200,7 @@ export default function ReportModal({
           // Set current time for "Here & Now"
       const currentTime = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
       form.setValue("incidentDateTime", currentTime);
-      
+
       if (onLocationSelect) {
         onLocationSelect({ lat: position.latitude, lng: position.longitude });
       }
@@ -245,13 +245,13 @@ export default function ReportModal({
     if (isOpen && isIOS()) {
       // Store the current scroll position
       const scrollY = window.scrollY;
-      
+
       // Apply iOS-specific fixes
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
-      
+
       return () => {
         // Restore the previous state
         document.body.style.position = '';
@@ -277,7 +277,7 @@ export default function ReportModal({
 
   const onSubmit = (data: FormData) => {
     console.log("Form data being submitted:", data);
-    
+
     // Validate required fields before submission
     if (!data.category) {
       toast({
@@ -286,7 +286,7 @@ export default function ReportModal({
       });
       return;
     }
-    
+
     createReportMutation.mutate(data);
   };
 
@@ -435,7 +435,7 @@ export default function ReportModal({
                     {locationSelectionMode ? "Exit Map" : "Select on Map"}
                   </Button>
                 </div>
-                
+
                 {selectedLocation && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="text-sm text-green-800">
@@ -443,7 +443,7 @@ export default function ReportModal({
                     </div>
                   </div>
                 )}
-                
+
                 {locationSelectionMode && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div className="text-sm text-blue-800">
@@ -451,7 +451,7 @@ export default function ReportModal({
                     </div>
                   </div>
                 )}
-                
+
                 <div className="text-center text-xs text-muted-foreground">or</div>
                 <FormField
                   control={form.control}
@@ -477,7 +477,7 @@ export default function ReportModal({
               render={({ field }) => {
                 // Default to current time if no value set
                 const currentDateTime = field.value || new Date().toISOString().slice(0, 16);
-                
+
                 return (
                   <FormItem>
                     <FormLabel>When did this happen?</FormLabel>
@@ -600,7 +600,6 @@ export default function ReportModal({
               )}
             />
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full"
@@ -752,7 +751,7 @@ export default function ReportModal({
                         {locationSelectionMode ? "Exit Map" : "Select on Map"}
                       </Button>
                     </div>
-                    
+
                     {selectedLocation && (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                         <div className="text-sm text-green-800">
@@ -760,7 +759,7 @@ export default function ReportModal({
                         </div>
                       </div>
                     )}
-                    
+
                     {locationSelectionMode && (
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <div className="text-sm text-blue-800">
@@ -768,7 +767,7 @@ export default function ReportModal({
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="text-center text-xs text-muted-foreground">or</div>
                     <FormField
                       control={form.control}
@@ -792,7 +791,7 @@ export default function ReportModal({
                   name="incidentDateTime"
                   render={({ field }) => {
                     const currentDateTime = field.value || new Date().toISOString().slice(0, 16);
-                    
+
                     return (
                       <FormItem>
                         <FormLabel>When did this happen?</FormLabel>
