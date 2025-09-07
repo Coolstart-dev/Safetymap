@@ -204,39 +204,8 @@
     }
   }
 
-  /* Mobile specific scrolling improvements */
-  @media (max-width: 768px) {
-    .mobile-modal-container,
-    .ios-modal-container {
-      height: 100vh !important;
-      height: 100dvh !important;
-    }
-
-    .mobile-scroll-content {
-      /* Enhanced touch scrolling for mobile */
-      overscroll-behavior-y: contain;
-      -webkit-overflow-scrolling: touch;
-      transform: translateZ(0); /* Force GPU acceleration */
-      will-change: scroll-position;
-    }
-
-    /* Prevent body scroll when modal is open on mobile */
-    body.modal-open {
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-  }
-
-  /* Desktop scrolling - ensure trackpad works */
-  @media (min-width: 769px) {
-    body.modal-open {
-      overflow: hidden;
-      /* Don't set touch-action on desktop */
-    }
-  }
+  /* Note: Mobile scroll handling is now managed by Radix Dialog DialogOverlay
+     No manual body scroll manipulation needed for ReportModal */
 }
 
 @layer utilities {

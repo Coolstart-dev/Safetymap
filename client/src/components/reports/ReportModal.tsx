@@ -243,33 +243,8 @@ export default function ReportModal({
     }
   }, [selectedLocation, form]);
 
-  // iOS-specific scroll handling
-  useEffect(() => {
-    if (isOpen && isIOS()) {
-      // Store the current scroll position
-      const scrollY = window.scrollY;
-
-      // Apply iOS-specific fixes
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-
-      return () => {
-        // Restore the previous state
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.style.overflow = '';
-        window.scrollTo(0, scrollY);
-      };
-    } else if (isMobile && isOpen) {
-      document.body.classList.add('modal-open');
-      return () => {
-        document.body.classList.remove('modal-open');
-      };
-    }
-  }, [isMobile, isOpen]);
+  // Note: Body scroll handling is now managed automatically by Radix Dialog with DialogOverlay
+  // No manual scroll manipulation needed
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -297,9 +272,9 @@ export default function ReportModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 bg-black/80 overflow-y-auto">
-          <div className="min-h-screen flex items-start justify-center">
-            <DialogContent className="w-full max-w-md m-4 max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
-              <div className="h-full flex flex-col">
+          <div className="min-h-screen flex items-start justify-center p-4">
+            <DialogContent className="w-full max-w-md max-h-[calc(100vh-2rem)] bg-background rounded-lg border shadow-lg">
+              <div className="flex flex-col max-h-full">
                 <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
                   <DialogTitle>Report Incident</DialogTitle>
                   <DialogDescription className="sr-only">
