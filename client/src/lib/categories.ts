@@ -11,14 +11,14 @@ export const categories = {
   },
   suspicious: {
     name: "Suspicious Activity",
-    color: "#eab308", // yellow
+    color: "#f97316", // orange (consistent with shared schema)
     subcategories: [
       "Strange or unusual behavior",
       "Suspicious noises"
     ]
   },
   public: {
-    name: "Degradation of Public Spaces",
+    name: "Public Space Degradation",
     color: "#8b5cf6", // purple
     subcategories: [
       "Littering",
@@ -42,7 +42,7 @@ export const categories = {
   },
   dangerous: {
     name: "Dangerous Situations",
-    color: "#f97316", // orange
+    color: "#dc2626", // red (consistent with shared schema)
     subcategories: [
       "Other dangerous situations"
     ]
