@@ -229,6 +229,14 @@
       touch-action: none;
     }
   }
+
+  /* Desktop scrolling - ensure trackpad works */
+  @media (min-width: 769px) {
+    body.modal-open {
+      overflow: hidden;
+      /* Don't set touch-action on desktop */
+    }
+  }
 }
 
 @layer utilities {

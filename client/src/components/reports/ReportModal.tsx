@@ -303,9 +303,17 @@ export default function ReportModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden mobile-scroll-content pt-4">
+          <div 
+            className="flex-1 overflow-y-auto overflow-x-hidden pt-4" 
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+              scrollBehavior: 'smooth',
+              minHeight: 0
+            }}
+          >
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 pb-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
             {/* Category Selection */}
             <FormField
               control={form.control}
