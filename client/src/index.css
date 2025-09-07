@@ -196,6 +196,20 @@
       flex-direction: column;
     }
 
+    /* Remove shadows and excessive spacing on mobile */
+    .shadow-sm {
+      box-shadow: none !important;
+    }
+    
+    .border {
+      border: none !important;
+    }
+    
+    /* Tighter spacing for mobile cards */
+    .space-y-0 > * + * {
+      margin-top: 0.5rem !important;
+    }
+
     .mobile-scroll-container > div {
       flex: 1;
       overflow-y: auto;
