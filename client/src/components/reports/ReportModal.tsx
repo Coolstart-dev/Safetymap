@@ -293,17 +293,17 @@ export default function ReportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !transform-none !translate-x-0 !translate-y-0 !max-w-none !w-full !h-full !rounded-none !p-0 !m-0 !border-0"
+      <DialogContent className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !transform-none !translate-x-0 !translate-y-0 !max-w-none !w-full !h-full !rounded-none !border-0 p-6"
         style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, transform: 'none', maxWidth: 'none' }}>
-        <div className={`${isIOS() ? 'ios-modal-wrapper' : 'mobile-modal-wrapper'} h-full flex flex-col`}>
-          <DialogHeader className="flex-shrink-0 sticky top-0 bg-background z-10 pb-4 border-b pr-12">
+        <div className="h-full flex flex-col">
+          <DialogHeader className="flex-shrink-0 pb-4 border-b">
             <DialogTitle>Report Incident</DialogTitle>
             <DialogDescription className="sr-only">
               Create a new incident report with location, category, and details
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden mobile-scroll-content">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden mobile-scroll-content pt-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 pb-8">
             {/* Category Selection */}
