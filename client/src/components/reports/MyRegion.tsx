@@ -90,28 +90,36 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     .filter(([_, reports]) => reports.length >= 2)
     .map(([category, _]) => category);
 
-  // Create stable queries for each category that needs analysis
-  const categoryAnalyses: Record<string, string> = {};
-  
-  // Use individual queries for each category (React requires stable hook order)
-  categoriesNeedingAnalysis.forEach(category => {
-    const { data } = useQuery({
-      queryKey: ['/api/region', searchedPostalCode, 'category', category, 'analysis'],
-      queryFn: async () => {
-        if (!searchedPostalCode) return null;
-        const response = await fetch(`/api/region/${searchedPostalCode}/category/${category}/analysis`);
-        if (!response.ok) {
-          throw new Error(`Failed to get analysis for category ${category}`);
+  // Create a single query for all category analyses
+  const { data: allCategoryAnalyses } = useQuery({
+    queryKey: ['/api/region', searchedPostalCode, 'category-analyses', categoriesNeedingAnalysis],
+    queryFn: async () => {
+      if (!searchedPostalCode || categoriesNeedingAnalysis.length === 0) return {};
+      
+      const analyses: Record<string, string> = {};
+      
+      // Fetch all analyses in parallel
+      const promises = categoriesNeedingAnalysis.map(async (category) => {
+        try {
+          const response = await fetch(`/api/region/${searchedPostalCode}/category/${category}/analysis`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data?.analysis) {
+              analyses[category] = data.analysis;
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to get analysis for category ${category}:`, error);
         }
-        return response.json();
-      },
-      enabled: !!searchedPostalCode,
-    });
-    
-    if (data?.analysis) {
-      categoryAnalyses[category] = data.analysis;
-    }
+      });
+      
+      await Promise.all(promises);
+      return analyses;
+    },
+    enabled: !!searchedPostalCode && categoriesNeedingAnalysis.length > 0,
   });
+
+  const categoryAnalyses = allCategoryAnalyses || {};
 
   // Group reports by category and sort by recency
   const groupedReports: CategorySection[] = regionData ? 
