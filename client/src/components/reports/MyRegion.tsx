@@ -139,7 +139,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
     return (
       <article 
-        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-72 min-w-72 h-80"
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-64 min-w-64 h-80"
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
       >
@@ -216,7 +216,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <Card className="mb-4">
+        <Card className="mb-4 bg-gray-50/50 border-gray-100">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -266,22 +266,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
           <CardContent>
             {/* Horizontal Scrolling Reports */}
             <div className="relative">
-              {/* Scroll indicators */}
-              {section.reports.length > 1 && (
-                <div className="absolute right-0 top-0 z-10 flex items-center space-x-1 bg-gradient-to-l from-white via-white to-transparent pl-8 pr-2 py-2">
-                  <div className="flex space-x-1">
-                    {Array.from({ length: Math.min(section.reports.length, 5) }).map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="w-1.5 h-1.5 rounded-full bg-gray-300"
-                      />
-                    ))}
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                </div>
-              )}
-              
-              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory pr-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {/* All Reports (same size) */}
                 {section.reports.map((report) => (
                   <div key={report.id} className="snap-start">
