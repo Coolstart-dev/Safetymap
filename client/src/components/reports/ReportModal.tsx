@@ -304,7 +304,7 @@ export default function ReportModal({
               </DialogDescription>
             </DialogHeader>
 
-            <ScrollArea className="flex-1">
+            <div className="flex-1 modal-scroll-container" style={{ maxHeight: 'calc(100vh - 80px)' }}>
               <div className="p-4 pb-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
@@ -618,26 +618,27 @@ export default function ReportModal({
               </form>
             </Form>
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
     );
   }
 
-  // Desktop: use DialogContent with ScrollArea for consistent behavior
+  // Desktop: use DialogContent with proper max-height and scroll
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-hidden">
-        <DialogHeader className="flex-shrink-0 pb-4 border-b">
-          <DialogTitle>Report Incident</DialogTitle>
-          <DialogDescription className="sr-only">
-            Create a new incident report with location, category, and details
-          </DialogDescription>
-        </DialogHeader>
-        
-        <ScrollArea className="flex-1 max-h-[calc(90vh-120px)]">
-          <div className="pr-4">
+      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-hidden p-0">
+        <div className="flex flex-col h-full max-h-[90vh]">
+          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
+            <DialogTitle>Report Incident</DialogTitle>
+            <DialogDescription className="sr-only">
+              Create a new incident report with location, category, and details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 modal-scroll-container p-6 pt-4" style={{ maxHeight: 'calc(90vh - 120px)' }}>
+            <div>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <div className="space-y-6">
@@ -670,8 +671,9 @@ export default function ReportModal({
                       </Button>
                     </form>
                   </Form>
+            </div>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

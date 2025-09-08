@@ -3,6 +3,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Modal scroll fixes - as requested by user */
+.modal-scroll-container {
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure body scroll lock works properly with modal open */
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(222.2, 84%, 4.9%);
