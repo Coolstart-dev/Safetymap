@@ -83,8 +83,12 @@ Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug m
 - Racistische, discriminerende of grove taal
 - Memes of grappen
 
-Titel: ${title}
-Beschrijving: ${description}`;
+Titel: "${title}"
+Beschrijving: "${description}"
+
+BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks of extra tekst.
+Geef je antwoord in exact dit JSON format:
+{"isApproved": boolean, "isSpam": boolean, "hasInappropriateContent": boolean, "hasPII": boolean, "reason": "string of null"}`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
@@ -95,8 +99,21 @@ Beschrijving: ${description}`;
       const contentBlock = response.content[0];
       let result;
       if (contentBlock.type === 'text') {
-        let responseText = contentBlock.text;
+        let responseText = contentBlock.text.trim();
+        
+        // Log the raw AI response for debugging
+        console.log('AI Content Filter Raw Response:', responseText);
+        
+        // Clean up common non-JSON prefixes/suffixes
+        responseText = responseText.replace(/^[\s\S]*?({.*})[\s\S]*$/s, '$1');
         responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+        
+        // Try to find JSON in the response
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          responseText = jsonMatch[0];
+        }
+        
         result = JSON.parse(responseText);
       } else {
         throw new Error('Unexpected content type from AI response');
@@ -113,13 +130,14 @@ Beschrijving: ${description}`;
       return result as ContentFilterResult;
     } catch (error) {
       console.error('AI content filtering error:', error);
-      // Fallback: allow content
+      // IMPORTANT: For safety, reject content when AI filtering fails
+      // This ensures racist/inappropriate content is not accidentally approved
       return {
-        isApproved: true,
-        isSpam: false,
-        hasInappropriateContent: false,
+        isApproved: false,
+        isSpam: true,
+        hasInappropriateContent: true,
         hasPII: false,
-        reason: 'Content filter temporarily unavailable'
+        reason: 'Content filter temporarily unavailable - rejected for safety'
       };
     }
   }
