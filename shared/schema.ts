@@ -138,3 +138,24 @@ export const insertScrapingConfigSchema = createInsertSchema(scrapingConfig).omi
 
 export type InsertScrapingConfig = z.infer<typeof insertScrapingConfigSchema>;
 export type ScrapingConfig = typeof scrapingConfig.$inferSelect;
+
+// Municipalities schema for context-aware reporting suggestions
+export const municipalities = pgTable("municipalities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(), // e.g. "Wijnegem"
+  postcode: varchar("postcode", { length: 10 }).notNull(), // e.g. "2110"
+  reportingUrl: text("reporting_url").notNull(), // Official municipality reporting URL
+  alternativeUrl: text("alternative_url"), // Secondary reporting URL if available
+  isActive: boolean("is_active").default(true),
+  lastChecked: timestamp("last_checked"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMunicipalitySchema = createInsertSchema(municipalities).omit({
+  id: true,
+  createdAt: true,
+  lastChecked: true,
+});
+
+export type InsertMunicipality = z.infer<typeof insertMunicipalitySchema>;
+export type Municipality = typeof municipalities.$inferSelect;

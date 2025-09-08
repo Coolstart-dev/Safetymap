@@ -2,12 +2,15 @@ import {
   reports, 
   scrapedReports, 
   scrapingConfig,
+  municipalities,
   type Report, 
   type InsertReport,
   type ScrapedReport,
   type InsertScrapedReport,
   type ScrapingConfig,
-  type InsertScrapingConfig
+  type InsertScrapingConfig,
+  type Municipality,
+  type InsertMunicipality
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
@@ -43,6 +46,13 @@ export interface IStorage {
   createScrapingConfig(config: InsertScrapingConfig): Promise<ScrapingConfig>;
   updateScrapingConfig(id: string, config: Partial<ScrapingConfig>): Promise<boolean>;
   deleteScrapingConfig(id: string): Promise<boolean>;
+  
+  // Municipality methods
+  getAllMunicipalities(): Promise<Municipality[]>;
+  getMunicipalityByPostcode(postcode: string): Promise<Municipality | undefined>;
+  createMunicipality(municipality: InsertMunicipality): Promise<Municipality>;
+  updateMunicipality(id: string, municipality: Partial<Municipality>): Promise<boolean>;
+  deleteMunicipality(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -249,6 +259,37 @@ export class DatabaseStorage implements IStorage {
 
   async deleteScrapingConfig(id: string): Promise<boolean> {
     const result = await db.delete(scrapingConfig).where(eq(scrapingConfig.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Municipality methods implementation
+  async getAllMunicipalities(): Promise<Municipality[]> {
+    return await db.select().from(municipalities).orderBy(municipalities.name);
+  }
+
+  async getMunicipalityByPostcode(postcode: string): Promise<Municipality | undefined> {
+    const [municipality] = await db.select().from(municipalities)
+      .where(eq(municipalities.postcode, postcode));
+    return municipality || undefined;
+  }
+
+  async createMunicipality(insertMunicipality: InsertMunicipality): Promise<Municipality> {
+    const [municipality] = await db
+      .insert(municipalities)
+      .values(insertMunicipality)
+      .returning();
+    return municipality;
+  }
+
+  async updateMunicipality(id: string, municipalityUpdate: Partial<Municipality>): Promise<boolean> {
+    const result = await db.update(municipalities)
+      .set(municipalityUpdate)
+      .where(eq(municipalities.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteMunicipality(id: string): Promise<boolean> {
+    const result = await db.delete(municipalities).where(eq(municipalities.id, id));
     return (result.rowCount || 0) > 0;
   }
 }

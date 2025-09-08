@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertReportSchema, insertScrapingConfigSchema } from "@shared/schema";
+import { insertReportSchema, insertScrapingConfigSchema, insertMunicipalitySchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -661,6 +661,73 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     } catch (error) {
       console.error("Error deleting scraping config:", error);
       res.status(500).json({ error: "Failed to delete scraping configuration" });
+    }
+  });
+
+  // Municipality API routes
+  app.get("/api/admin/municipalities", async (req, res) => {
+    try {
+      const municipalities = await storage.getAllMunicipalities();
+      res.json(municipalities);
+    } catch (error) {
+      console.error("Error fetching municipalities:", error);
+      res.status(500).json({ error: "Failed to fetch municipalities" });
+    }
+  });
+
+  app.get("/api/municipalities/by-postcode/:postcode", async (req, res) => {
+    try {
+      const { postcode } = req.params;
+      const municipality = await storage.getMunicipalityByPostcode(postcode);
+      if (municipality) {
+        res.json(municipality);
+      } else {
+        res.status(404).json({ error: "Municipality not found for postcode" });
+      }
+    } catch (error) {
+      console.error("Error fetching municipality by postcode:", error);
+      res.status(500).json({ error: "Failed to fetch municipality" });
+    }
+  });
+
+  app.post("/api/admin/municipalities", async (req, res) => {
+    try {
+      const validatedData = insertMunicipalitySchema.parse(req.body);
+      const municipality = await storage.createMunicipality(validatedData);
+      res.json(municipality);
+    } catch (error) {
+      console.error("Error creating municipality:", error);
+      res.status(500).json({ error: "Failed to create municipality" });
+    }
+  });
+
+  app.put("/api/admin/municipalities/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.updateMunicipality(id, req.body);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Municipality not found" });
+      }
+    } catch (error) {
+      console.error("Error updating municipality:", error);
+      res.status(500).json({ error: "Failed to update municipality" });
+    }
+  });
+
+  app.delete("/api/admin/municipalities/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteMunicipality(id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Municipality not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting municipality:", error);
+      res.status(500).json({ error: "Failed to delete municipality" });
     }
   });
 
