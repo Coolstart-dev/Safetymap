@@ -214,7 +214,6 @@ export default function AdminPage() {
             disabled={isCheckingApi}
             className="h-6 px-2"
           >
-            {isCheckingApi ? <Circle className="h-3 w-3 animate-spin" /> : <Wifi className="h-3 w-3" />}
           </Button>
         </div>
       </div>
