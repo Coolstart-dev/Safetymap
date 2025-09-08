@@ -631,7 +631,6 @@ export default function ReportModal({
             </Form>
               </div>
             </div>
-          </div>
         </DialogContent>
       </Dialog>
     );
@@ -979,7 +978,6 @@ export default function ReportModal({
                   </Form>
             </div>
           </div>
-        </div>
       </DialogContent>
     </Dialog>
   );
