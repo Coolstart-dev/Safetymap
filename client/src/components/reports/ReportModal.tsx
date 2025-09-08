@@ -317,9 +317,8 @@ export default function ReportModal({
               e.stopPropagation();
             }}
           >
-              <div className="p-4 pb-8"></div>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4 pb-8">
             {/* Category Selection */}
             <FormField
               control={form.control}
