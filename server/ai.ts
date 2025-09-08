@@ -87,17 +87,19 @@ export class AIContentModerator {
     try {
       const systemPrompt = `You are a JSON-only content filter. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
       
-      const userPrompt = customPrompt || `Analyze this community safety report and return ONLY this JSON structure:
-{"isApproved": boolean, "isSpam": boolean, "hasInappropriateContent": boolean, "hasPII": boolean, "reason": string or null}
+      const userPrompt = customPrompt || `Analyze this report about "${title}" - "${description}"
 
-Rules:
-✅ APPROVED: Real safety incidents, public nuisance, positive community observations
-❌ REJECTED: Test messages, spam, personal information, racist content, memes
+Return EXACTLY this JSON format (copy the structure exactly):
+{"isApproved": true, "isSpam": false, "hasInappropriateContent": false, "hasPII": false, "reason": null}
 
-Title: "${title}"
-Description: "${description}"
+Change the boolean values based on:
+- isApproved: true for real incidents like litter/vandalism/theft/noise, false for tests/spam
+- isSpam: true only for obvious test messages like "test" or "hello"  
+- hasInappropriateContent: true only for racist/offensive language
+- hasPII: true only if contains names/phone numbers/addresses
+- reason: only add text if isApproved is false
 
-Return ONLY the JSON object:`;
+This is about litter (zwerfvuil) which should be approved.`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
