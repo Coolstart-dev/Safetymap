@@ -8,6 +8,8 @@
   max-height: 90vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* Ensure body scroll lock works properly with modal open */
@@ -15,6 +17,21 @@ body[data-scroll-locked] {
   overflow: hidden !important;
   position: fixed;
   width: 100%;
+}
+
+/* Prevent touch events on background when modal is open */
+.modal-background-no-touch {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow touch events on modal content */
+.modal-content-touch-enabled {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 :root {
@@ -176,6 +193,9 @@ body[data-scroll-locked] {
     touch-action: pan-y;
     overscroll-behavior: contain;
     scroll-behavior: smooth;
+    /* iOS Safari momentum scrolling fix */
+    transform: translateZ(0);
+    will-change: scroll-position;
   }
 
   .ios-scroll-wrapper {
@@ -202,6 +222,9 @@ body[data-scroll-locked] {
     overscroll-behavior: contain;
     padding: 1rem;
     padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    /* Ensure momentum scrolling works properly */
+    transform: translateZ(0);
+    will-change: scroll-position;
   }
 
   /* Ensure iOS scrolling works */

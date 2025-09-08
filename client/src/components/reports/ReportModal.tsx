@@ -304,8 +304,20 @@ export default function ReportModal({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="flex-1 modal-scroll-container" style={{ maxHeight: 'calc(100vh - 80px)' }}>
-              <div className="p-4 pb-8">
+            <div 
+            className="flex-1 modal-scroll-container" 
+            style={{ 
+              maxHeight: 'calc(100vh - 80px)',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+              overscrollBehavior: 'contain'
+            }}
+            onTouchMove={(e) => {
+              // Allow scrolling within the modal content
+              e.stopPropagation();
+            }}
+          >
+              <div className="p-4 pb-8"></div>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-0 pb-8">
             {/* Category Selection */}
@@ -637,8 +649,20 @@ export default function ReportModal({
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex-1 modal-scroll-container p-6 pt-4" style={{ maxHeight: 'calc(90vh - 120px)' }}>
-            <div>
+          <div 
+            className="flex-1 modal-scroll-container p-6 pt-4" 
+            style={{ 
+              maxHeight: 'calc(90vh - 120px)',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+              overscrollBehavior: 'contain'
+            }}
+            onTouchMove={(e) => {
+              // Allow scrolling within the modal content
+              e.stopPropagation();
+            }}
+          >
+            <div></div>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Category Selection */}
