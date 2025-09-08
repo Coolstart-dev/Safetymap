@@ -160,32 +160,13 @@ RESPOND NOW:`;
         error: error instanceof Error ? error.message : String(error)
       });
       
-      // TEMPORARY FALLBACK: Basic keyword-based filtering while AI is problematic
-      const titleLower = title.toLowerCase();
-      const descLower = description.toLowerCase();
-      const combinedText = `${titleLower} ${descLower}`;
-      
-      // Check for obvious spam/test patterns
-      const isSpam = /\b(test|testing|proberen|hallo|hello)\b/.test(combinedText);
-      
-      // Check for inappropriate content
-      const hasInappropriate = /\b(fuck|shit|klote|kanker|homo|racist)\b/.test(combinedText);
-      
-      // Check for PII patterns
-      const hasPII = /\b(\d{10}|\d{2}-\d{8}|0\d{9})\b/.test(combinedText) || // phone numbers
-                     /\b[A-Z][a-z]+ [A-Z][a-z]+\b/.test(title + ' ' + description); // full names
-      
-      // For legitimate reports like litter (zwerfvuil), approve them
-      const isLegitimate = /\b(zwerfvuil|litter|vandalisme|diefstal|overlast|geluid|lawaai|gevaar)\b/.test(combinedText);
-      
+      // Simple fallback: approve content when AI is unavailable
       return {
-        isApproved: !isSpam && !hasInappropriate && !hasPII && (isLegitimate || combinedText.length > 10),
-        isSpam,
-        hasInappropriateContent: hasInappropriate,
-        hasPII,
-        reason: isSpam ? 'Test message detected' : 
-                hasInappropriate ? 'Inappropriate content detected' :
-                hasPII ? 'Personal information detected' : undefined
+        isApproved: true,
+        isSpam: false,
+        hasInappropriateContent: false,
+        hasPII: false,
+        reason: undefined
       };
     }
   }
@@ -236,35 +217,10 @@ Rewrite this to formal Dutch but keep the same meaning:`;
     } catch (error) {
       console.error('AI text formalization error:', error);
       
-      // FALLBACK: Basic formalization without AI
-      const titleLower = title.toLowerCase();
-      const descLower = description.toLowerCase();
-      
-      // Simple keyword-based formalization
-      let formalizedTitle = title;
-      let formalizedDescription = description;
-      
-      if (titleLower.includes('zwerfvuil') || titleLower.includes('zerfvuil')) {
-        formalizedTitle = 'Zwerfvuil in openbare ruimte';
-        formalizedDescription = 'Zwerfvuil aangetroffen in openbare ruimte';
-      } else if (titleLower.includes('vandalisme')) {
-        formalizedTitle = 'Vandalisme incident';
-        formalizedDescription = 'Vandalisme schade vastgesteld in openbare ruimte';
-      } else if (titleLower.includes('diefstal')) {
-        formalizedTitle = 'Diefstal incident';
-        formalizedDescription = 'Diefstal gemeld door betrokkene';
-      } else if (titleLower.includes('overlast') || titleLower.includes('geluid')) {
-        formalizedTitle = 'Overlast in openbare ruimte';
-        formalizedDescription = 'Overlast ervaren in openbare ruimte';
-      } else {
-        // For other cases, just capitalize and add professional context
-        formalizedTitle = title.charAt(0).toUpperCase() + title.slice(1) + ' incident';
-        formalizedDescription = description.charAt(0).toUpperCase() + description.slice(1) + ' - incident gerapporteerd';
-      }
-      
+      // Simple fallback: return original text
       return {
-        formalizedTitle,
-        formalizedDescription
+        formalizedTitle: title,
+        formalizedDescription: description
       };
     }
   }
