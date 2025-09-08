@@ -139,7 +139,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
     return (
       <article 
-        className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-64 min-w-64 h-80"
+        className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 flex-shrink-0 flex flex-col w-64 min-w-64 h-80 shadow-sm"
         onClick={() => onReportClick(report.id)}
         data-testid={`report-card-${report.id}`}
       >
@@ -216,7 +216,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <Card className="mb-4 bg-gray-50/50 border-gray-100">
+        <Card className="mb-4 bg-white border-gray-200">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -266,7 +266,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
           <CardContent>
             {/* Horizontal Scrolling Reports */}
             <div className="relative">
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory pr-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory pr-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {/* All Reports (same size) */}
                 {section.reports.map((report) => (
                   <div key={report.id} className="snap-start">
