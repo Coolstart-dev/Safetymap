@@ -216,15 +216,15 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <Card className="mb-4 bg-white border-gray-200">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+        <div className="mb-4 bg-white border-0 md:border md:border-gray-200 md:rounded-lg">
+          <div className="p-4 md:p-6">
+            <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span 
                   className="w-3 h-3 rounded-full" 
                   style={{ backgroundColor: section.color }}
                 />
-                <span>{section.name}</span>
+                <span className="text-lg font-semibold">{section.name}</span>
                 <Badge 
                   className="border-0"
                   style={{ 
@@ -235,7 +235,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                   {section.reports.length}
                 </Badge>
               </div>
-            </CardTitle>
+            </div>
 
             {/* AI Journalism Analysis */}
             {categoryAnalyses[section.category] && (
@@ -262,11 +262,11 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                 </div>
               </div>
             )}
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="px-4 pb-4 md:px-6 md:pb-6">
             {/* Horizontal Scrolling Reports */}
             <div className="relative">
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory pr-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory pl-2 pr-4 md:pl-0 md:pr-2 -mx-2 md:mx-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 {/* All Reports (same size) */}
                 {section.reports.map((report) => (
                   <div key={report.id} className="snap-start">
@@ -275,8 +275,8 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </section>
     );
   };
@@ -327,9 +327,9 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         )}
 
         {regionData && (
-          <div className="max-w-6xl mx-auto p-6">
+          <div className="max-w-6xl mx-auto p-2 md:p-6">
             {/* Region Header */}
-            <header className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <header className="bg-white border-0 md:border md:border-gray-200 md:rounded-lg md:shadow-sm p-4 md:p-6 mb-4 md:mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 {regionData.postalCode.municipality}
               </h1>
@@ -371,7 +371,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
             {/* News Sections */}
             {groupedReports.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
+              <div className="text-center py-16 bg-white border-0 md:border md:border-gray-200 md:rounded-lg">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-gray-400" />
                 </div>
@@ -393,7 +393,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         {/* Default State */}
         {!searchedPostalCode && !isLoading && (
           <div className="max-w-4xl mx-auto p-6 text-center py-16">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div className="bg-white border-0 md:border md:border-gray-200 md:rounded-lg md:shadow-sm p-6 md:p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Regional News Dashboard</h2>
               <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
                 Stay informed about what's happening in your area. Enter a postal code above to see the latest reports organized by category.
