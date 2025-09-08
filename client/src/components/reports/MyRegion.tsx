@@ -344,29 +344,6 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                 </div>
               </div>
 
-              {/* AI Summary */}
-              {regionData.reports.length > 0 && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Brain className="w-4 h-4 text-blue-600" />
-                    <h3 className="font-semibold text-blue-800">Regional Summary</h3>
-                  </div>
-                  {isLoadingSummary ? (
-                    <div className="flex items-center gap-2 text-sm text-blue-600">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Analyzing region reports...</span>
-                    </div>
-                  ) : aiSummary ? (
-                    <p className="text-sm text-blue-700">
-                      {aiSummary.summary}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-blue-600">
-                      Unable to generate summary at this moment.
-                    </p>
-                  )}
-                </div>
-              )}
             </header>
 
             {/* News Sections */}
