@@ -5,7 +5,7 @@ import { insertReportSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
-import { AIContentModerator } from "./ai";
+import { AIContentModerator, getAILogs } from "./ai";
 import { GeocodingService } from "./geocoding";
 
 // Legacy default moderation prompt
@@ -556,6 +556,17 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     } catch (error) {
       console.error('Error checking API health:', error);
       res.json({ isOnline: false, error: 'Health check failed' });
+    }
+  });
+
+  // AI Logs endpoint for debugging
+  app.get("/api/admin/ai-logs", async (req, res) => {
+    try {
+      const logs = getAILogs();
+      res.json(logs);
+    } catch (error) {
+      console.error('Error fetching AI logs:', error);
+      res.status(500).json({ error: "Failed to fetch AI logs" });
     }
   });
 

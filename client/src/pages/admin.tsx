@@ -54,6 +54,16 @@ export default function AdminPage() {
     }
   });
 
+  // Fetch AI logs for debugging
+  const { data: aiLogs = [], refetch: refetchLogs } = useQuery({
+    queryKey: ['/api/admin/ai-logs'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/ai-logs');
+      return response.json();
+    },
+    refetchOnMount: true
+  });
+
   // Update prompts when query data is available
   React.useEffect(() => {
     if (promptData) {
@@ -380,7 +390,10 @@ export default function AdminPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={checkApiHealth}
+                      onClick={() => {
+                        checkApiHealth();
+                        refetchLogs();
+                      }}
                       disabled={isCheckingApi}
                     >
                       {isCheckingApi ? 'Checking...' : 'Refresh Status'}
@@ -472,6 +485,85 @@ export default function AdminPage() {
                   >
                     {promptLoading ? 'Opslaan...' : 'Beide Moderatie Instructies Opslaan'}
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* AI Response Logs */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    AI Response Logs
+                  </CardTitle>
+                  <CardDescription>
+                    Bekijk de laatste AI responses voor debugging (laatste 50 entries)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {aiLogs.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">Geen AI logs beschikbaar</p>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {aiLogs.map((log: any, index: number) => (
+                        <div key={index} className="border rounded-lg p-3 text-sm">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                log.type === 'content-filter' ? 'bg-red-100 text-red-800' :
+                                log.type === 'text-formalization' ? 'bg-blue-100 text-blue-800' :
+                                'bg-green-100 text-green-800'
+                              }`}>
+                                {log.type}
+                              </span>
+                              {log.error && (
+                                <span className="px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
+                                  ERROR
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(log.timestamp).toLocaleString('nl-NL')}
+                            </span>
+                          </div>
+                          
+                          {log.input.title && (
+                            <div className="mb-2">
+                              <p className="font-medium text-xs text-muted-foreground">Input:</p>
+                              <p className="text-xs bg-muted/50 p-1 rounded">"{log.input.title}" - "{log.input.description}"</p>
+                            </div>
+                          )}
+                          
+                          {log.error ? (
+                            <div className="mb-2">
+                              <p className="font-medium text-xs text-red-600">Error:</p>
+                              <p className="text-xs text-red-600 bg-red-50 p-1 rounded">{log.error}</p>
+                            </div>
+                          ) : (
+                            <>
+                              {log.parsedResult && (
+                                <div className="mb-2">
+                                  <p className="font-medium text-xs text-muted-foreground">Parsed Result:</p>
+                                  <p className="text-xs bg-green-50 p-1 rounded font-mono">
+                                    {JSON.stringify(log.parsedResult, null, 2)}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              <div>
+                                <p className="font-medium text-xs text-muted-foreground">Raw AI Response:</p>
+                                <p className="text-xs bg-muted/30 p-1 rounded font-mono max-h-20 overflow-y-auto">
+                                  {log.rawResponse.length > 200 
+                                    ? log.rawResponse.substring(0, 200) + '...'
+                                    : log.rawResponse
+                                  }
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
