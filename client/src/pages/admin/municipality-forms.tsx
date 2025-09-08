@@ -35,7 +35,7 @@ export default function MunicipalityFormsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (municipalityData: any) => apiRequest('/api/admin/municipalities', 'POST', municipalityData),
+    mutationFn: (municipalityData: any) => apiRequest('POST', '/api/admin/municipalities', municipalityData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/municipalities'] });
       setNewForm({ name: '', postcode: '', reportingUrl: '', alternativeUrl: '' });
@@ -54,14 +54,14 @@ export default function MunicipalityFormsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => apiRequest(`/api/admin/municipalities/${id}`, 'PUT', data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => apiRequest('PUT', `/api/admin/municipalities/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/municipalities'] });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/municipalities/${id}`, 'DELETE'),
+    mutationFn: (id: string) => apiRequest('DELETE', `/api/admin/municipalities/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/municipalities'] });
     },
