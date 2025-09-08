@@ -76,11 +76,9 @@ export default function AdminPage() {
     }
   };
 
-  // Check API health on mount and set up interval
+  // Check API health only on mount
   useEffect(() => {
     checkApiHealth();
-    const interval = setInterval(checkApiHealth, 10000); // Check every 10 seconds
-    return () => clearInterval(interval);
   }, []);
 
   const fetchModerationPrompts = async () => {
@@ -190,32 +188,6 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold text-foreground mb-2">Admin Panel</h1>
         <p className="text-muted-foreground">Manage your Area community safety platform</p>
         
-        {/* API Status Indicator */}
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50">
-            {isCheckingApi ? (
-              <Circle className="h-3 w-3 animate-pulse text-gray-400" />
-            ) : apiStatus?.isOnline ? (
-              <Circle className="h-3 w-3 fill-green-500 text-green-500" />
-            ) : (
-              <Circle className="h-3 w-3 fill-orange-500 text-orange-500" />
-            )}
-            <span className="text-sm text-muted-foreground">
-              {isCheckingApi ? 'Checking...' : apiStatus?.isOnline ? 'AI Service Online' : 'AI Service Offline'}
-            </span>
-            {apiStatus?.error && !apiStatus.isOnline && (
-              <span className="text-xs text-muted-foreground/80">({apiStatus.error})</span>
-            )}
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={checkApiHealth}
-            disabled={isCheckingApi}
-            className="h-6 px-2"
-          >
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="reports" className="w-full">
@@ -372,6 +344,51 @@ export default function AdminPage() {
 
           <TabsContent value="moderation">
             <div className="space-y-6">
+              {/* AI Service Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wifi className="h-5 w-5" />
+                    AI Service Status
+                  </CardTitle>
+                  <CardDescription>
+                    Status en configuratie van de AI moderatie service
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {isCheckingApi ? (
+                        <Circle className="h-4 w-4 animate-pulse text-gray-400" />
+                      ) : apiStatus?.isOnline ? (
+                        <Circle className="h-4 w-4 fill-green-500 text-green-500" />
+                      ) : (
+                        <Circle className="h-4 w-4 fill-orange-500 text-orange-500" />
+                      )}
+                      <div>
+                        <p className="font-medium text-sm">
+                          {isCheckingApi ? 'Checking...' : apiStatus?.isOnline ? 'Service Online' : 'Service Offline'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Model: claude-3-haiku-20240307
+                        </p>
+                        {apiStatus?.error && !apiStatus.isOnline && (
+                          <p className="text-xs text-red-500">Error: {apiStatus.error}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={checkApiHealth}
+                      disabled={isCheckingApi}
+                    >
+                      {isCheckingApi ? 'Checking...' : 'Refresh Status'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Type 1: Content Filtering */}
               <Card>
                 <CardHeader>
