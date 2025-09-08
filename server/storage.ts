@@ -1,6 +1,16 @@
-import { reports, type Report, type InsertReport } from "@shared/schema";
+import { 
+  reports, 
+  scrapedReports, 
+  scrapingConfig,
+  type Report, 
+  type InsertReport,
+  type ScrapedReport,
+  type InsertScrapedReport,
+  type ScrapingConfig,
+  type InsertScrapingConfig
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
@@ -20,6 +30,19 @@ export interface IStorage {
   // New separated moderation prompt methods
   getModerationPrompts(): Promise<{contentFilter: string | null, textFormalization: string | null}>;
   saveModerationPrompts(prompts: {contentFilter: string, textFormalization: string}): Promise<void>;
+  
+  // Scraped Reports methods
+  getAllScrapedReports(): Promise<ScrapedReport[]>;
+  getScrapedReportsByStatus(status: string): Promise<ScrapedReport[]>;
+  createScrapedReport(report: InsertScrapedReport): Promise<ScrapedReport>;
+  updateScrapedReportStatus(id: string, status: string, approvedBy?: string): Promise<boolean>;
+  deleteScrapedReport(id: string): Promise<boolean>;
+  
+  // Scraping Configuration methods
+  getScrapingConfigs(): Promise<ScrapingConfig[]>;
+  createScrapingConfig(config: InsertScrapingConfig): Promise<ScrapingConfig>;
+  updateScrapingConfig(id: string, config: Partial<ScrapingConfig>): Promise<boolean>;
+  deleteScrapingConfig(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -162,6 +185,71 @@ export class DatabaseStorage implements IStorage {
       console.error("Error saving moderation prompts:", error);
       throw error;
     }
+  }
+
+  // Scraped Reports methods implementation
+  async getAllScrapedReports(): Promise<ScrapedReport[]> {
+    return await db.select().from(scrapedReports).orderBy(desc(scrapedReports.scrapedAt));
+  }
+
+  async getScrapedReportsByStatus(status: string): Promise<ScrapedReport[]> {
+    return await db.select().from(scrapedReports)
+      .where(eq(scrapedReports.status, status))
+      .orderBy(desc(scrapedReports.scrapedAt));
+  }
+
+  async createScrapedReport(insertScrapedReport: InsertScrapedReport): Promise<ScrapedReport> {
+    const [scrapedReport] = await db
+      .insert(scrapedReports)
+      .values({
+        ...insertScrapedReport,
+        publishedAt: insertScrapedReport.publishedAt ? new Date(insertScrapedReport.publishedAt) : null,
+      })
+      .returning();
+    return scrapedReport;
+  }
+
+  async updateScrapedReportStatus(id: string, status: string, approvedBy?: string): Promise<boolean> {
+    const updateData: any = { status };
+    if (approvedBy) {
+      updateData.approvedBy = approvedBy;
+      updateData.approvedAt = new Date();
+    }
+    
+    const result = await db.update(scrapedReports)
+      .set(updateData)
+      .where(eq(scrapedReports.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteScrapedReport(id: string): Promise<boolean> {
+    const result = await db.delete(scrapedReports).where(eq(scrapedReports.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Scraping Configuration methods implementation
+  async getScrapingConfigs(): Promise<ScrapingConfig[]> {
+    return await db.select().from(scrapingConfig).orderBy(desc(scrapingConfig.createdAt));
+  }
+
+  async createScrapingConfig(insertConfig: InsertScrapingConfig): Promise<ScrapingConfig> {
+    const [config] = await db
+      .insert(scrapingConfig)
+      .values(insertConfig)
+      .returning();
+    return config;
+  }
+
+  async updateScrapingConfig(id: string, configUpdate: Partial<ScrapingConfig>): Promise<boolean> {
+    const result = await db.update(scrapingConfig)
+      .set(configUpdate)
+      .where(eq(scrapingConfig.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async deleteScrapingConfig(id: string): Promise<boolean> {
+    const result = await db.delete(scrapingConfig).where(eq(scrapingConfig.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 

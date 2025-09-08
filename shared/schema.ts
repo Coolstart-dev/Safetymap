@@ -83,3 +83,58 @@ export const categories = {
 } as const;
 
 export type CategoryKey = keyof typeof categories;
+
+// News Scraped Reports schema
+export const scrapedReports = pgTable("scraped_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  sourceUrl: text("source_url").notNull(),
+  sourceName: text("source_name").notNull(),
+  sourceFavicon: text("source_favicon"),
+  publishedAt: timestamp("published_at"),
+  scrapedAt: timestamp("scraped_at").defaultNow().notNull(),
+  postcode: varchar("postcode", { length: 10 }),
+  location: text("location"),
+  category: varchar("category", { length: 50 }),
+  confidence: real("confidence"), // AI confidence score (0-1)
+  status: varchar("status", { length: 20 }).default("pending"), // 'pending', 'approved', 'rejected', 'published'
+  aiAnalysis: json("ai_analysis"), // Store full AI analysis result
+  extractedData: json("extracted_data"), // Coordinates, incident type, etc.
+  approvedBy: varchar("approved_by", { length: 100 }),
+  approvedAt: timestamp("approved_at"),
+  reportId: varchar("report_id"), // Link to actual report when approved
+});
+
+export const insertScrapedReportSchema = createInsertSchema(scrapedReports).omit({
+  id: true,
+  scrapedAt: true,
+  status: true,
+  approvedBy: true,
+  approvedAt: true,
+  reportId: true,
+});
+
+export type InsertScrapedReport = z.infer<typeof insertScrapedReportSchema>;
+export type ScrapedReport = typeof scrapedReports.$inferSelect;
+
+// News Scraping Configuration schema
+export const scrapingConfig = pgTable("scraping_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postcode: varchar("postcode", { length: 10 }).notNull(),
+  keywords: json("keywords").$type<string[]>().notNull(), // Array of keywords
+  isActive: boolean("is_active").default(true),
+  isManual: boolean("is_manual").default(true), // Manual vs automatic scraping
+  lastScrapedAt: timestamp("last_scraped_at"),
+  scrapingFrequency: varchar("scraping_frequency", { length: 20 }).default("daily"), // 'hourly', 'daily', 'weekly'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertScrapingConfigSchema = createInsertSchema(scrapingConfig).omit({
+  id: true,
+  createdAt: true,
+  lastScrapedAt: true,
+});
+
+export type InsertScrapingConfig = z.infer<typeof insertScrapingConfigSchema>;
+export type ScrapingConfig = typeof scrapingConfig.$inferSelect;
