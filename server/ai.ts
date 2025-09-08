@@ -9,7 +9,7 @@ When copying code from this code snippet, ensure you also include this informati
 */
 
 // <important_do_not_delete>
-const DEFAULT_MODEL_STR = "claude-3-5-sonnet-20241022";
+const DEFAULT_MODEL_STR = "claude-3-5-sonnet-20240620";
 // </important_do_not_delete>
 
 const anthropic = new Anthropic({
@@ -41,6 +41,23 @@ export interface ContentModerationResult {
 }
 
 export class AIContentModerator {
+  // API Health Check - test if Anthropic API is working
+  async checkAPIHealth(): Promise<{ isOnline: boolean; error?: string }> {
+    try {
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Test' }],
+      });
+      return { isOnline: true };
+    } catch (error) {
+      console.error('Anthropic API health check failed:', error);
+      return { 
+        isOnline: false, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
   // Type 1: Content Filtering - bepaalt alleen wat wel/niet toegestaan is
   async filterContent(title: string, description: string, customPrompt?: string): Promise<ContentFilterResult> {
     try {

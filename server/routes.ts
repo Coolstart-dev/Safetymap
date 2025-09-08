@@ -547,6 +547,18 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     }
   });
 
+  // API Health Check endpoint
+  app.get("/api/admin/api-health", async (req, res) => {
+    try {
+      const moderator = new AIContentModerator();
+      const health = await moderator.checkAPIHealth();
+      res.json(health);
+    } catch (error) {
+      console.error('Error checking API health:', error);
+      res.json({ isOnline: false, error: 'Health check failed' });
+    }
+  });
+
   // Admin routes - IMPORTANT: PUT GET BEFORE DELETE to avoid Express route conflicts
   app.get("/api/admin/reports", async (req, res) => {
     console.log("DEBUG - Admin GET route hit!");
