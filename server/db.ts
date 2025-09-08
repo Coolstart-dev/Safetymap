@@ -1,5 +1,5 @@
+import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
@@ -8,6 +8,6 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Use direct connection instead of connection pooling for better compatibility
+// Use HTTP connection for better compatibility
 const sql = neon(process.env.DATABASE_URL);
-export const db = drizzle({ client: sql, schema });
+export const db = drizzle(sql, { schema });
