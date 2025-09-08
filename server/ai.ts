@@ -9,7 +9,7 @@ When copying code from this code snippet, ensure you also include this informati
 */
 
 // <important_do_not_delete>
-const DEFAULT_MODEL_STR = "claude-3-sonnet-20240229";
+const DEFAULT_MODEL_STR = "claude-3-haiku-20240307";
 // </important_do_not_delete>
 
 const anthropic = new Anthropic({
