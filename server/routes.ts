@@ -1,12 +1,13 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertReportSchema } from "@shared/schema";
+import { insertReportSchema, insertScrapingConfigSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import { AIContentModerator, getAILogs } from "./ai";
 import { GeocodingService } from "./geocoding";
+import { newsScraper } from "./news-scraper";
 
 // Legacy default moderation prompt
 function getDefaultModerationPrompt(): string {
@@ -608,6 +609,153 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
       res.json({ success, message: success ? "All reports deleted" : "Failed to delete reports" });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete all reports" });
+    }
+  });
+
+  // News Scraping Configuration API
+  app.get("/api/admin/scraping-configs", async (req, res) => {
+    try {
+      const configs = await storage.getScrapingConfigs();
+      res.json(configs);
+    } catch (error) {
+      console.error("Error fetching scraping configs:", error);
+      res.status(500).json({ error: "Failed to fetch scraping configurations" });
+    }
+  });
+
+  app.post("/api/admin/scraping-configs", async (req, res) => {
+    try {
+      const validatedData = insertScrapingConfigSchema.parse(req.body);
+      const config = await storage.createScrapingConfig(validatedData);
+      res.json(config);
+    } catch (error) {
+      console.error("Error creating scraping config:", error);
+      res.status(500).json({ error: "Failed to create scraping configuration" });
+    }
+  });
+
+  app.put("/api/admin/scraping-configs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.updateScrapingConfig(id, req.body);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Scraping configuration not found" });
+      }
+    } catch (error) {
+      console.error("Error updating scraping config:", error);
+      res.status(500).json({ error: "Failed to update scraping configuration" });
+    }
+  });
+
+  app.delete("/api/admin/scraping-configs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteScrapingConfig(id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Scraping configuration not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting scraping config:", error);
+      res.status(500).json({ error: "Failed to delete scraping configuration" });
+    }
+  });
+
+  // Scraped Reports API
+  app.get("/api/admin/scraped-reports", async (req, res) => {
+    try {
+      const status = req.query.status as string;
+      let reports;
+      
+      if (status && status !== 'all') {
+        reports = await storage.getScrapedReportsByStatus(status);
+      } else {
+        reports = await storage.getAllScrapedReports();
+      }
+      
+      res.json(reports);
+    } catch (error) {
+      console.error("Error fetching scraped reports:", error);
+      res.status(500).json({ error: "Failed to fetch scraped reports" });
+    }
+  });
+
+  app.put("/api/admin/scraped-reports/:id/status", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      
+      const success = await storage.updateScrapedReportStatus(id, status, 'admin');
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Scraped report not found" });
+      }
+    } catch (error) {
+      console.error("Error updating scraped report status:", error);
+      res.status(500).json({ error: "Failed to update scraped report status" });
+    }
+  });
+
+  app.delete("/api/admin/scraped-reports/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteScrapedReport(id);
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Scraped report not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting scraped report:", error);
+      res.status(500).json({ error: "Failed to delete scraped report" });
+    }
+  });
+
+  // Manual News Scraping Trigger
+  app.post("/api/admin/scrape-news", async (req, res) => {
+    try {
+      const { postcode, keywords } = req.body;
+      
+      if (!postcode || !keywords || !Array.isArray(keywords)) {
+        return res.status(400).json({ error: "postcode and keywords array are required" });
+      }
+      
+      console.log(`Starting manual news scraping for postcode ${postcode} with keywords:`, keywords);
+      
+      // Scrape news
+      const scrapingResult = await newsScraper.scrapeNews(postcode, keywords);
+      
+      if (!scrapingResult.success) {
+        return res.status(500).json({ error: scrapingResult.error });
+      }
+      
+      // Process and save results
+      const savedCount = await newsScraper.processAndSaveScrapedNews(scrapingResult.results, postcode);
+      
+      // Update last scraped timestamp
+      const configs = await storage.getScrapingConfigs();
+      const config = configs.find(c => c.postcode === postcode);
+      if (config) {
+        await storage.updateScrapingConfig(config.id, { lastScrapedAt: new Date() });
+      }
+      
+      res.json({
+        success: true,
+        totalFound: scrapingResult.results.length,
+        savedCount,
+        message: `Found ${scrapingResult.results.length} articles, saved ${savedCount} incident-related reports`
+      });
+    } catch (error) {
+      console.error("Error during manual scraping:", error);
+      res.status(500).json({ error: "Failed to scrape news" });
     }
   });
 
