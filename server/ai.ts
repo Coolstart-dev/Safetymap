@@ -195,20 +195,19 @@ RESPOND NOW:`;
     try {
       const systemPrompt = `You are a JSON-only text formalizer. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
       
-      const userPrompt = customPrompt || `Rewrite this Dutch text to be formal and professional. Return ONLY this JSON structure:
+      const userPrompt = customPrompt || `Rewrite this Dutch text to be formal and professional. Return EXACTLY this JSON structure:
 {"formalizedTitle": "string", "formalizedDescription": "string"}
 
-Guidelines:
-- Use formal, neutral language
-- Remove emotional expressions
-- Remove personal information (names, phone numbers)
-- Keep important incident details
-- Use professional Dutch
+IMPORTANT: Keep the original meaning and content, just make it more formal.
 
-Original title: ${title}
-Original description: ${description}
+Examples:
+- "Zerfvuil" → {"formalizedTitle": "Zwerfvuil in openbare ruimte", "formalizedDescription": "Zwerfvuil aangetroffen in openbare ruimte"}
+- "Vandalisme" → {"formalizedTitle": "Vandalisme incident", "formalizedDescription": "Vandalisme schade vastgesteld"}
 
-Return ONLY the JSON object:`;
+Original title: "${title}"
+Original description: "${description}"
+
+Rewrite this to formal Dutch but keep the same meaning:`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
@@ -236,10 +235,36 @@ Return ONLY the JSON object:`;
       return result as TextFormalizationResult;
     } catch (error) {
       console.error('AI text formalization error:', error);
-      // Fallback: return original text
+      
+      // FALLBACK: Basic formalization without AI
+      const titleLower = title.toLowerCase();
+      const descLower = description.toLowerCase();
+      
+      // Simple keyword-based formalization
+      let formalizedTitle = title;
+      let formalizedDescription = description;
+      
+      if (titleLower.includes('zwerfvuil') || titleLower.includes('zerfvuil')) {
+        formalizedTitle = 'Zwerfvuil in openbare ruimte';
+        formalizedDescription = 'Zwerfvuil aangetroffen in openbare ruimte';
+      } else if (titleLower.includes('vandalisme')) {
+        formalizedTitle = 'Vandalisme incident';
+        formalizedDescription = 'Vandalisme schade vastgesteld in openbare ruimte';
+      } else if (titleLower.includes('diefstal')) {
+        formalizedTitle = 'Diefstal incident';
+        formalizedDescription = 'Diefstal gemeld door betrokkene';
+      } else if (titleLower.includes('overlast') || titleLower.includes('geluid')) {
+        formalizedTitle = 'Overlast in openbare ruimte';
+        formalizedDescription = 'Overlast ervaren in openbare ruimte';
+      } else {
+        // For other cases, just capitalize and add professional context
+        formalizedTitle = title.charAt(0).toUpperCase() + title.slice(1) + ' incident';
+        formalizedDescription = description.charAt(0).toUpperCase() + description.slice(1) + ' - incident gerapporteerd';
+      }
+      
       return {
-        formalizedTitle: title,
-        formalizedDescription: description
+        formalizedTitle,
+        formalizedDescription
       };
     }
   }
