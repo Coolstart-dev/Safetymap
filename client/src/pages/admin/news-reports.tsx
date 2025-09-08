@@ -76,18 +76,14 @@ export default function NewsReportsPage() {
 
   const updateStatus = async (id: string, newStatus: 'approved' | 'rejected') => {
     try {
-      await apiRequest({
-        method: 'PUT',
-        url: `/api/admin/scraped-reports/${id}/status`,
-        data: { status: newStatus }
-      });
+      await apiRequest('PUT', `/api/admin/scraped-reports/${id}/status`, { status: newStatus });
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraped-reports'] });
       
       const report = reports.find(r => r.id === id);
       toast({
-        title: "Status bijgewerkt",
-        description: `"${report?.title}" is ${newStatus === 'approved' ? 'goedgekeurd' : 'afgewezen'}.`,
+        title: "Status updated",
+        description: `"${report?.title}" has been ${newStatus === 'approved' ? 'approved' : 'rejected'}.`,
       });
     } catch (error) {
       toast({
@@ -102,16 +98,13 @@ export default function NewsReportsPage() {
     try {
       const report = reports.find(r => r.id === id);
       
-      await apiRequest({
-        method: 'DELETE',
-        url: `/api/admin/scraped-reports/${id}`
-      });
+      await apiRequest('DELETE', `/api/admin/scraped-reports/${id}`);
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraped-reports'] });
       
       toast({
-        title: "Report verwijderd",
-        description: `"${report?.title}" is verwijderd.`,
+        title: "Report deleted",
+        description: `"${report?.title}" has been deleted.`,
       });
     } catch (error) {
       toast({
@@ -126,24 +119,20 @@ export default function NewsReportsPage() {
     try {
       const keywords = newConfig.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
       
-      await apiRequest({
-        method: 'POST',
-        url: '/api/admin/scraping-configs',
-        data: {
-          postcode: newConfig.postcode,
-          keywords,
-          isManual: newConfig.isManual,
-          isActive: true,
-          scrapingFrequency: 'daily'
-        }
+      await apiRequest('POST', '/api/admin/scraping-configs', {
+        postcode: newConfig.postcode,
+        keywords,
+        isManual: newConfig.isManual,
+        isActive: true,
+        scrapingFrequency: 'daily'
       });
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraping-configs'] });
       setNewConfig({ postcode: '', keywords: '', isManual: true });
       
       toast({
-        title: "Configuratie toegevoegd",
-        description: `Scraping configuratie voor ${newConfig.postcode} toegevoegd.`,
+        title: "Configuration added",
+        description: `Scraping configuration for ${newConfig.postcode} added successfully.`,
       });
     } catch (error) {
       toast({
@@ -157,17 +146,13 @@ export default function NewsReportsPage() {
   const triggerManualScraping = async (postcode: string, keywords: string[]) => {
     setIsScrapingLoading(true);
     try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/api/admin/scrape-news',
-        data: { postcode, keywords }
-      });
+      const response = await apiRequest('POST', '/api/admin/scrape-news', { postcode, keywords });
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraped-reports'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraping-configs'] });
       
       toast({
-        title: "Scraping voltooid",
+        title: "Scraping completed",
         description: response.message,
       });
     } catch (error) {
@@ -184,11 +169,11 @@ export default function NewsReportsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Goedgekeurd</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Afgewezen</Badge>;
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
-        return <Badge variant="secondary">In afwachting</Badge>;
+        return <Badge variant="secondary">Pending</Badge>;
     }
   };
 
@@ -213,10 +198,10 @@ export default function NewsReportsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            News Scraping Configuratie
+            News Test Scraping Configuration
           </CardTitle>
           <CardDescription>
-            Configureer automatische nieuws scraping per postcode en keywords
+            Configure automated news scraping by postcode and keywords (Phase 1 testing interface)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -231,29 +216,29 @@ export default function NewsReportsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="keywords">Keywords (komma gescheiden)</Label>
+              <Label htmlFor="keywords">Keywords (comma separated)</Label>
               <Input
                 id="keywords"
-                placeholder="diefstal, vandalisme, overlast, incident"
+                placeholder="theft, vandalism, incident, crime"
                 value={newConfig.keywords}
                 onChange={(e) => setNewConfig({ ...newConfig, keywords: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Configuratie</Label>
+              <Label>Add Configuration</Label>
               <Button onClick={addScrapingConfig} className="w-full gap-2">
                 <Plus className="h-4 w-4" />
-                Toevoegen
+                Add Configuration
               </Button>
             </div>
           </div>
 
           {/* Active Configurations */}
           {configsLoading ? (
-            <p className="text-muted-foreground">Configuraties laden...</p>
+            <p className="text-muted-foreground">Loading configurations...</p>
           ) : configs.length > 0 ? (
             <div className="space-y-2">
-              <h3 className="font-medium">Actieve Configuraties:</h3>
+              <h3 className="font-medium">Active Configurations:</h3>
               {configs.map((config) => (
                 <div key={config.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                   <div>
@@ -263,13 +248,13 @@ export default function NewsReportsPage() {
                     </span>
                     {config.lastScrapedAt && (
                       <span className="ml-2 text-xs text-muted-foreground">
-                        Laatste scraping: {new Date(config.lastScrapedAt).toLocaleString('nl-NL')}
+                        Last scraped: {new Date(config.lastScrapedAt).toLocaleString('en-US')}
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={config.isActive ? "default" : "secondary"}>
-                      {config.isActive ? "Actief" : "Inactief"}
+                      {config.isActive ? "Active" : "Inactive"}
                     </Badge>
                     <Button
                       variant="outline"
@@ -287,7 +272,7 @@ export default function NewsReportsPage() {
             </div>
           ) : (
             <p className="text-muted-foreground text-center py-4">
-              Geen configuraties gevonden. Voeg er een toe om te beginnen.
+              No configurations found. Add one to get started.
             </p>
           )}
         </CardContent>
@@ -298,25 +283,25 @@ export default function NewsReportsPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <Label htmlFor="search">Zoeken</Label>
+              <Label htmlFor="search">Search</Label>
               <Input
                 id="search"
-                placeholder="Zoek op titel, locatie of bron..."
+                placeholder="Search by title, location or source..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="sm:w-48">
-              <Label htmlFor="status-filter">Filter op status</Label>
+              <Label htmlFor="status-filter">Filter by status</Label>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Alle statussen" />
+                  <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle statussen</SelectItem>
-                  <SelectItem value="pending">In afwachting</SelectItem>
-                  <SelectItem value="approved">Goedgekeurd</SelectItem>
-                  <SelectItem value="rejected">Afgewezen</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -327,21 +312,21 @@ export default function NewsReportsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Gevonden Reports ({filteredReports.length})</span>
+            <span>Scraped Reports ({filteredReports.length})</span>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Filter className="h-4 w-4" />
-              {filterStatus !== 'all' && `Gefilterd op: ${filterStatus}`}
+              {filterStatus !== 'all' && `Filtered by: ${filterStatus}`}
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {reportsLoading ? (
-            <p className="text-muted-foreground text-center py-4">Scraped reports laden...</p>
+            <p className="text-muted-foreground text-center py-4">Loading scraped reports...</p>
           ) : filteredReports.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">
               {reports.length === 0 
-                ? "Nog geen scraped reports. Start een scraping om berichten te verzamelen."
-                : "Geen reports gevonden met de huidige filters"
+                ? "No scraped reports yet. Start a scraping session to collect news articles."
+                : "No reports found with current filters"
               }
             </p>
           ) : (
@@ -368,7 +353,7 @@ export default function NewsReportsPage() {
                         {getStatusBadge(report.status)}
                         {report.confidence && (
                           <span className={`text-xs font-medium ${getConfidenceColor(report.confidence)}`}>
-                            {Math.round(report.confidence * 100)}% AI vertrouwen
+                            {Math.round(report.confidence * 100)}% AI confidence
                           </span>
                         )}
                       </div>
@@ -395,10 +380,10 @@ export default function NewsReportsPage() {
                           {report.publishedAt && (
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              <span>Gepubliceerd: {new Date(report.publishedAt).toLocaleString('nl-NL')}</span>
+                              <span>Published: {new Date(report.publishedAt).toLocaleString('en-US')}</span>
                             </div>
                           )}
-                          <span>Gescraped: {new Date(report.scrapedAt).toLocaleString('nl-NL')}</span>
+                          <span>Scraped: {new Date(report.scrapedAt).toLocaleString('en-US')}</span>
                         </div>
                         <div className="text-xs">
                           <strong>URL:</strong> 
@@ -408,10 +393,10 @@ export default function NewsReportsPage() {
 
                       {report.extractedData && (
                         <div className="text-xs bg-muted/50 p-2 rounded">
-                          <strong>AI Geëxtraheerde data:</strong>
+                          <strong>AI Extracted data:</strong>
                           {report.extractedData.latitude && (
                             <span className="ml-2">
-                              Coördinaten: {report.extractedData.latitude.toFixed(4)}, {report.extractedData.longitude?.toFixed(4)}
+                              Coordinates: {report.extractedData.latitude.toFixed(4)}, {report.extractedData.longitude?.toFixed(4)}
                             </span>
                           )}
                           {report.extractedData.incidentType && (
@@ -426,7 +411,7 @@ export default function NewsReportsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => window.open(report.sourceUrl, '_blank')}
-                        title="Open origineel artikel"
+                        title="Open original article"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
@@ -438,18 +423,18 @@ export default function NewsReportsPage() {
                             size="sm"
                             onClick={() => updateStatus(report.id, 'approved')}
                             className="text-green-600 hover:text-green-700"
-                            title="Goedkeuren als echte melding"
+                            title="Approve as genuine report"
                           >
-                            Goedkeuren
+                            Approve
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => updateStatus(report.id, 'rejected')}
                             className="text-red-600 hover:text-red-700"
-                            title="Afwijzen"
+                            title="Reject this report"
                           >
-                            Afwijzen
+                            Reject
                           </Button>
                         </>
                       )}
@@ -458,7 +443,7 @@ export default function NewsReportsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => deleteReport(report.id)}
-                        title="Report verwijderen"
+                        title="Delete report"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -473,15 +458,15 @@ export default function NewsReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Systeem Informatie</CardTitle>
+          <CardTitle>System Information</CardTitle>
         </CardHeader>
         <CardContent className="text-sm space-y-2">
-          <p><strong>Bronnen:</strong> Simulatie van HLN, De Standaard, Het Nieuwsblad, VRT NWS, De Tijd</p>
-          <p><strong>AI Model:</strong> Claude Sonnet 4 voor incident analyse en categorisering</p>
-          <p><strong>Vertrouwensdrempel:</strong> Minimum 40% voor opslag, admin goedkeuring vereist</p>
-          <p><strong>Copyright:</strong> Favicon en bron URL worden bewaard voor attribution</p>
-          <p><strong>Duplicaten:</strong> URL controle voorkomt dubbele invoer</p>
-          <p><strong>Status:</strong> Alleen goedgekeurde reports worden echte meldingen</p>
+          <p><strong>Sources:</strong> Simulation of HLN, De Standaard, Het Nieuwsblad, VRT NWS, De Tijd</p>
+          <p><strong>AI Model:</strong> Claude Sonnet 4 for incident analysis and categorization</p>
+          <p><strong>Confidence threshold:</strong> Minimum 40% for storage, admin approval required</p>
+          <p><strong>Copyright:</strong> Favicon and source URL preserved for attribution</p>
+          <p><strong>Duplicates:</strong> URL check prevents duplicate entries</p>
+          <p><strong>Status:</strong> Only approved reports become actual incident reports</p>
         </CardContent>
       </Card>
     </div>
