@@ -85,39 +85,25 @@ export class AIContentModerator {
   // Type 1: Content Filtering - bepaalt alleen wat wel/niet toegestaan is
   async filterContent(title: string, description: string, customPrompt?: string): Promise<ContentFilterResult> {
     try {
-      const basePrompt = customPrompt || `Je bent een content filter voor een community safety platform.
+      const systemPrompt = `You are a JSON-only content filter. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
+      
+      const userPrompt = customPrompt || `Analyze this community safety report and return ONLY this JSON structure:
+{"isApproved": boolean, "isSpam": boolean, "hasInappropriateContent": boolean, "hasPII": boolean, "reason": string or null}
 
-Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug met:
-- isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
-- isSpam: boolean (true als het een grap, meme, test of spam lijkt)
-- hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
-- hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
-- reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
+Rules:
+✅ APPROVED: Real safety incidents, public nuisance, positive community observations
+❌ REJECTED: Test messages, spam, personal information, racist content, memes
 
-✅ Toegestaan:
-- Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)
-- Overlast in openbare ruimte
-- Positieve observaties over de buurt
-- Status updates over publieke ruimtes
+Title: "${title}"
+Description: "${description}"
 
-❌ Niet toegestaan:
-- Test berichten of spam ("test", "proberen")
-- Algemene complimenten zonder specifiek incident
-- Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
-- Racistische, discriminerende of grove taal
-- Memes of grappen
-
-Titel: "${title}"
-Beschrijving: "${description}"
-
-BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks of extra tekst.
-Geef je antwoord in exact dit JSON format:
-{"isApproved": boolean, "isSpam": boolean, "hasInappropriateContent": boolean, "hasPII": boolean, "reason": "string of null"}`;
+Return ONLY the JSON object:`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 500,
-        messages: [{ role: 'user', content: basePrompt }],
+        max_tokens: 200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
       });
 
       const contentBlock = response.content[0];
@@ -129,7 +115,7 @@ Geef je antwoord in exact dit JSON format:
         console.log('AI Content Filter Raw Response:', responseText);
         
         // Clean up common non-JSON prefixes/suffixes
-        responseText = responseText.replace(/^[\s\S]*?({.*})[\s\S]*$/s, '$1');
+        responseText = responseText.replace(/^[\s\S]*?({.*})[\s\S]*$/, '$1');
         responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
         
         // Try to find JSON in the response
@@ -188,33 +174,28 @@ Geef je antwoord in exact dit JSON format:
   // Type 2: Text Formalization - herschrijft goedgekeurde tekst naar formele versie
   async formalizeText(title: string, description: string, customPrompt?: string): Promise<TextFormalizationResult> {
     try {
-      const basePrompt = customPrompt || `Je bent een tekst editor die meldingen herschrijft naar formele, professionele taal.
+      const systemPrompt = `You are a JSON-only text formalizer. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
+      
+      const userPrompt = customPrompt || `Rewrite this Dutch text to be formal and professional. Return ONLY this JSON structure:
+{"formalizedTitle": "string", "formalizedDescription": "string"}
 
-Herschrijf de volgende melding naar een formele versie en geef een JSON response terug met:
-- formalizedTitle: string (herschreven titel in formele, neutrale taal)
-- formalizedDescription: string (herschreven beschrijving in formele, neutrale taal)
+Guidelines:
+- Use formal, neutral language
+- Remove emotional expressions
+- Remove personal information (names, phone numbers)
+- Keep important incident details
+- Use professional Dutch
 
-Richtlijnen voor herschrijven:
-- Gebruik formele, neutrale taal
-- Verwijder emotionele uitingen en vervang door feitelijke beschrijving
-- Verwijder persoonlijke informatie (volledige namen, telefoonnummers, specifieke adressen)
-- Behoud algemene locatie-informatie ("bij de supermarkt", "in het park")
-- Behoud alle belangrijke details over het incident
-- Maak het professioneel maar nog steeds begrijpelijk
-- Gebruik Nederlandse spelling en grammatica
+Original title: ${title}
+Original description: ${description}
 
-Voorbeelden:
-- "Mijn fiets is gejat door een of andere idioot!" → "Fietsdiefstal gemeld door eigenaar"
-- "Super mooi park vandaag, echt geweldig!" → "Positieve waarneming betreffende staat van het park"
-- "Jan de Vries (06-12345678) heeft mijn auto bekrast" → "Eigendomsschade aan voertuig door onbekende persoon"
-
-Originele titel: ${title}
-Originele beschrijving: ${description}`;
+Return ONLY the JSON object:`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 600,
-        messages: [{ role: 'user', content: basePrompt }],
+        max_tokens: 300,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
       });
 
       const contentBlock = response.content[0];
