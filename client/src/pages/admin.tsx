@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Database, Eye, EyeOff, AlertTriangle, CheckCircle, Settings, Home } from 'lucide-react';
+import { Trash2, Database, Eye, EyeOff, AlertTriangle, CheckCircle, Settings, Home, Circle, Wifi, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
@@ -21,6 +21,8 @@ export default function AdminPage() {
   const [contentFilterPrompt, setContentFilterPrompt] = useState<string>('');
   const [textFormalizationPrompt, setTextFormalizationPrompt] = useState<string>('');
   const [promptLoading, setPromptLoading] = useState(false);
+  const [apiStatus, setApiStatus] = useState<{ isOnline: boolean; error?: string } | null>(null);
+  const [isCheckingApi, setIsCheckingApi] = useState(false);
 
   const menuItems = [
     {
@@ -59,6 +61,27 @@ export default function AdminPage() {
       setTextFormalizationPrompt(promptData.textFormalization || '');
     }
   }, [promptData]);
+
+  // API Health Check
+  const checkApiHealth = async () => {
+    setIsCheckingApi(true);
+    try {
+      const response = await fetch('/api/admin/api-health');
+      const healthData = await response.json();
+      setApiStatus(healthData);
+    } catch (error) {
+      setApiStatus({ isOnline: false, error: 'Connection failed' });
+    } finally {
+      setIsCheckingApi(false);
+    }
+  };
+
+  // Check API health on mount and set up interval
+  useEffect(() => {
+    checkApiHealth();
+    const interval = setInterval(checkApiHealth, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchModerationPrompts = async () => {
     try {
@@ -166,6 +189,34 @@ export default function AdminPage() {
       <div className="text-center">
         <h1 className="text-2xl font-bold text-foreground mb-2">Admin Panel</h1>
         <p className="text-muted-foreground">Manage your Area community safety platform</p>
+        
+        {/* API Status Indicator */}
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50">
+            {isCheckingApi ? (
+              <Circle className="h-3 w-3 animate-pulse text-gray-400" />
+            ) : apiStatus?.isOnline ? (
+              <Circle className="h-3 w-3 fill-green-500 text-green-500" />
+            ) : (
+              <Circle className="h-3 w-3 fill-orange-500 text-orange-500" />
+            )}
+            <span className="text-sm text-muted-foreground">
+              {isCheckingApi ? 'Checking...' : apiStatus?.isOnline ? 'AI Service Online' : 'AI Service Offline'}
+            </span>
+            {apiStatus?.error && !apiStatus.isOnline && (
+              <span className="text-xs text-muted-foreground/80">({apiStatus.error})</span>
+            )}
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={checkApiHealth}
+            disabled={isCheckingApi}
+            className="h-6 px-2"
+          >
+            {isCheckingApi ? <Circle className="h-3 w-3 animate-spin" /> : <Wifi className="h-3 w-3" />}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="reports" className="w-full">
