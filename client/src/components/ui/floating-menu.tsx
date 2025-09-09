@@ -18,13 +18,20 @@ interface ToggleAction {
 interface FloatingMenuProps {
   items: MenuItem[];
   toggleActions?: ToggleAction[];
+  onMenuOpen?: () => void;
 }
 
-export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenuProps) {
+export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: FloatingMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
+    const newOpenState = !isOpen;
+    setIsOpen(newOpenState);
+    
+    // Call onMenuOpen when menu is being opened
+    if (newOpenState && onMenuOpen) {
+      onMenuOpen();
+    }
   };
 
   return (

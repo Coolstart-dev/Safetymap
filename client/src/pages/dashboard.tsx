@@ -35,8 +35,11 @@ export default function Dashboard() {
   }, [snapToPosition]);
 
   // Handle list scroll - snap to high position (90%)  
-  const handleListScroll = useCallback(() => {
-    snapToPosition(2); // Index 2 = 90% open
+  const handleListScroll = useCallback((event: any) => {
+    // Only snap up if scrolling down (content being scrolled)
+    if (event.target.scrollTop > 10) {
+      snapToPosition(2); // Index 2 = 90% open
+    }
   }, [snapToPosition]);
 
   // Handle tab change - snap to high position when switching to region tab
@@ -79,12 +82,18 @@ export default function Dashboard() {
     {
       label: "Dashboard",
       icon: <Home className="h-4 w-4" />,
-      onClick: () => window.location.href = '/'
+      onClick: () => {
+        snapToPosition(0); // Snap to low position for better visibility
+        window.location.href = '/';
+      }
     },
     {
       label: "Admin Panel",
       icon: <Settings className="h-4 w-4" />,
-      onClick: () => window.location.href = '/admin'
+      onClick: () => {
+        snapToPosition(0); // Snap to low position for better visibility
+        window.location.href = '/admin';
+      }
     }
   ];
 
@@ -101,7 +110,11 @@ export default function Dashboard() {
     <div className="h-screen bg-background flex flex-col overflow-hidden">
 
       {/* Floating Menu */}
-      <FloatingMenu items={menuItems} toggleActions={toggleActions} />
+      <FloatingMenu 
+        items={menuItems} 
+        toggleActions={toggleActions} 
+        onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
+      />
 
       {/* Map Container - Full Height */}
       <div className="absolute inset-0 z-0">
