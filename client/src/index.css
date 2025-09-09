@@ -134,7 +134,7 @@ body[data-scroll-locked] {
   /* Global Frost Glassmorphism - Apple Vision OS Style */
   
   /* All containers and cards get frost effect */
-  .bg-background, .bg-card, .bg-white {
+  .bg-background, .bg-card, .bg-white, .bg-muted {
     backdrop-filter: blur(40px) saturate(1.8) !important;
     -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
     background: rgba(255, 255, 255, 0.08) !important;
@@ -143,6 +143,15 @@ body[data-scroll-locked] {
       0 8px 32px 0 rgba(31, 38, 135, 0.12),
       0 0 0 1px rgba(255, 255, 255, 0.1) inset,
       0 0 16px 0 rgba(255, 255, 255, 0.03) inset !important;
+  }
+
+  /* Force override for admin pages */
+  .admin-container, .admin-panel, .admin-page, 
+  .admin-container *, .admin-panel *, .admin-page * {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(40px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
   }
 
   /* Buttons get enhanced frost styling */
