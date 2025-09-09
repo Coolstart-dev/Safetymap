@@ -53,7 +53,7 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
           />
           
           {/* Menu Items */}
-          <div className="absolute top-14 left-0 glass-modal rounded-2xl min-w-48 py-3 z-50 shadow-2xl border border-white/30">
+          <div className="absolute top-14 left-0 glass-modal rounded-2xl min-w-48 py-2 z-50 shadow-2xl border border-white/30">
             {/* Navigation Items */}
             {items.map((item, index) => (
               <button
@@ -62,7 +62,7 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
                   item.onClick();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center px-4 py-3 text-sm text-gray-900 hover:glass-subtle hover:bg-white/20 transition-all duration-200 rounded-xl mx-2 backdrop-blur-sm drop-shadow-sm"
+                className="w-full flex items-center px-4 py-3 text-sm text-gray-900 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm drop-shadow-sm first:rounded-t-2xl last:rounded-b-2xl"
                 data-testid={`menu-item-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <span className="mr-3 text-gray-700 drop-shadow-sm">
@@ -74,7 +74,7 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
             
             {/* Separator if we have both items and toggle actions */}
             {items.length > 0 && toggleActions.length > 0 && (
-              <hr className="my-2 border-white/30 mx-2" />
+              <hr className="my-1 border-white/30 mx-4" />
             )}
             
             {/* Toggle Actions */}
@@ -84,10 +84,10 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
                 onClick={() => {
                   action.onToggle();
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 rounded-xl mx-2 backdrop-blur-sm drop-shadow-sm ${
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 backdrop-blur-sm drop-shadow-sm ${
                   action.isActive 
-                    ? 'text-blue-800 glass-strong border border-blue-200/50 bg-blue-100/30' 
-                    : 'text-gray-900 hover:glass-subtle hover:bg-white/20'
+                    ? 'text-blue-800 bg-blue-100/40 border-l-2 border-blue-400' 
+                    : 'text-gray-900 hover:bg-white/20'
                 }`}
                 data-testid={`toggle-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
               >
