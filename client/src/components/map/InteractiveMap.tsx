@@ -23,15 +23,18 @@ const TILE_CONFIG = {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   },
-  // Future tile servers can be added here
-  // maptiler: {
-  //   url: 'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key={apikey}',
-  //   attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; OpenStreetMap contributors'
-  // }
+  positron: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  voyager: {
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }
 };
 
-// Current tile server
-const CURRENT_TILES = TILE_CONFIG.openstreetmap;
+// Current tile server - using Positron for clean, minimal Google Maps-like appearance
+const CURRENT_TILES = TILE_CONFIG.positron;
 
 interface InteractiveMapProps {
   onPinClick: (reportId: string) => void;
@@ -316,29 +319,33 @@ export default function InteractiveMap({
         const categoryInfo = categories[report.category as keyof typeof categories];
         const color = categoryInfo?.color || '#6b7280';
 
-        // Create custom colored marker
+        // Create custom colored marker with modern Google Maps-like styling
         const customIcon = L.divIcon({
           className: 'custom-marker',
           html: `
             <div style="
-              width: 32px; 
-              height: 32px; 
+              width: 24px; 
+              height: 24px; 
               background-color: ${color}; 
-              border: 3px solid white; 
+              border: 2px solid white; 
               border-radius: 50%; 
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
               display: flex;
               align-items: center;
               justify-content: center;
               cursor: pointer;
+              transition: all 0.2s ease;
             ">
-              <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-              </svg>
+              <div style="
+                width: 8px; 
+                height: 8px; 
+                background-color: white; 
+                border-radius: 50%;
+              "></div>
             </div>
           `,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16]
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
         });
 
         const marker = L.marker([report.latitude, report.longitude], {
@@ -401,7 +408,7 @@ export default function InteractiveMap({
       <div className="absolute bottom-4 right-4 z-[1000]">
         <Button
           size="icon"
-          className="bg-white text-gray-700 shadow-md hover:shadow-lg border rounded-full"
+          className="bg-white text-gray-600 shadow-sm hover:shadow-md border-0 rounded-full w-10 h-10"
           onClick={handleCenterMap}
           data-testid="button-center-map"
           title="Center on my location"
@@ -411,8 +418,8 @@ export default function InteractiveMap({
       </div>
       
       {/* Map Info Overlay */}
-      <div className="absolute bottom-2 left-2 bg-white/90 px-3 py-1 rounded-full text-xs text-gray-700 shadow-sm border z-[1000]">
-        <span className="font-medium">{filteredReports.length}</span> reports
+      <div className="absolute bottom-2 left-2 bg-white/95 px-3 py-1.5 rounded-full text-xs text-gray-600 shadow-sm z-[1000]">
+        <span className="font-medium">{filteredReports.length}</span> meldingen
       </div>
     </div>
   );
