@@ -66,13 +66,13 @@ export default function FilterSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="bottom" className="glass-card h-[90vh] flex flex-col rounded-t-3xl">
         <div className="flex items-center justify-between pb-4 border-b border-white/20">
-          <h2 className="text-lg font-semibold text-foreground">Filters</h2>
+          <h2 className="text-lg font-semibold text-gray-900 drop-shadow-sm">Filters</h2>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClearAll}
-              className="glass-button rounded-xl text-muted-foreground"
+              className="glass-subtle rounded-xl text-gray-700 hover:text-gray-900 drop-shadow-sm border border-white/30"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Clear all
@@ -88,7 +88,7 @@ export default function FilterSheet({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: category.color }}
                 />
-                <h3 className="font-medium text-foreground">
+                <h3 className="font-medium text-gray-900 drop-shadow-sm">
                   {category.name}
                 </h3>
               </div>
@@ -97,7 +97,7 @@ export default function FilterSheet({
                 {category.subcategories.map((subcategory) => (
                   <div 
                     key={subcategory}
-                    className="flex items-center space-x-3 py-2 px-3 rounded-xl glass-subtle hover:glass transition-all duration-200"
+                    className="flex items-center space-x-3 py-2 px-3 rounded-xl glass-subtle hover:bg-white/25 transition-all duration-200 border border-white/20"
                   >
                     <Checkbox
                       id={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
@@ -107,7 +107,7 @@ export default function FilterSheet({
                     />
                     <label 
                       htmlFor={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
-                      className="text-sm cursor-pointer flex-1"
+                      className="text-sm cursor-pointer flex-1 text-gray-900 drop-shadow-sm"
                     >
                       {subcategory}
                     </label>
@@ -122,7 +122,7 @@ export default function FilterSheet({
         <div className="border-t border-white/20 pt-4">
           <Button 
             onClick={handleApply}
-            className="glass-button w-full rounded-xl"
+            className="glass-button w-full rounded-xl text-gray-900 font-semibold drop-shadow-sm border border-white/30"
             data-testid="button-apply-filters"
           >
             Show {tempSelected.length > 0 ? `${tempSelected.length} selected` : 'all'} reports

@@ -43,13 +43,13 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="glass-modal max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Report Details</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-gray-900 drop-shadow-sm">Report Details</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm text-muted-foreground">Loading report details...</p>
+            <p className="text-sm text-gray-700 drop-shadow-sm">Loading report details...</p>
           </div>
         ) : report ? (
           <div className="space-y-4">
@@ -60,7 +60,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                 style={{ backgroundColor: getCategoryColor(report.category) }}
               />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">{report.title}</h3>
+                <h3 className="font-semibold text-gray-900 mb-1 drop-shadow-sm">{report.title}</h3>
                 <Badge 
                   variant="secondary"
                   style={{ 
@@ -81,21 +81,21 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             {/* Details */}
             <div className="space-y-3 text-sm">
               <div>
-                <span className="font-medium text-foreground flex items-center mb-1">
+                <span className="font-medium text-gray-900 flex items-center mb-1 drop-shadow-sm">
                   <User className="h-4 w-4 mr-2" />
                   Description
                 </span>
-                <p className="text-muted-foreground">{report.description}</p>
+                <p className="text-gray-700 drop-shadow-sm">{report.description}</p>
               </div>
 
               {/* Incident Time */}
               {report.incidentDateTime && (
                 <div>
-                  <span className="font-medium text-foreground flex items-center">
+                  <span className="font-medium text-gray-900 flex items-center drop-shadow-sm">
                     <Clock className="h-4 w-4 mr-2" />
                     When incident happened
                   </span>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-700 drop-shadow-sm">
                     {(() => {
                       try {
                         const date = new Date(report.incidentDateTime);
@@ -119,11 +119,11 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
 
               {/* Reported Time */}
               <div>
-                <span className="font-medium text-foreground flex items-center">
+                <span className="font-medium text-gray-900 flex items-center drop-shadow-sm">
                   <Clock className="h-4 w-4 mr-2" />
                   Report submitted
                 </span>
-                <p className="text-muted-foreground">
+                <p className="text-gray-700 drop-shadow-sm">
                   {(() => {
                     if (!report.createdAt) return "Time not available";
                     
@@ -147,11 +147,11 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
               </div>
 
               <div>
-                <span className="font-medium text-foreground flex items-center">
+                <span className="font-medium text-gray-900 flex items-center drop-shadow-sm">
                   <MapPin className="h-4 w-4 mr-2" />
                   Location
                 </span>
-                <p className="text-muted-foreground">
+                <p className="text-gray-700 drop-shadow-sm">
                   {report.locationDescription || 
                    (report.latitude && report.longitude ? 
                     `${report.latitude.toFixed(6)}, ${report.longitude.toFixed(6)}` : 
@@ -161,21 +161,21 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
               </div>
 
               <div>
-                <span className="font-medium text-foreground flex items-center">
+                <span className="font-medium text-gray-900 flex items-center drop-shadow-sm">
                   <Shield className="h-4 w-4 mr-2" />
                   Authorities contacted
                 </span>
-                <p className="text-muted-foreground">
+                <p className="text-gray-700 drop-shadow-sm">
                   {report.authoritiesContacted ? "Yes" : "No"}
                 </p>
               </div>
 
               <div>
-                <span className="font-medium text-foreground flex items-center">
+                <span className="font-medium text-gray-900 flex items-center drop-shadow-sm">
                   <User className="h-4 w-4 mr-2" />
                   Involvement
                 </span>
-                <p className="text-muted-foreground">
+                <p className="text-gray-700 drop-shadow-sm">
                   {report.involvementType === 'victim' ? 
                     'Reported by victim/directly affected person' : 
                     'Reported by witness'
@@ -186,7 +186,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
               {/* Image */}
               {report.imageUrl && (
                 <div>
-                  <span className="font-medium text-foreground flex items-center mb-2">
+                  <span className="font-medium text-gray-900 flex items-center mb-2 drop-shadow-sm">
                     <Camera className="h-4 w-4 mr-2" />
                     Photo Evidence
                   </span>
@@ -204,7 +204,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             <div className="pt-4">
               <Button 
                 variant="outline" 
-                className="w-full"
+                className="glass-button w-full text-gray-900 font-medium drop-shadow-sm border border-white/30"
                 data-testid="button-report-inappropriate"
               >
                 <Flag className="h-4 w-4 mr-2" />
@@ -214,7 +214,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
           </div>
         ) : (
           <div className="p-8 text-center">
-            <p className="text-muted-foreground">Report not found.</p>
+            <p className="text-gray-700 drop-shadow-sm">Report not found.</p>
           </div>
         )}
       </DialogContent>
