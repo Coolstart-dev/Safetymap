@@ -84,7 +84,7 @@ function MobileShortcuts({ currentPath, onNavigate }: AdminNavigationProps) {
 // Desktop Sidebar
 function DesktopSidebar({ currentPath, onNavigate }: AdminNavigationProps) {
   return (
-    <div className="hidden md:flex flex-col w-64 border-r bg-muted/20 min-h-screen">
+    <div className="hidden md:flex flex-col w-64 border-r min-h-screen admin-container">
       <div className="p-6 border-b">
         <h2 className="text-lg font-semibold">Admin Panel</h2>
         <p className="text-sm text-muted-foreground">Area platform beheer</p>
@@ -133,7 +133,7 @@ function MobileMenuButton() {
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[280px] sm:w-80 p-0">
+        <SheetContent side="left" className="w-[280px] sm:w-80 p-0 admin-panel">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Admin Navigatie</h2>
             <p className="text-sm text-muted-foreground">Kies een sectie</p>
