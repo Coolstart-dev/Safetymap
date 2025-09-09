@@ -64,8 +64,8 @@ export default function FilterSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="glass-card h-[90vh] flex flex-col rounded-t-3xl">
-        <div className="flex items-center justify-between pb-4 border-b border-white/20">
+      <SheetContent side="bottom" className="h-[90vh] flex flex-col rounded-t-3xl backdrop-blur-40 bg-white/85 border border-white/50 shadow-2xl" style={{ backdropFilter: 'blur(40px) saturate(1.8)' }}>
+        <div className="flex items-center justify-between pb-4 border-b border-white/40">
           <h2 className="text-lg font-semibold text-gray-900 drop-shadow-sm">Filters</h2>
           <div className="flex items-center gap-2">
             <Button
@@ -97,7 +97,7 @@ export default function FilterSheet({
                 {category.subcategories.map((subcategory) => (
                   <div 
                     key={subcategory}
-                    className="flex items-center space-x-3 py-2 px-3 rounded-xl glass-subtle hover:bg-white/25 transition-all duration-200 border border-white/20"
+                    className="flex items-center space-x-3 py-2 px-3 rounded-xl bg-white/30 hover:bg-white/50 transition-all duration-200 border border-white/40"
                   >
                     <Checkbox
                       id={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
@@ -119,7 +119,7 @@ export default function FilterSheet({
         </div>
 
         {/* Bottom Actions */}
-        <div className="border-t border-white/20 pt-4">
+        <div className="border-t border-white/40 pt-4">
           <Button 
             onClick={handleApply}
             className="glass-button w-full rounded-xl text-gray-900 font-semibold drop-shadow-sm border border-white/30"

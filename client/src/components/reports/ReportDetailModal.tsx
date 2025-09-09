@@ -41,7 +41,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass-modal max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl backdrop-blur-40 bg-white/85 border border-white/50 shadow-2xl" style={{ backdropFilter: 'blur(40px) saturate(1.8)' }}>
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-gray-900 drop-shadow-sm">Report Details</DialogTitle>
         </DialogHeader>
@@ -64,14 +64,15 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
                 <Badge 
                   variant="secondary"
                   style={{ 
-                    backgroundColor: `${getCategoryColor(report.category)}20`,
-                    color: getCategoryColor(report.category)
+                    backgroundColor: `${getCategoryColor(report.category)}40`,
+                    color: getCategoryColor(report.category),
+                    border: `1px solid ${getCategoryColor(report.category)}60`
                   }}
                 >
                   {getCategoryName(report.category)}
                 </Badge>
                 {report.subcategory && (
-                  <Badge variant="outline" className="ml-2">
+                  <Badge variant="outline" className="ml-2 bg-white/50 border-gray-400">
                     {report.subcategory}
                   </Badge>
                 )}
@@ -204,7 +205,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             <div className="pt-4">
               <Button 
                 variant="outline" 
-                className="glass-button w-full text-gray-900 font-medium drop-shadow-sm border border-white/30"
+                className="w-full text-gray-900 font-medium drop-shadow-sm bg-white/40 hover:bg-white/60 border border-white/60 rounded-xl transition-all duration-200"
                 data-testid="button-report-inappropriate"
               >
                 <Flag className="h-4 w-4 mr-2" />
