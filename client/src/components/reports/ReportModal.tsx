@@ -307,7 +307,7 @@ export default function ReportModal({
             <div 
               className="flex-1 modal-scroll-container" 
               style={{ 
-                maxHeight: 'calc(100vh - 80px)',
+                maxHeight: 'calc(100vh - 120px)',
                 overflow: 'hidden'
               }}
               onTouchMove={(e) => {
@@ -322,7 +322,7 @@ export default function ReportModal({
               }}
             >
               <div 
-                className="h-full overflow-y-auto p-4 pb-8 modal__body"
+                className="h-full overflow-y-auto modal__body"
                 style={{
                   WebkitOverflowScrolling: 'touch',
                   touchAction: 'pan-y',
@@ -330,7 +330,7 @@ export default function ReportModal({
                 }}
               >
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4 pb-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 pb-6">
             {/* Category Selection */}
             <FormField
               control={form.control}
@@ -632,7 +632,7 @@ export default function ReportModal({
 
             <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full mt-6"
                   disabled={createReportMutation.isPending}
                   data-testid="button-submit-report"
                 >
