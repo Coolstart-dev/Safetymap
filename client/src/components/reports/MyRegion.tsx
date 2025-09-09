@@ -182,7 +182,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
           <div className="flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-sm drop-shadow-sm">
                 {report.title}
               </h3>
               <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
@@ -190,7 +190,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               </span>
             </div>
 
-            <p className="text-gray-600 line-clamp-3 flex-1 text-xs">
+            <p className="text-gray-600 line-clamp-3 flex-1 text-xs text-shadow">
               {report.description}
             </p>
           </div>
@@ -216,7 +216,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <div className="mb-4 bg-white border-0 md:border md:border-gray-200 md:rounded-lg">
+        <div className="mb-4 glass-card rounded-2xl">
           <div className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -224,7 +224,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                   className="w-3 h-3 rounded-full" 
                   style={{ backgroundColor: section.color }}
                 />
-                <span className="text-lg font-semibold">{section.name}</span>
+                <span className="text-lg font-semibold drop-shadow-sm">{section.name}</span>
                 <Badge 
                   className="border-0"
                   style={{ 
@@ -284,10 +284,10 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
+      <div className="glass-card border-b border-white/30 p-4 flex-shrink-0">
         <div className="flex items-center gap-2 mb-3">
           <MapPin className="w-5 h-5 text-red-600" />
-          <h1 className="text-xl font-bold text-gray-900">Regional News</h1>
+          <h1 className="text-xl font-bold text-gray-900 drop-shadow-sm">Regional News</h1>
         </div>
 
         <div className="flex gap-2">
@@ -303,7 +303,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
             onClick={handleSearch} 
             disabled={!postalCode.trim() || isLoading}
             size="sm"
-            className="bg-red-600 hover:bg-red-700"
+            className="glass-button bg-red-500/80 hover:bg-red-600/90 text-white border-red-400/50"
             data-testid="search-button"
           >
             {isLoading ? (
@@ -316,10 +316,10 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="flex-1 overflow-y-auto">
         {error && (
           <div className="text-center py-16">
-            <div className="text-red-600 text-lg font-semibold mb-2">Postal code not found</div>
+            <div className="text-red-600 text-lg font-semibold mb-2 drop-shadow-sm">Postal code not found</div>
             <p className="text-gray-600">
               Please check your postal code and try again
             </p>
@@ -329,8 +329,8 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         {regionData && (
           <div className="max-w-6xl mx-auto p-2 md:p-6">
             {/* Region Header */}
-            <header className="bg-white border-0 md:border md:border-gray-200 md:rounded-lg md:shadow-sm p-4 md:p-6 mb-4 md:mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <header className="glass-card rounded-2xl p-4 md:p-6 mb-4 md:mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 drop-shadow-sm">
                 {regionData.postalCode.municipality}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -348,8 +348,8 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
 
             {/* News Sections */}
             {groupedReports.length === 0 ? (
-              <div className="text-center py-16 bg-white border-0 md:border md:border-gray-200 md:rounded-lg">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="text-center py-16 glass-card rounded-2xl">
+                <div className="w-16 h-16 glass-subtle rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No News Yet</h3>
@@ -370,32 +370,32 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
         {/* Default State */}
         {!searchedPostalCode && !isLoading && (
           <div className="max-w-4xl mx-auto p-6 text-center py-16">
-            <div className="bg-white border-0 md:border md:border-gray-200 md:rounded-lg md:shadow-sm p-6 md:p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Regional News Dashboard</h2>
+            <div className="glass-card rounded-2xl p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 drop-shadow-sm">Regional News Dashboard</h2>
               <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
                 Stay informed about what's happening in your area. Enter a postal code above to see the latest reports organized by category.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
+                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
                   <Users className="w-8 h-8 text-blue-600 mb-3" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Community Insights</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Community Insights</h3>
                   <p className="text-sm text-gray-600 text-center">
                     Local reports organized by category for easy browsing
                   </p>
                 </div>
 
-                <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
+                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
                   <Image className="w-8 h-8 text-green-600 mb-3" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Visual Stories</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Visual Stories</h3>
                   <p className="text-sm text-gray-600 text-center">
                     Photos and detailed descriptions from residents
                   </p>
                 </div>
 
-                <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
+                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
                   <Heart className="w-8 h-8 text-red-600 mb-3" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Regional Safety</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Regional Safety</h3>
                   <p className="text-sm text-gray-600 text-center">
                     Both positive and concerning community developments
                   </p>
