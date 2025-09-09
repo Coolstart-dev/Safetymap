@@ -33,7 +33,7 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
       <Button
         onClick={toggleMenu}
         size="icon"
-        className="bg-white hover:bg-gray-50 text-gray-700 shadow-lg border border-gray-200 rounded-lg w-12 h-12"
+        className="glass-button text-gray-700 rounded-xl w-12 h-12"
         data-testid="button-floating-menu"
       >
         {isOpen ? (
@@ -48,12 +48,12 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 z-40 bg-black/20" 
+            className="fixed inset-0 z-40 glass-overlay" 
             onClick={() => setIsOpen(false)}
           />
           
           {/* Menu Items */}
-          <div className="absolute top-14 left-0 bg-white rounded-lg shadow-xl border border-gray-200 min-w-48 py-2 z-50">
+          <div className="absolute top-14 left-0 glass-card rounded-xl min-w-48 py-2 z-50">
             {/* Navigation Items */}
             {items.map((item, index) => (
               <button

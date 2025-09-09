@@ -68,16 +68,18 @@ export default function ReportsList({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full glass-card rounded-t-3xl">
       {/* Tab Navigation */}
-      <div className="px-4 pt-1 pb-2 flex-shrink-0">
+      <div className="px-4 pt-4 pb-2 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex space-x-1">
             <Button
               variant={activeTab === 'recent' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => onTabChange('recent')}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 rounded-xl ${
+                activeTab === 'recent' ? 'glass-strong' : 'glass-subtle'
+              }`}
               data-testid="tab-recent-reports"
             >
               <Clock className="w-4 h-4" />
@@ -87,7 +89,9 @@ export default function ReportsList({
               variant={activeTab === 'region' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => onTabChange('region')}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 rounded-xl ${
+                activeTab === 'region' ? 'glass-strong' : 'glass-subtle'
+              }`}
               data-testid="tab-my-region"
             >
               <MapPin className="w-4 h-4" />
@@ -99,6 +103,7 @@ export default function ReportsList({
               variant="ghost" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
+              className="glass-button rounded-xl"
               data-testid="button-filter"
             >
               <Filter className="h-4 w-4 mr-1" />
@@ -181,7 +186,7 @@ export default function ReportsList({
           filteredReports.map((report) => (
             <div
               key={report.id}
-              className="report-item p-4 border-b border-border cursor-pointer transition-all duration-200 hover:bg-gray-50 hover:transform hover:-translate-y-0.5"
+              className="report-item p-4 mx-2 mb-2 glass-subtle rounded-xl cursor-pointer transition-all duration-300 hover:glass-card hover:transform hover:-translate-y-1"
               onClick={() => onReportClick(report.id)}
               data-testid={`report-item-${report.id}`}
             >
