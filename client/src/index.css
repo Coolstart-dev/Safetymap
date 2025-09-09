@@ -145,13 +145,89 @@ body[data-scroll-locked] {
       0 0 16px 0 rgba(255, 255, 255, 0.03) inset !important;
   }
 
-  /* Force override for admin pages */
-  .admin-container, .admin-panel, .admin-page, 
-  .admin-container *, .admin-panel *, .admin-page * {
+  /* AGGRESSIVE ADMIN GLASSMORPHISM OVERRIDES */
+  
+  /* Target all admin routes and containers */
+  [class*="admin"], 
+  div[class*="admin"],
+  div[class*="admin"] *,
+  .admin-container,
+  .admin-panel, 
+  .admin-page,
+  .admin-container *,
+  .admin-panel *,
+  .admin-page * {
     background: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(40px) saturate(1.8) !important;
     -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
     border-color: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  /* Force admin body and html override */
+  body:has([class*="admin"]),
+  html:has([class*="admin"]) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  }
+
+  /* Admin page specific overrides with max specificity */
+  div.admin-container,
+  div.admin-panel,
+  div.admin-page,
+  .admin-container > *,
+  .admin-panel > *,
+  .admin-page > * {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(40px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  }
+
+  /* Admin navigation buttons and cards */
+  .admin-container button,
+  .admin-panel button,
+  .admin-page button,
+  .admin-container .card,
+  .admin-panel .card,
+  .admin-page .card,
+  .admin-container [data-testid],
+  .admin-panel [data-testid],
+  .admin-page [data-testid] {
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(20px) saturate(1.5) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: rgba(0, 0, 0, 0.85) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+  }
+
+  /* NUCLEAR OPTION - Override everything in admin paths */
+  div[class*="flex"],
+  div[class*="grid"],
+  div[class*="space"],
+  div[class*="p-"],
+  div[class*="m-"],
+  div[class*="bg-"],
+  button[class*="Button"],
+  div[data-radix-popper-content-wrapper] {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(40px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  /* Target specific admin UI patterns */
+  .grid.grid-cols-2,
+  .flex.items-center,
+  .space-y-4,
+  .space-y-6,
+  [role="button"],
+  [type="button"] {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(40px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
   }
 
   /* Buttons get enhanced frost styling */
