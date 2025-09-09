@@ -3,15 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modal scroll fixes - as requested by user */
+/* Modal scroll fixes - enhanced for better mobile touch handling */
 .modal__body {
-  max-height: 70svh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.modal-scroll-container {
-  max-height: 90svh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -19,6 +12,19 @@
   /* iOS Safari momentum scrolling fix */
   transform: translateZ(0);
   will-change: scroll-position;
+  /* Ensure full height usage without white space */
+  min-height: 0;
+  flex: 1;
+}
+
+/* Mobile specific modal styling */
+@supports (-webkit-touch-callout: none) {
+  .modal__body {
+    /* Force momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
 }
 
 /* Ensure body scroll lock works properly with modal open */

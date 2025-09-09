@@ -269,11 +269,11 @@ export default function ReportModal({
     createReportMutation.mutate(data);
   };
 
-  // Mobile: use fullscreen with ScrollArea for proper Radix modal behavior
+  // Mobile: use fullscreen with proper iOS scroll handling
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden !transform-none !translate-x-0 !translate-y-0"
+        <DialogContent className="fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden"
           style={{ 
             position: 'fixed', 
             top: 0, 
@@ -282,6 +282,7 @@ export default function ReportModal({
             bottom: 0, 
             width: '100vw', 
             height: '100vh',
+            height: '100dvh', // Dynamic viewport height for better mobile support
             maxWidth: 'none',
             transform: 'none'
           }}>
@@ -305,32 +306,17 @@ export default function ReportModal({
             </DialogHeader>
 
             <div 
-              className="flex-1 modal-scroll-container" 
-              style={{ 
-                maxHeight: 'calc(100vh - 120px)',
-                overflow: 'hidden'
-              }}
-              onTouchMove={(e) => {
-                // Only prevent if touch is NOT within modal content
-                const target = e.target as Element;
-                if (!target.closest('.modal__body')) {
-                  e.preventDefault();
-                } else {
-                  // Allow normal scrolling within modal content
-                  e.stopPropagation();
-                }
+              className="flex-1 overflow-y-auto modal__body"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                overscrollBehavior: 'contain',
+                maxHeight: 'calc(100vh - 80px)', // Adjust for header
+                height: 'calc(100vh - 80px)' // Ensure full height usage
               }}
             >
-              <div 
-                className="h-full overflow-y-auto modal__body"
-                style={{
-                  WebkitOverflowScrolling: 'touch',
-                  touchAction: 'pan-y',
-                  overscrollBehavior: 'contain'
-                }}
-              >
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 pb-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 pb-8">
             {/* Category Selection */}
             <FormField
               control={form.control}
@@ -661,30 +647,14 @@ export default function ReportModal({
           </DialogHeader>
 
           <div 
-            className="flex-1 modal-scroll-container" 
-            style={{ 
-              maxHeight: 'calc(90vh - 120px)',
-              overflow: 'hidden'
-            }}
-            onTouchMove={(e) => {
-              // Only prevent if touch is NOT within modal content
-              const target = e.target as Element;
-              if (!target.closest('.modal__body')) {
-                e.preventDefault();
-              } else {
-                // Allow normal scrolling within modal content
-                e.stopPropagation();
-              }
+            className="flex-1 overflow-y-auto p-6 pt-4 modal__body"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+              overscrollBehavior: 'contain',
+              maxHeight: 'calc(90vh - 120px)'
             }}
           >
-            <div 
-              className="h-full overflow-y-auto p-6 pt-4 modal__body"
-              style={{
-                WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y',
-                overscrollBehavior: 'contain'
-              }}
-            >
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Category Selection */}
