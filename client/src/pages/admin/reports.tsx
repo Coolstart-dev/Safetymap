@@ -69,7 +69,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export default function ReportsPage() {
             Reset and clean up your database for testing purposes
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 md:space-y-4">
           <div className="bg-muted/50 rounded-lg p-4">
             <h3 className="font-medium mb-2">Delete All Reports</h3>
             <p className="text-sm text-muted-foreground mb-4">
@@ -162,8 +162,8 @@ export default function ReportsPage() {
                   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 })
                 .map((report: any) => (
-                <div key={report.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-start justify-between">
+                <div key={report.id} className="border rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 md:gap-0">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-sm">
@@ -180,7 +180,7 @@ export default function ReportsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleOriginalContent(report.id)}
-                        className="gap-1"
+                        className="gap-1 text-xs"
                       >
                         {showOriginalContent[report.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                         {showOriginalContent[report.id] ? 'Gemoderate versie' : 'Originele versie'}
@@ -188,7 +188,7 @@ export default function ReportsPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-1 sm:gap-0">
                     <div>
                       <span className="font-medium">{report.category}</span>
                       {report.subcategory && ` • ${report.subcategory}`}
