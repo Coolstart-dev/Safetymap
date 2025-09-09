@@ -295,7 +295,7 @@ export default function ReportModal({
               <span className="sr-only">Close</span>
             </button>
           </DialogClose>
-          
+
           <div className="h-full flex flex-col bg-background">
             <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b pr-12">
               <DialogTitle>Report Incident</DialogTitle>
@@ -305,18 +305,30 @@ export default function ReportModal({
             </DialogHeader>
 
             <div 
-            className="flex-1 modal-scroll-container" 
-            style={{ 
-              maxHeight: 'calc(100vh - 80px)',
-              WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-y',
-              overscrollBehavior: 'contain'
-            }}
-            onTouchMove={(e) => {
-              // Allow scrolling within the modal content
-              e.stopPropagation();
-            }}
-          >
+              className="flex-1 modal-scroll-container" 
+              style={{ 
+                maxHeight: 'calc(100vh - 80px)',
+                overflow: 'hidden'
+              }}
+              onTouchMove={(e) => {
+                // Only prevent if touch is NOT within modal content
+                const target = e.target as Element;
+                if (!target.closest('.modal__body')) {
+                  e.preventDefault();
+                } else {
+                  // Allow normal scrolling within modal content
+                  e.stopPropagation();
+                }
+              }}
+            >
+              <div 
+                className="h-full overflow-y-auto p-4 pb-8 modal__body"
+                style={{
+                  WebkitOverflowScrolling: 'touch',
+                  touchAction: 'pan-y',
+                  overscrollBehavior: 'contain'
+                }}
+              >
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4 pb-8">
             {/* Category Selection */}
@@ -646,21 +658,32 @@ export default function ReportModal({
               Create a new incident report with location, category, and details
             </DialogDescription>
           </DialogHeader>
-          
+
           <div 
-            className="flex-1 modal-scroll-container p-6 pt-4" 
+            className="flex-1 modal-scroll-container" 
             style={{ 
               maxHeight: 'calc(90vh - 120px)',
-              WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-y',
-              overscrollBehavior: 'contain'
+              overflow: 'hidden'
             }}
             onTouchMove={(e) => {
-              // Allow scrolling within the modal content
-              e.stopPropagation();
+              // Only prevent if touch is NOT within modal content
+              const target = e.target as Element;
+              if (!target.closest('.modal__body')) {
+                e.preventDefault();
+              } else {
+                // Allow normal scrolling within modal content
+                e.stopPropagation();
+              }
             }}
           >
-            <div></div>
+            <div 
+              className="h-full overflow-y-auto p-6 pt-4 modal__body"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                overscrollBehavior: 'contain'
+              }}
+            >
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Category Selection */}

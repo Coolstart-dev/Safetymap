@@ -4,12 +4,21 @@
 @tailwind utilities;
 
 /* Modal scroll fixes - as requested by user */
+.modal__body {
+  max-height: 70svh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .modal-scroll-container {
-  max-height: 90vh;
+  max-height: 90svh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
+  /* iOS Safari momentum scrolling fix */
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 /* Ensure body scroll lock works properly with modal open */
@@ -53,11 +62,11 @@ body[data-scroll-locked] {
   .snap-x {
     scroll-snap-type: x mandatory;
   }
-  
+
   .snap-start {
     scroll-snap-align: start;
   }
-  
+
   .snap-mandatory {
     scroll-snap-type: x mandatory;
   }
@@ -68,7 +77,7 @@ body[data-scroll-locked] {
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
