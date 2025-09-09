@@ -7,22 +7,24 @@ interface BottomSheetProps {
   open?: boolean;
   onDismiss?: () => void;
   defaultSnap?: number;
+  onClick?: () => void;
 }
 
 const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ 
   children, 
   open = true,
   onDismiss,
-  defaultSnap
+  defaultSnap,
+  onClick
 }: BottomSheetProps, ref) => {
   return (
     <ReactSpringBottomSheet 
       ref={ref}
       open={open}
       onDismiss={onDismiss}
-      defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[1])}
+      defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[0])}
       snapPoints={({ maxHeight }) => [
-        maxHeight * 0.1,       // Laag: 10% open
+        maxHeight * 0.25,      // Laag: 25% open (beter zichtbaar)
         maxHeight * 0.4,       // Midden: 40% open
         maxHeight * 0.9        // Hoog: 90% open
       ]}
@@ -30,7 +32,10 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({
       expandOnContentDrag={true}
       className="bottom-sheet-glass"
     >
-      <div className="glass-card rounded-t-3xl h-full">
+      <div 
+        className="glass-card rounded-t-3xl h-full cursor-pointer" 
+        onClick={onClick}
+      >
         {children}
       </div>
     </ReactSpringBottomSheet>

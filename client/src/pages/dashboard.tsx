@@ -29,9 +29,9 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Handle map interactions - snap to low position (10%)
+  // Handle map interactions - snap to low position (25%)
   const handleMapInteraction = useCallback(() => {
-    snapToPosition(0); // Index 0 = 10% open
+    snapToPosition(0); // Index 0 = 25% open
   }, [snapToPosition]);
 
   // Handle list scroll - snap to high position (90%)  
@@ -49,6 +49,11 @@ export default function Dashboard() {
     if (tab === 'region') {
       snapToPosition(2); // Index 2 = 90% open for better visibility
     }
+  }, [snapToPosition]);
+
+  // Handle bottom sheet click - snap to middle position (40%)
+  const handleBottomSheetClick = useCallback(() => {
+    snapToPosition(1); // Index 1 = 40% open
   }, [snapToPosition]);
 
   const handleReportClick = (reportId: string) => {
@@ -70,7 +75,7 @@ export default function Dashboard() {
 
   const handleLocationSelectionStart = () => {
     // Snap bottom sheet to low position when starting location selection
-    snapToPosition(0); // 10% open for better map visibility
+    snapToPosition(0); // 25% open for better map visibility
   };
 
   const handleCloseReportModal = () => {
@@ -132,7 +137,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Sheet with Reports */}
-      <BottomSheet ref={bottomSheetRef}>
+      <BottomSheet ref={bottomSheetRef} onClick={handleBottomSheetClick}>
         <ReportsList 
           onReportClick={handleReportClick}
           activeCategory={activeCategory}
