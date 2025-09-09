@@ -273,7 +273,7 @@ export default function ReportModal({
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden"
+        <DialogContent className="glass-modal fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden"
           style={{ 
             position: 'fixed', 
             top: 0, 
@@ -635,7 +635,7 @@ export default function ReportModal({
   // Desktop: use DialogContent with proper max-height and scroll
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="glass-modal w-full max-w-md max-h-[90vh] overflow-hidden p-0 rounded-2xl">
         <div className="flex flex-col h-full max-h-[90vh]">
           <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <DialogTitle>Report Incident</DialogTitle>

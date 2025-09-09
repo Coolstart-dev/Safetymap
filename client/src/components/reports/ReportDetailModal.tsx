@@ -41,9 +41,9 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="glass-modal max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Report Details</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">Report Details</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
