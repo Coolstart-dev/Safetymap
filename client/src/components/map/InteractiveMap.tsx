@@ -419,7 +419,7 @@ export default function InteractiveMap({
       
       {/* Map Info Overlay */}
       <div className="absolute bottom-2 left-2 bg-white/95 px-3 py-1.5 rounded-full text-xs text-gray-600 shadow-sm z-[1000]">
-        <span className="font-medium">{filteredReports.length}</span> meldingen
+        <span className="font-medium">{filteredReports.length}</span> reports
       </div>
     </div>
   );
