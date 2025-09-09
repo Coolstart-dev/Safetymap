@@ -22,10 +22,10 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({
       ref={ref}
       open={open}
       onDismiss={onDismiss}
-      defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[0])}
+      defaultSnap={defaultSnap || (({ snapPoints }) => snapPoints[1])}
       snapPoints={({ maxHeight }) => [
-        maxHeight * 0.25,      // Laag: 25% open (beter zichtbaar)
-        maxHeight * 0.4,       // Midden: 40% open
+        maxHeight * 0.2,       // Laag: 20% open (was 10%)
+        maxHeight * 0.4,       // Midden: 40% open (default)
         maxHeight * 0.9        // Hoog: 90% open
       ]}
       blocking={false}

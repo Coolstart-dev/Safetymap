@@ -29,9 +29,9 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Handle map interactions - snap to low position (25%)
+  // Handle map interactions - snap to low position (20%)
   const handleMapInteraction = useCallback(() => {
-    snapToPosition(0); // Index 0 = 25% open
+    snapToPosition(0); // Index 0 = 20% open
   }, [snapToPosition]);
 
   // Handle list scroll - snap to high position (90%)  
@@ -75,7 +75,7 @@ export default function Dashboard() {
 
   const handleLocationSelectionStart = () => {
     // Snap bottom sheet to low position when starting location selection
-    snapToPosition(0); // 25% open for better map visibility
+    snapToPosition(0); // 20% open for better map visibility
   };
 
   const handleCloseReportModal = () => {
