@@ -64,15 +64,15 @@ export default function FilterSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b">
+      <SheetContent side="bottom" className="glass-card h-[90vh] flex flex-col rounded-t-3xl">
+        <div className="flex items-center justify-between pb-4 border-b border-white/20">
           <h2 className="text-lg font-semibold text-foreground">Filters</h2>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClearAll}
-              className="text-muted-foreground"
+              className="glass-button rounded-xl text-muted-foreground"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Clear all
@@ -97,7 +97,7 @@ export default function FilterSheet({
                 {category.subcategories.map((subcategory) => (
                   <div 
                     key={subcategory}
-                    className="flex items-center space-x-3 py-2 px-3 rounded-lg hover:bg-muted/50"
+                    className="flex items-center space-x-3 py-2 px-3 rounded-xl glass-subtle hover:glass transition-all duration-200"
                   >
                     <Checkbox
                       id={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
@@ -119,10 +119,10 @@ export default function FilterSheet({
         </div>
 
         {/* Bottom Actions */}
-        <div className="border-t pt-4 bg-background">
+        <div className="border-t border-white/20 pt-4">
           <Button 
             onClick={handleApply}
-            className="w-full"
+            className="glass-button w-full rounded-xl"
             data-testid="button-apply-filters"
           >
             Show {tempSelected.length > 0 ? `${tempSelected.length} selected` : 'all'} reports
