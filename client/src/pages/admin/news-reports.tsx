@@ -192,7 +192,7 @@ export default function NewsReportsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Scraping Configuration */}
       <Card>
         <CardHeader>
@@ -204,8 +204,8 @@ export default function NewsReportsPage() {
             Configure automated news scraping by postcode and keywords (Phase 1 testing interface)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="space-y-3 md:space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="postcode">Postcode</Label>
               <Input
@@ -240,7 +240,7 @@ export default function NewsReportsPage() {
             <div className="space-y-2">
               <h3 className="font-medium">Active Configurations:</h3>
               {configs.map((config) => (
-                <div key={config.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div key={config.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-muted/30 rounded-lg gap-3 sm:gap-0">
                   <div>
                     <span className="font-medium">Postcode {config.postcode}</span>
                     <span className="ml-2 text-sm text-muted-foreground">
@@ -330,10 +330,10 @@ export default function NewsReportsPage() {
               }
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {filteredReports.map((report) => (
-                <div key={report.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-start justify-between">
+                <div key={report.id} className="border rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
+                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3 lg:gap-0">
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         {/* Favicon and Source */}
@@ -406,7 +406,7 @@ export default function NewsReportsPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex flex-wrap items-center gap-2 mt-2 lg:mt-0 lg:ml-4">
                       <Button
                         variant="outline"
                         size="sm"
