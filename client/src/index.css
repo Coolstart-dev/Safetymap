@@ -144,7 +144,20 @@ body[data-scroll-locked] {
   }
 
   .bottom-sheet-shadow [data-rsbs-overlay] {
-    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: none;
+    box-shadow: 
+      0 -8px 32px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  }
+  
+  .bottom-sheet-shadow [data-rsbs-backdrop] {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.3) !important;
   }
 
   .map-pin:hover {
@@ -277,22 +290,33 @@ body[data-scroll-locked] {
   .glass {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+      0 4px 16px 0 rgba(0, 0, 0, 0.1);
   }
 
   .glass-strong {
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.9) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+      0 6px 24px 0 rgba(0, 0, 0, 0.15);
   }
 
   .glass-subtle {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(0, 0, 0, 0.8) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+      0 2px 12px 0 rgba(0, 0, 0, 0.08);
   }
 
   .glass-dark {
@@ -303,45 +327,70 @@ body[data-scroll-locked] {
   }
 
   .glass-card {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 
-      0 8px 32px 0 rgba(31, 38, 135, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      0 8px 32px 0 rgba(31, 38, 135, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
   }
 
   .glass-button {
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    color: rgba(0, 0, 0, 0.85) !important;
+    box-shadow: 
+      0 4px 20px 0 rgba(31, 38, 135, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass-button:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 6px 30px 0 rgba(31, 38, 135, 0.15);
+    background: rgba(255, 255, 255, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    box-shadow: 
+      0 6px 30px 0 rgba(31, 38, 135, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
     transform: translateY(-1px);
+    color: rgba(0, 0, 0, 0.9) !important;
   }
 
   .glass-modal {
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     box-shadow: 
       0 25px 50px -12px rgba(0, 0, 0, 0.25),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
   }
 
   .glass-overlay {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     background: rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-fab {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(59, 130, 246, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: white !important;
+    box-shadow: 
+      0 8px 32px 0 rgba(59, 130, 246, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+  }
+
+  .glass-fab:hover {
+    background: rgba(59, 130, 246, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 
+      0 12px 40px 0 rgba(59, 130, 246, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.25) inset !important;
   }
 
   /* Dark mode glassmorphism */

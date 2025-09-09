@@ -125,11 +125,11 @@ export default function ReportsList({
               return (
                 <div
                   key={subcategory}
-                  className="flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border"
+                  className="flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium glass-subtle"
                   style={{ 
-                    backgroundColor: `${color}15`,
-                    borderColor: `${color}40`,
-                    color: color
+                    borderColor: `${color}60`,
+                    color: color,
+                    textShadow: '0 1px 2px rgba(255,255,255,0.5)'
                   }}
                 >
                   <span 
@@ -186,25 +186,28 @@ export default function ReportsList({
           filteredReports.map((report) => (
             <div
               key={report.id}
-              className="report-item p-4 mx-2 mb-2 glass-subtle rounded-xl cursor-pointer transition-all duration-300 hover:glass-card hover:transform hover:-translate-y-1"
+              className="report-item p-4 mx-2 mb-2 glass-card rounded-xl cursor-pointer transition-all duration-300 hover:glass-strong hover:transform hover:-translate-y-1"
               onClick={() => onReportClick(report.id)}
               data-testid={`report-item-${report.id}`}
             >
               <div className="flex items-start space-x-3">
                 <div 
-                  className="w-3 h-3 rounded-full mt-2 flex-shrink-0"
-                  style={{ backgroundColor: getCategoryColor(report.category) }}
+                  className="w-3 h-3 rounded-full mt-2 flex-shrink-0 shadow-sm"
+                  style={{ 
+                    backgroundColor: getCategoryColor(report.category),
+                    boxShadow: `0 0 8px ${getCategoryColor(report.category)}40`
+                  }}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-sm font-medium text-foreground truncate">
+                    <h3 className="text-sm font-medium text-gray-900 truncate drop-shadow-sm">
                       {report.title}
                     </h3>
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                  <p className="text-sm text-gray-700 mb-2 line-clamp-2 drop-shadow-sm">
                     {report.description}
                   </p>
                   <div className="flex items-center justify-between">

@@ -408,7 +408,7 @@ export default function InteractiveMap({
       <div className="absolute bottom-4 right-4 z-[1000]">
         <Button
           size="icon"
-          className="bg-white text-gray-600 shadow-sm hover:shadow-md border-0 rounded-full w-10 h-10"
+          className="glass-button rounded-full w-10 h-10"
           onClick={handleCenterMap}
           data-testid="button-center-map"
           title="Center on my location"
@@ -418,8 +418,8 @@ export default function InteractiveMap({
       </div>
       
       {/* Map Info Overlay */}
-      <div className="absolute bottom-2 left-2 bg-white/95 px-3 py-1.5 rounded-full text-xs text-gray-600 shadow-sm z-[1000]">
-        <span className="font-medium">{filteredReports.length}</span> reports
+      <div className="absolute bottom-2 left-2 glass-subtle px-3 py-1.5 rounded-full text-xs font-medium z-[1000]" style={{ color: 'rgba(0, 0, 0, 0.85)' }}>
+        <span className="font-semibold">{filteredReports.length}</span> reports
       </div>
     </div>
   );
