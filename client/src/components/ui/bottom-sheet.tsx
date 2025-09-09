@@ -28,9 +28,9 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({
       ]}
       blocking={false}
       expandOnContentDrag={true}
-      className="bottom-sheet-shadow"
+      className="bottom-sheet-glass"
     >
-      <div className="p-0">
+      <div className="glass-card rounded-t-3xl h-full">
         {children}
       </div>
     </ReactSpringBottomSheet>

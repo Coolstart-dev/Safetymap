@@ -143,18 +143,13 @@ body[data-scroll-locked] {
     z-index: 10;
   }
 
-  .bottom-sheet-shadow [data-rsbs-overlay] {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(255, 255, 255, 0.18) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-bottom: none;
-    box-shadow: 
-      0 -8px 32px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  .bottom-sheet-glass [data-rsbs-overlay] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   
-  .bottom-sheet-shadow [data-rsbs-backdrop] {
+  .bottom-sheet-glass [data-rsbs-backdrop] {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     background: rgba(0, 0, 0, 0.3) !important;

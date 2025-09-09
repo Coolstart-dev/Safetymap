@@ -68,7 +68,7 @@ export default function ReportsList({
   };
 
   return (
-    <div className="flex flex-col h-full glass-card rounded-t-3xl">
+    <div className="flex flex-col h-full">
       {/* Tab Navigation */}
       <div className="px-4 pt-4 pb-2 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
