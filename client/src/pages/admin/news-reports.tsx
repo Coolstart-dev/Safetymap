@@ -147,13 +147,14 @@ export default function NewsReportsPage() {
     setIsScrapingLoading(true);
     try {
       const response = await apiRequest('POST', '/api/admin/scrape-news', { postcode, keywords });
+      const result = await response.json();
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraped-reports'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/scraping-configs'] });
       
       toast({
         title: "Scraping completed",
-        description: response.message,
+        description: result.message || 'Scraping completed successfully',
       });
     } catch (error) {
       toast({

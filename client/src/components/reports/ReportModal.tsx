@@ -281,7 +281,6 @@ export default function ReportModal({
             right: 0, 
             bottom: 0, 
             width: '100vw', 
-            height: '100vh',
             height: '100dvh', // Dynamic viewport height for better mobile support
             maxWidth: 'none',
             transform: 'none'
@@ -626,7 +625,6 @@ export default function ReportModal({
                 </Button>
               </form>
             </Form>
-              </div>
             </div>
           </div>
         </DialogContent>
@@ -969,7 +967,6 @@ export default function ReportModal({
                       </Button>
                     </form>
                   </Form>
-            </div>
           </div>
         </div>
       </DialogContent>

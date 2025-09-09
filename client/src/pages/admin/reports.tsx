@@ -26,10 +26,7 @@ export default function ReportsPage() {
   const handleDeleteAllReports = async () => {
     setIsDeleting(true);
     try {
-      const response = await apiRequest({
-        method: 'DELETE',
-        url: '/api/admin/reports',
-      });
+      const response = await apiRequest('DELETE', '/api/admin/reports');
 
       toast({
         title: "Success",
