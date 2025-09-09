@@ -52,22 +52,22 @@ interface AdminNavigationProps {
 function MobileShortcuts({ currentPath, onNavigate }: AdminNavigationProps) {
   return (
     <div className="md:hidden">
-      <div className="grid grid-cols-2 gap-3 p-4">
+      <div className="grid grid-cols-2 gap-2 p-3 md:gap-3 md:p-4">
         {navigationItems.map((item) => (
           <Button
             key={item.id}
             variant={currentPath === item.path ? "default" : "outline"}
-            className="h-20 flex flex-col gap-2 text-center"
+            className="h-16 md:h-20 flex flex-col gap-1 md:gap-2 text-center"
             onClick={() => onNavigate(item.path)}
           >
             {item.icon}
-            <span className="text-xs font-medium leading-tight">{item.label}</span>
+            <span className="text-xs font-medium leading-tight text-center">{item.label}</span>
           </Button>
         ))}
       </div>
       
       {/* Quick Dashboard Link */}
-      <div className="px-4 pb-4">
+      <div className="px-3 pb-3 md:px-4 md:pb-4">
         <Button
           variant="ghost"
           className="w-full gap-2"
@@ -133,7 +133,7 @@ function MobileMenuButton() {
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-80 p-0">
+        <SheetContent side="left" className="w-[280px] sm:w-80 p-0">
           <div className="p-6 border-b">
             <h2 className="text-lg font-semibold">Admin Navigatie</h2>
             <p className="text-sm text-muted-foreground">Kies een sectie</p>
