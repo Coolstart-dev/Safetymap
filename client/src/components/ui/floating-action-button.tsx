@@ -18,12 +18,12 @@ export default function FloatingActionButton({
       onClick={onClick}
       size="icon"
       className={cn(
-        "fixed bottom-6 right-6 w-14 h-14 rounded-full glass-fab transition-all duration-300 z-50 hover:scale-105",
+        "fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-2xl transition-all duration-300 z-50 hover:scale-105 border-4 border-white/30",
         className
       )}
       data-testid={testId}
     >
-      <Plus className="h-6 w-6 drop-shadow-sm" />
+      <Plus className="h-8 w-8 stroke-2" />
     </Button>
   );
 }

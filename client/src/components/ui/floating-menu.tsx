@@ -33,7 +33,7 @@ export default function FloatingMenu({ items, toggleActions = [] }: FloatingMenu
       <Button
         onClick={toggleMenu}
         size="icon"
-        className="glass-fab rounded-2xl w-12 h-12 text-gray-900 shadow-lg border-white/30"
+        className="bg-white hover:bg-gray-50 rounded-2xl w-12 h-12 text-gray-900 shadow-lg border border-gray-200"
         data-testid="button-floating-menu"
       >
         {isOpen ? (
