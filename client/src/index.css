@@ -578,6 +578,29 @@ body[data-scroll-locked] {
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
   }
 
+  /* Force floating action button z-index above bottom sheet */
+  .floating-action-button-override {
+    z-index: 99999 !important;
+    position: fixed !important;
+  }
+
+  /* Bottom sheet z-index override to prevent blocking other elements */
+  [data-rsbs-overlay] {
+    z-index: 1000 !important;
+  }
+  
+  [data-rsbs-backdrop] {
+    z-index: 1001 !important;
+  }
+  
+  [data-rsbs-header] {
+    z-index: 1002 !important;
+  }
+  
+  [data-rsbs-content] {
+    z-index: 1002 !important;
+  }
+
   /* Scrollbars get frost styling */
   ::-webkit-scrollbar {
     width: 8px;
