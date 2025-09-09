@@ -179,7 +179,7 @@ export default function MunicipalityFormsPage() {
   }, [municipalities.length, isLoading]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -191,7 +191,7 @@ export default function MunicipalityFormsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Gemeente</Label>
               <Input
@@ -257,8 +257,8 @@ export default function MunicipalityFormsPage() {
           ) : (
             <div className="space-y-4">
               {municipalities.map((municipality: Municipality) => (
-                <div key={municipality.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between">
+                <div key={municipality.id} className="border rounded-lg p-3 md:p-4">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 lg:gap-0">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{municipality.name}</h3>
@@ -267,9 +267,9 @@ export default function MunicipalityFormsPage() {
                           {municipality.isActive ? "Actief" : "Inactief"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">Primair: {municipality.reportingUrl}</p>
+                      <p className="text-sm text-muted-foreground break-all">Primair: {municipality.reportingUrl}</p>
                       {municipality.alternativeUrl && (
-                        <p className="text-sm text-muted-foreground">Alternatief: {municipality.alternativeUrl}</p>
+                        <p className="text-sm text-muted-foreground break-all">Alternatief: {municipality.alternativeUrl}</p>
                       )}
                       {municipality.lastChecked && (
                         <p className="text-xs text-muted-foreground">
