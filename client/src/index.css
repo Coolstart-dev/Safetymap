@@ -126,7 +126,116 @@ body[data-scroll-locked] {
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+
+  /* Global Frost Glassmorphism - Apple Vision OS Style */
+  
+  /* All containers and cards get frost effect */
+  .bg-background, .bg-card, .bg-white {
+    backdrop-filter: blur(40px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+      0 0 16px 0 rgba(255, 255, 255, 0.03) inset !important;
+  }
+
+  /* Buttons get enhanced frost styling */
+  button:not(.glass-fab):not(.glass-button):not(.glass-subtle):not(.glass-strong) {
+    backdrop-filter: blur(20px) saturate(1.5) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: rgba(0, 0, 0, 0.85) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+    box-shadow: 
+      0 4px 20px 0 rgba(31, 38, 135, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button:hover:not(.glass-fab):not(.glass-button):not(.glass-subtle):not(.glass-strong) {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+    box-shadow: 
+      0 6px 30px 0 rgba(31, 38, 135, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+    transform: translateY(-1px);
+  }
+
+  /* Input fields get frost styling */
+  input, textarea, select {
+    backdrop-filter: blur(15px) saturate(1.3) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(1.3) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 2px 12px 0 rgba(31, 38, 135, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 
+      0 4px 20px 0 rgba(31, 38, 135, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+      0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+  }
+
+  /* Enhanced text readability on glass */
+  h1, h2, h3, h4, h5, h6 {
+    color: rgba(0, 0, 0, 0.95) !important;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+  }
+
+  p, span, div {
+    color: rgba(0, 0, 0, 0.85) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Labels and form text */
+  label {
+    color: rgba(0, 0, 0, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+  }
+
+  /* Links */
+  a {
+    color: rgba(59, 130, 246, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+
+  a:hover {
+    color: rgba(59, 130, 246, 1) !important;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Muted text */
+  .text-muted-foreground, .text-gray-500, .text-gray-600 {
+    color: rgba(0, 0, 0, 0.65) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+  }
+
+  /* Enhanced borders and separators */
+  .border, .border-b, .border-t, .border-l, .border-r {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  hr {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -389,28 +498,76 @@ body[data-scroll-locked] {
       0 0 0 1px rgba(255, 255, 255, 0.25) inset !important;
   }
 
-  /* Dark mode glassmorphism */
-  .dark .glass {
-    background: rgba(0, 0, 0, 0.1);
+  /* Special overrides for specific components */
+  [data-radix-dialog-overlay] {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+  }
+
+  [data-radix-dropdown-content], [data-radix-popover-content] {
+    backdrop-filter: blur(30px) saturate(1.6) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(1.6) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 
+      0 12px 40px 0 rgba(31, 38, 135, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset !important;
+  }
+
+  /* Scrollbars get frost styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .dark .glass-strong {
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Dark mode glassmorphism - Enhanced */
+  .dark .glass {
     background: rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
+  .dark .glass-strong {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
   .dark .glass-card {
     background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+      0 8px 32px 0 rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   .dark .glass-modal {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  /* Dark mode text adjustments */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .dark p, .dark span, .dark div {
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
 
   /* Enhanced focus states */
