@@ -26,9 +26,9 @@ export default function AdminLayout() {
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Mobile Navigation */}
           <div className="md:hidden">
-            <div className="pt-16 pb-4 bg-background border-b">
-              <h1 className="text-2xl font-bold text-center">Admin Panel</h1>
-              <p className="text-muted-foreground text-center">Manage your Area platform</p>
+            <div className="pt-16 pb-2 px-4 bg-background border-b">
+              <h1 className="text-xl md:text-2xl font-bold text-center">Admin Panel</h1>
+              <p className="text-sm text-muted-foreground text-center">Manage your Area platform</p>
             </div>
             <MobileShortcuts currentPath={location} onNavigate={handleNavigate} />
           </div>
@@ -42,7 +42,7 @@ export default function AdminLayout() {
           </div>
           
           {/* Page Content */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-3 md:p-6">
             <Switch>
               <Route path="/admin" component={ReportsPage} />
               <Route path="/admin/reports" component={ReportsPage} />

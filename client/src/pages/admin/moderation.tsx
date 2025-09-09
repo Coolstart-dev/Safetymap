@@ -96,7 +96,7 @@ export default function ModerationPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* AI Service Status */}
       <Card>
         <CardHeader>
@@ -109,7 +109,7 @@ export default function ModerationPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-muted/30 rounded-lg gap-3 sm:gap-0">
             <div className="flex items-center gap-3">
               {isCheckingApi ? (
                 <Circle className="h-4 w-4 animate-pulse text-gray-400" />
@@ -164,7 +164,7 @@ export default function ModerationPage() {
               placeholder="Instructies voor het bepalen wat wel/niet toegestaan is..."
               value={contentFilterPrompt}
               onChange={(e) => setContentFilterPrompt(e.target.value)}
-              className="min-h-[200px]"
+              className="min-h-[120px] md:min-h-[200px]"
             />
             <p className="text-xs text-muted-foreground">
               Focus op criteria voor goedkeuring/afwijzing. Bijvoorbeeld: "Sta echte incidenten toe, wijs spam af"
@@ -200,7 +200,7 @@ export default function ModerationPage() {
               placeholder="Instructies voor het herschrijven van teksten naar formele versie..."
               value={textFormalizationPrompt}
               onChange={(e) => setTextFormalizationPrompt(e.target.value)}
-              className="min-h-[200px]"
+              className="min-h-[120px] md:min-h-[200px]"
             />
             <p className="text-xs text-muted-foreground">
               Focus op stijl en formulering. Bijvoorbeeld: "Maak formeel, verwijder emoties, behoud feiten"
@@ -246,7 +246,7 @@ export default function ModerationPage() {
           {aiLogs.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Geen AI logs beschikbaar</p>
           ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-3 max-h-64 md:max-h-96 overflow-y-auto">
               {aiLogs.map((log: any, index: number) => (
                 <div key={index} className="border rounded-lg p-3 text-sm">
                   <div className="flex items-center justify-between mb-2">
