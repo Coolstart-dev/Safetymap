@@ -15,7 +15,7 @@ interface ReportsListProps {
   onCategoryChange: (category: string) => void;
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
-  onListScroll?: () => void;
+  onListScroll?: (event: React.UIEvent) => void;
   activeTab: 'recent' | 'region';
   onTabChange: (tab: 'recent' | 'region') => void;
 }

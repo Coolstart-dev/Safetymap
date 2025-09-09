@@ -35,9 +35,10 @@ export default function Dashboard() {
   }, [snapToPosition]);
 
   // Handle list scroll - snap to high position (90%)  
-  const handleListScroll = useCallback((event: any) => {
+  const handleListScroll = useCallback((event: React.UIEvent) => {
     // Only snap up if scrolling down (content being scrolled)
-    if (event.target.scrollTop > 10) {
+    const target = event.target as HTMLDivElement;
+    if (target.scrollTop > 10) {
       snapToPosition(2); // Index 2 = 90% open
     }
   }, [snapToPosition]);
