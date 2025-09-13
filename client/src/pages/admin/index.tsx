@@ -5,6 +5,8 @@ import ReportsPage from './reports';
 import ModerationPage from './moderation';
 import MunicipalityFormsPage from './municipality-forms';
 import NewsReportsPage from './news-reports';
+import BestPracticesPage from './best-practices';
+import CityReportPage from './city-report';
 
 export default function AdminLayout() {
   const [location, setLocation] = useLocation();
@@ -49,6 +51,8 @@ export default function AdminLayout() {
               <Route path="/admin/moderation" component={ModerationPage} />
               <Route path="/admin/municipality-forms" component={MunicipalityFormsPage} />
               <Route path="/admin/news-reports" component={NewsReportsPage} />
+              <Route path="/admin/best-practices" component={BestPracticesPage} />
+              <Route path="/admin/city-report" component={CityReportPage} />
               {/* Fallback to reports */}
               <Route component={ReportsPage} />
             </Switch>

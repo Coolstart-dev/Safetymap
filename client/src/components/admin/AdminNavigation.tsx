@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { Menu, Database, Settings, MapPin, Newspaper, Home } from 'lucide-react';
+import { Menu, Database, Settings, MapPin, Newspaper, Home, BookOpen, BarChart } from 'lucide-react';
 
 interface NavigationItem {
   id: string;
@@ -40,6 +40,20 @@ const navigationItems: NavigationItem[] = [
     icon: <Newspaper className="h-5 w-5" />,
     path: '/admin/news-reports',
     description: 'Nieuws scraped rapporten'
+  },
+  {
+    id: 'best-practices',
+    label: 'Best Practices',
+    icon: <BookOpen className="h-5 w-5" />,
+    path: '/admin/best-practices',
+    description: 'Community safety richtlijnen'
+  },
+  {
+    id: 'city-report',
+    label: 'City Report',
+    icon: <BarChart className="h-5 w-5" />,
+    path: '/admin/city-report',
+    description: 'Gemeente rapporten en statistieken'
   }
 ];
 
