@@ -121,6 +121,7 @@ export default function Dashboard() {
           selectedLocation={selectedLocation}
           onLocationSelect={setSelectedLocation}
           isHeatmapMode={isHeatmapMode}
+          onHeatmapToggle={() => setIsHeatmapMode(!isHeatmapMode)}
           onMapInteraction={handleMapInteraction}
         />
       </div>

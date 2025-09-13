@@ -6,7 +6,7 @@ import "leaflet.heat";
 import { useQuery } from "@tanstack/react-query";
 import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
-import { Navigation } from "lucide-react";
+import { Navigation, MapPin, Grid3X3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Fix Leaflet default markers
@@ -46,6 +46,7 @@ interface InteractiveMapProps {
   onLocationSelect?: (location: { lat: number; lng: number }) => void;
   // Heatmap mode toggle
   isHeatmapMode?: boolean;
+  onHeatmapToggle?: () => void;
   // Callback for map interactions (zoom, pan, etc)
   onMapInteraction?: () => void;
 }
@@ -59,6 +60,7 @@ export default function InteractiveMap({
   selectedLocation = null,
   onLocationSelect,
   isHeatmapMode = false,
+  onHeatmapToggle,
   onMapInteraction
 }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -404,14 +406,42 @@ export default function InteractiveMap({
         data-testid="leaflet-map-container"
       />
       
-      {/* Custom location button overlay */}
-      <div className="absolute bottom-4 right-4 z-[1000]">
+      {/* Map Controls Overlay - Top Right */}
+      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+        {/* View Toggle Button */}
+        {onHeatmapToggle && (
+          <Button
+            size="icon"
+            className={`glass-button rounded-full w-10 h-10 transition-all ${
+              isHeatmapMode 
+                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                : 'hover:bg-white/90'
+            }`}
+            onClick={() => {
+              onHeatmapToggle();
+              onMapInteraction?.(); // Collapse sheet when using map controls
+            }}
+            data-testid="button-toggle-heatmap"
+            title={isHeatmapMode ? "Switch to Pin View" : "Switch to Heatmap View"}
+            aria-pressed={isHeatmapMode}
+            aria-label={isHeatmapMode ? "Switch to Pin View" : "Switch to Heatmap View"}
+            role="switch"
+          >
+            {isHeatmapMode ? <MapPin className="h-4 w-4" /> : <Grid3X3 className="h-4 w-4" />}
+          </Button>
+        )}
+        
+        {/* Center Location Button */}
         <Button
           size="icon"
           className="glass-button rounded-full w-10 h-10"
-          onClick={handleCenterMap}
+          onClick={() => {
+            handleCenterMap();
+            onMapInteraction?.(); // Collapse sheet when using map controls
+          }}
           data-testid="button-center-map"
           title="Center on my location"
+          aria-label="Center map on my location"
         >
           <Navigation className="h-4 w-4" />
         </Button>
