@@ -65,7 +65,7 @@ export default function FilterSheet({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg mx-auto max-h-[80vh] flex flex-col">
+      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[85vh] sm:max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Filter Reports</DialogTitle>
           <DialogDescription>
@@ -83,7 +83,7 @@ export default function FilterSheet({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-4">
+        <div className="flex-1 overflow-y-auto pb-2 pr-1">
           {Object.entries(categories).map(([categoryKey, category]) => (
             <div key={categoryKey} className="mb-6">
               <div className="flex items-center gap-2 mb-3">
@@ -96,11 +96,11 @@ export default function FilterSheet({
                 </h3>
               </div>
               
-              <div className="space-y-3 ml-5">
+              <div className="space-y-2 sm:space-y-3 ml-4 sm:ml-5">
                 {category.subcategories.map((subcategory) => (
                   <div 
                     key={subcategory}
-                    className="flex items-center space-x-3 py-2 px-3"
+                    className="flex items-center space-x-3 py-2 px-2 sm:px-3"
                   >
                     <Checkbox
                       id={`checkbox-${subcategory.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
@@ -122,7 +122,7 @@ export default function FilterSheet({
         </div>
 
         {/* Bottom Actions */}
-        <div className="border-t pt-4 flex gap-2">
+        <div className="border-t pt-3 flex gap-2 mt-2">
           <Button 
             variant="outline"
             onClick={handleCancel}
