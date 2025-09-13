@@ -177,7 +177,7 @@ export default function ReportsList({
       {activeTab === 'recent' ? (
         <div 
           className="flex-1 overflow-y-auto"
-          onScroll={onSheetInteraction}
+          onScroll={handleInteraction}
         >
         {isLoading ? (
           <div className="p-8 text-center">
