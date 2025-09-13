@@ -443,20 +443,9 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
       
       console.log('DEBUG - Content Filter Result:', filterResult);
       
-      // Step 2: Text formalization only if approved
+      // Keep original text - no formalization/rewriting
       let moderatedTitle = validatedData.title;
       let moderatedDescription = validatedData.description;
-      
-      if (filterResult.isApproved) {
-        const textFormalizationPrompt = moderationPrompts.textFormalization || getDefaultTextFormalizationPrompt();
-        const formalizationResult = await moderator.formalizeText(
-          validatedData.title || '',
-          validatedData.description || '',
-          textFormalizationPrompt
-        );
-        moderatedTitle = formalizationResult.formalizedTitle;
-        moderatedDescription = formalizationResult.formalizedDescription;
-      }
       
       // Construct moderation result for backward compatibility
       const moderationResult = {
