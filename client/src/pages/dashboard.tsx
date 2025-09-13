@@ -94,14 +94,6 @@ export default function Dashboard() {
     }
   ];
 
-  const toggleActions = [
-    {
-      label: "Heatmap Mode",
-      icon: <MapPin className="h-4 w-4" />,
-      isActive: isHeatmapMode,
-      onToggle: () => setIsHeatmapMode(!isHeatmapMode)
-    }
-  ];
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
@@ -109,7 +101,6 @@ export default function Dashboard() {
       {/* Floating Menu */}
       <FloatingMenu 
         items={menuItems} 
-        toggleActions={toggleActions} 
         onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
       />
 
