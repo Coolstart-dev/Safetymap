@@ -6,7 +6,7 @@ import "leaflet.heat";
 import { useQuery } from "@tanstack/react-query";
 import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
-import { Navigation, MapPin, Grid3X3 } from "lucide-react";
+import { Navigation, MapPin, Grid3X3, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Fix Leaflet default markers
@@ -47,6 +47,8 @@ interface InteractiveMapProps {
   // Heatmap mode toggle
   isHeatmapMode?: boolean;
   onHeatmapToggle?: () => void;
+  // Filter functionality
+  onFilterClick?: () => void;
   // Callback for map interactions (zoom, pan, etc)
   onMapInteraction?: () => void;
 }
@@ -61,6 +63,7 @@ export default function InteractiveMap({
   onLocationSelect,
   isHeatmapMode = false,
   onHeatmapToggle,
+  onFilterClick,
   onMapInteraction
 }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -408,6 +411,32 @@ export default function InteractiveMap({
       
       {/* Map Controls Overlay - Top Right */}
       <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+        {/* Filter Button */}
+        {onFilterClick && (
+          <Button
+            size="icon"
+            className={`glass-button rounded-full w-10 h-10 transition-all ${
+              selectedSubcategories.length > 0 
+                ? 'bg-orange-500 text-white hover:bg-orange-600' 
+                : 'hover:bg-white/90'
+            }`}
+            onClick={() => {
+              onFilterClick();
+              onMapInteraction?.(); // Collapse sheet when using map controls
+            }}
+            data-testid="button-filter-map"
+            title={selectedSubcategories.length > 0 ? `${selectedSubcategories.length} filters active` : "Filter reports"}
+            aria-label={selectedSubcategories.length > 0 ? `${selectedSubcategories.length} filters active` : "Filter reports"}
+          >
+            <Filter className="h-4 w-4" />
+            {selectedSubcategories.length > 0 && (
+              <div className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {selectedSubcategories.length > 9 ? '9+' : selectedSubcategories.length}
+              </div>
+            )}
+          </Button>
+        )}
+        
         {/* View Toggle Button */}
         {onHeatmapToggle && (
           <Button

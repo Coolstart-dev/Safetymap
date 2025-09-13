@@ -3,6 +3,7 @@ import InteractiveMap from "@/components/map/InteractiveMap";
 import ReportsList from "@/components/reports/ReportsList";
 import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
+import FilterSheet from "@/components/reports/FilterSheet";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
 import BottomSheet from "@/components/ui/bottom-sheet";
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
   const [activeTab, setActiveTab] = useState<'recent' | 'region'>('recent');
+  const [showFilters, setShowFilters] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
   // Debounced function to snap bottom sheet to position
@@ -122,6 +124,7 @@ export default function Dashboard() {
           onLocationSelect={setSelectedLocation}
           isHeatmapMode={isHeatmapMode}
           onHeatmapToggle={() => setIsHeatmapMode(!isHeatmapMode)}
+          onFilterClick={() => setShowFilters(true)}
           onMapInteraction={handleMapInteraction}
         />
       </div>
@@ -137,6 +140,7 @@ export default function Dashboard() {
           onSheetInteraction={handleSheetInteraction}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          showFilters={false}
         />
       </BottomSheet>
 
@@ -207,6 +211,14 @@ export default function Dashboard() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         reportId={selectedReportId}
+      />
+
+      {/* Filter Sheet - Now managed from map controls */}
+      <FilterSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        selectedSubcategories={selectedSubcategories}
+        onApplyFilters={setSelectedSubcategories}
       />
     </div>
   );

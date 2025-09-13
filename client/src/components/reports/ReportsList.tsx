@@ -2,11 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Report } from "@shared/schema";
 import { categories } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
-import { Filter, Shield, X, Clock, MapPin } from "lucide-react";
-import { useState } from "react";
+import { Shield, X, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import FilterSheet from "./FilterSheet";
 import MyRegion from "./MyRegion";
 
 interface ReportsListProps {
@@ -18,6 +16,7 @@ interface ReportsListProps {
   onSheetInteraction?: () => void;
   activeTab: 'recent' | 'region';
   onTabChange: (tab: 'recent' | 'region') => void;
+  showFilters?: boolean; // Keep for backwards compatibility but not used
 }
 
 export default function ReportsList({ 
@@ -28,9 +27,9 @@ export default function ReportsList({
   onSubcategoriesChange,
   onSheetInteraction,
   activeTab,
-  onTabChange
+  onTabChange,
+  showFilters = false // Keep for backwards compatibility but not used
 }: ReportsListProps) {
-  const [showFilters, setShowFilters] = useState(false);
   
   // Handle any interaction within the sheet (buttons, clicks, etc.)
   const handleInteraction = () => {
@@ -103,18 +102,7 @@ export default function ReportsList({
               My Region
             </Button>
           </div>
-          {activeTab === 'recent' && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => { setShowFilters(!showFilters); handleInteraction(); }}
-              className="glass-button rounded-xl"
-              data-testid="button-filter"
-            >
-              <Filter className="h-4 w-4 mr-1" />
-              Filter
-            </Button>
-          )}
+          {/* Filter button moved to map controls for better UX */}
         </div>
         
         {/* Selected Filter Tags (always visible when filters are applied) */}
@@ -165,13 +153,7 @@ export default function ReportsList({
         
       </div>
 
-      {/* Filter Sheet */}
-      <FilterSheet
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        selectedSubcategories={selectedSubcategories}
-        onApplyFilters={onSubcategoriesChange}
-      />
+      {/* FilterSheet now managed from Dashboard via map controls */}
 
       {/* Tab Content */}
       {activeTab === 'recent' ? (

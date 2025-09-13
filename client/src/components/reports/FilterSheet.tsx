@@ -4,11 +4,12 @@ import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface FilterSheetProps {
   isOpen: boolean;
@@ -63,20 +64,23 @@ export default function FilterSheet({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] flex flex-col">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg mx-auto max-h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Filter Reports</DialogTitle>
+          <DialogDescription>
+            Select the types of reports you want to see on the map and in the list.
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex items-center justify-between pb-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900 drop-shadow-sm">Filters</h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearAll}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Clear all
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAll}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Clear all
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto pb-4">
@@ -118,16 +122,24 @@ export default function FilterSheet({
         </div>
 
         {/* Bottom Actions */}
-        <div className="border-t pt-4">
+        <div className="border-t pt-4 flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={handleCancel}
+            className="flex-1"
+            data-testid="button-cancel-filters"
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleApply}
-            className="w-full"
+            className="flex-1"
             data-testid="button-apply-filters"
           >
-            Show {tempSelected.length > 0 ? `${tempSelected.length} selected` : 'all'} reports
+            Apply {tempSelected.length > 0 ? `(${tempSelected.length})` : ''}
           </Button>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
