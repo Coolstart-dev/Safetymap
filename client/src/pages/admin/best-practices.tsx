@@ -14,20 +14,13 @@ export default function BestPracticesPage() {
 
   // Fetch current notes
   const { data: note, isLoading } = useQuery({
-    queryKey: ['/api/admin/notes/best_practices'],
-    onSuccess: (data) => {
-      setContent(data.content || '');
-    }
+    queryKey: ['/api/admin/notes/best_practices']
   });
 
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async (newContent: string) => {
-      return apiRequest({
-        method: 'POST',
-        url: '/api/admin/notes/best_practices',
-        data: { content: newContent }
-      });
+      return await apiRequest('POST', '/api/admin/notes/best_practices', { content: newContent });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/notes/best_practices'] });
@@ -48,8 +41,8 @@ export default function BestPracticesPage() {
 
   // Update content when note data is loaded
   React.useEffect(() => {
-    if (note && note.content !== undefined) {
-      setContent(note.content);
+    if (note && typeof note === 'object' && 'content' in note) {
+      setContent((note as any).content || '');
     }
   }, [note]);
 
