@@ -32,28 +32,36 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-[100001] translate-x-[-50%] translate-y-[-50%] group",
-        className
-      )}
-      style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
-      {...props}
-    >
-      <div className="animator grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg group-data-[state=open]:animate-grow-from-fab group-data-[state=closed]:animate-shrink-to-fab sm:rounded-lg">
-        {children}
-      </div>
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
+>(({ className, children, ...props }, ref) => {
+  // Detect if the dialog needs flex layout - only match exact 'flex' class, not compound classes like 'flex-1'
+  const isFlexLayout = className ? /\bflex\b/.test(className) : false
+  
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "fixed left-[50%] top-[50%] z-[100001] translate-x-[-50%] translate-y-[-50%] group",
+          className
+        )}
+        style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+        {...props}
+      >
+        <div className={cn(
+          "animator w-full max-w-lg border bg-background p-6 shadow-lg group-data-[state=open]:animate-grow-from-fab group-data-[state=closed]:animate-shrink-to-fab sm:rounded-lg",
+          isFlexLayout ? "flex flex-col gap-4 flex-1 min-h-0" : "grid gap-4"
+        )}>
+          {children}
+        </div>
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({

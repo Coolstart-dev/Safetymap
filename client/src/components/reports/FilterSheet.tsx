@@ -83,7 +83,7 @@ export default function FilterSheet({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-2 pr-1">
+        <div className="flex-1 overflow-y-auto min-h-0 pb-2 pr-1">
           {Object.entries(categories).map(([categoryKey, category]) => (
             <div key={categoryKey} className="mb-6">
               <div className="flex items-center gap-2 mb-3">
