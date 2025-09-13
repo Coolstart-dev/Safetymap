@@ -60,8 +60,8 @@ export default function ReportsList({
     .filter(report => {
       // For Near Me tab, filter by map bounds and zoom level
       if (activeTab === 'nearme') {
-        // Only show if zoom level is 12 or higher (same as app start zoom)
-        if (!currentZoom || currentZoom < 12) return false;
+        // Only show if zoom level is 15 or higher for detailed local view
+        if (!currentZoom || currentZoom < 15) return false;
         // Only show reports visible on current map
         if (!isReportInBounds(report)) return false;
       }
@@ -107,9 +107,9 @@ export default function ReportsList({
               onClick={() => { onTabChange('nearme'); handleInteraction(); }}
               className={`flex-shrink-0 flex items-center gap-2 rounded-xl ${
                 activeTab === 'nearme' ? 'glass-strong' : 'glass-subtle'
-              } ${(!currentZoom || currentZoom < 12) ? 'opacity-50' : ''}`}
+              } ${(!currentZoom || currentZoom < 15) ? 'opacity-50' : ''}`}
               data-testid="tab-near-me"
-              disabled={!currentZoom || currentZoom < 12}
+              disabled={!currentZoom || currentZoom < 15}
             >
               <Navigation className="w-4 h-4" />
               Near Me
@@ -198,7 +198,7 @@ export default function ReportsList({
           className="flex-1 overflow-y-auto"
           onScroll={handleInteraction}
         >
-        {!currentZoom || currentZoom < 12 ? (
+        {!currentZoom || currentZoom < 15 ? (
           <div className="p-8 text-center">
             <Navigation className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Zoom in to see nearby reports</h3>

@@ -20,9 +20,9 @@ export default function Dashboard() {
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recent' | 'region' | 'nearme'>('recent');
+  const [activeTab, setActiveTab] = useState<'recent' | 'region' | 'nearme'>('nearme');
   const [mapBounds, setMapBounds] = useState<{north: number, south: number, east: number, west: number} | null>(null);
-  const [currentZoom, setCurrentZoom] = useState<number>(12);
+  const [currentZoom, setCurrentZoom] = useState<number>(15);
   const [showFilters, setShowFilters] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
@@ -38,16 +38,16 @@ export default function Dashboard() {
     snapToPosition(0); // Index 0 = 20% open
   }, [snapToPosition]);
 
-  // Universal sheet interaction handler - expand to 90% for ANY interaction
+  // Sheet interaction handler - keep at 40% for better map visibility
   const handleSheetInteraction = useCallback(() => {
-    snapToPosition(2); // Index 2 = 90% open for better user visibility
+    snapToPosition(1); // Index 1 = 40% open for better map visibility
   }, [snapToPosition]);
 
-  // Handle tab change with sheet expansion
+  // Handle tab change without auto-expansion
   const handleTabChange = useCallback((tab: 'recent' | 'region' | 'nearme') => {
     setActiveTab(tab);
-    handleSheetInteraction(); // Always expand to 90% on tab interaction
-  }, [handleSheetInteraction]);
+    // Don't auto-expand for Near Me to keep map visible
+  }, []);
 
   // Handle map view change (bounds and zoom)
   const handleMapViewChange = useCallback((bounds: {north: number, south: number, east: number, west: number}, zoom: number) => {

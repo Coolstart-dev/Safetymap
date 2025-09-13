@@ -139,7 +139,7 @@ export default function InteractiveMap({
     // Create map centered on Antwerp
     const map = L.map(mapRef.current, {
       center: [51.2194, 4.4025], // Antwerp coordinates
-      zoom: 13,
+      zoom: 15, // Higher zoom for detailed neighborhood view
       zoomControl: true,
       attributionControl: true
     });
@@ -217,7 +217,7 @@ export default function InteractiveMap({
         if (userLocation && !hasManuallyMoved) {
           leafletMapRef.current?.setView(
             [userLocation.latitude, userLocation.longitude], 
-            12  // Zoom level 12 for town/village overview
+            15  // Zoom level 15 for detailed neighborhood view
           );
         }
       } catch (error) {
