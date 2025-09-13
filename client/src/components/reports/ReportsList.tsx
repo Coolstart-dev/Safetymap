@@ -15,7 +15,7 @@ interface ReportsListProps {
   onCategoryChange: (category: string) => void;
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
-  onListScroll?: (event: React.UIEvent) => void;
+  onSheetInteraction?: () => void;
   activeTab: 'recent' | 'region';
   onTabChange: (tab: 'recent' | 'region') => void;
 }
@@ -26,11 +26,16 @@ export default function ReportsList({
   onCategoryChange, 
   selectedSubcategories, 
   onSubcategoriesChange,
-  onListScroll,
+  onSheetInteraction,
   activeTab,
   onTabChange
 }: ReportsListProps) {
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Handle any interaction within the sheet (buttons, clicks, etc.)
+  const handleInteraction = () => {
+    onSheetInteraction?.();
+  };
   
   const { data: reports = [], isLoading } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -76,7 +81,7 @@ export default function ReportsList({
             <Button
               variant={activeTab === 'recent' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => onTabChange('recent')}
+              onClick={() => { onTabChange('recent'); handleInteraction(); }}
               className={`flex items-center gap-2 rounded-xl ${
                 activeTab === 'recent' ? 'glass-strong' : 'glass-subtle'
               }`}
@@ -88,7 +93,7 @@ export default function ReportsList({
             <Button
               variant={activeTab === 'region' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => onTabChange('region')}
+              onClick={() => { onTabChange('region'); handleInteraction(); }}
               className={`flex items-center gap-2 rounded-xl ${
                 activeTab === 'region' ? 'glass-strong' : 'glass-subtle'
               }`}
@@ -102,7 +107,7 @@ export default function ReportsList({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => { setShowFilters(!showFilters); handleInteraction(); }}
               className="glass-button rounded-xl"
               data-testid="button-filter"
             >
@@ -141,6 +146,7 @@ export default function ReportsList({
                     onClick={() => {
                       const newSelected = selectedSubcategories.filter(s => s !== subcategory);
                       onSubcategoriesChange(newSelected);
+                      handleInteraction();
                     }}
                     className="ml-1 hover:bg-black/10 rounded-full p-0.5"
                   >
@@ -171,7 +177,7 @@ export default function ReportsList({
       {activeTab === 'recent' ? (
         <div 
           className="flex-1 overflow-y-auto"
-          onScroll={onListScroll}
+          onScroll={onSheetInteraction}
         >
         {isLoading ? (
           <div className="p-8 text-center">
@@ -187,7 +193,7 @@ export default function ReportsList({
             <div
               key={report.id}
               className="report-item p-4 mx-2 mb-2 bg-background border border-border rounded-xl cursor-pointer transition-all duration-300 hover:bg-muted/50 hover:shadow-md hover:-translate-y-1"
-              onClick={() => onReportClick(report.id)}
+              onClick={() => { onReportClick(report.id); handleInteraction(); }}
               data-testid={`report-item-${report.id}`}
             >
               <div className="flex items-start space-x-3">

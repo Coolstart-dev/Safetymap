@@ -34,27 +34,16 @@ export default function Dashboard() {
     snapToPosition(0); // Index 0 = 20% open
   }, [snapToPosition]);
 
-  // Handle list scroll - snap to high position (90%)  
-  const handleListScroll = useCallback((event: React.UIEvent) => {
-    // Only snap up if scrolling down (content being scrolled)
-    const target = event.target as HTMLDivElement;
-    if (target.scrollTop > 20) {
-      snapToPosition(2); // Index 2 = 90% open
-    }
+  // Universal sheet interaction handler - expand to 90% for ANY interaction
+  const handleSheetInteraction = useCallback(() => {
+    snapToPosition(2); // Index 2 = 90% open for better user visibility
   }, [snapToPosition]);
 
-  // Handle tab change - snap to high position when switching to region tab
+  // Handle tab change with sheet expansion
   const handleTabChange = useCallback((tab: 'recent' | 'region') => {
     setActiveTab(tab);
-    if (tab === 'region') {
-      snapToPosition(2); // Index 2 = 90% open for better visibility
-    }
-  }, [snapToPosition]);
-
-  // Handle bottom sheet click - snap to middle position (40%)
-  const handleBottomSheetClick = useCallback(() => {
-    snapToPosition(1); // Index 1 = 40% open
-  }, [snapToPosition]);
+    handleSheetInteraction(); // Always expand to 90% on tab interaction
+  }, [handleSheetInteraction]);
 
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -137,14 +126,14 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Sheet with Reports */}
-      <BottomSheet ref={bottomSheetRef} onClick={handleBottomSheetClick}>
+      <BottomSheet ref={bottomSheetRef} onClick={handleSheetInteraction}>
         <ReportsList 
           onReportClick={handleReportClick}
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
           selectedSubcategories={selectedSubcategories}
           onSubcategoriesChange={setSelectedSubcategories}
-          onListScroll={handleListScroll}
+          onSheetInteraction={handleSheetInteraction}
           activeTab={activeTab}
           onTabChange={handleTabChange}
         />
