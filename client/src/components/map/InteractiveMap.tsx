@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 // @ts-ignore - leaflet.heat doesn't have types
@@ -8,6 +8,7 @@ import { categories } from "@/lib/categories";
 import { Report } from "@shared/schema";
 import { Navigation, MapPin, Grid3X3, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGeolocation } from "@/hooks/use-geolocation";
 
 // Fix Leaflet default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -73,6 +74,10 @@ export default function InteractiveMap({
   const locationMarkerRef = useRef<L.Marker | null>(null);
   const isDraggingMarker = useRef(false);
   const heatDataRef = useRef<[number, number, number][]>([]);
+  const [hasManuallyMoved, setHasManuallyMoved] = useState(false);
+
+  // Geolocation hook for automatic centering
+  const { getCurrentLocation } = useGeolocation();
 
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
@@ -164,6 +169,11 @@ export default function InteractiveMap({
       map.on('zoomstart movestart', onMapInteraction);
     }
 
+    // Track manual user interactions to prevent auto-centering override
+    map.on('movestart zoomstart', () => {
+      setHasManuallyMoved(true);
+    });
+
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.remove();
@@ -173,6 +183,32 @@ export default function InteractiveMap({
       }
     };
   }, [locationSelectionMode, onLocationSelect]);
+
+  // Automatic location centering when map initializes
+  useEffect(() => {
+    if (!leafletMapRef.current || hasManuallyMoved) return;
+
+    // Auto-center on user location when map first loads
+    const autoCenter = async () => {
+      try {
+        const userLocation = await getCurrentLocation();
+        if (userLocation && !hasManuallyMoved) {
+          leafletMapRef.current?.setView(
+            [userLocation.latitude, userLocation.longitude], 
+            12  // Zoom level 12 for town/village overview
+          );
+        }
+      } catch (error) {
+        console.log('Auto-centering failed, keeping default location');
+        // Keep default Antwerp location - no need to show error to user
+      }
+    };
+
+    // Small delay to ensure map is fully initialized
+    const timer = setTimeout(autoCenter, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [getCurrentLocation, hasManuallyMoved]);
 
   // Handle location selection marker
   useEffect(() => {
