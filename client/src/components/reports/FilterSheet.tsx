@@ -3,6 +3,13 @@ import { categories } from "@/lib/categories";
 import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+
+// Detect iOS Safari
+const isIOSSafari = () => {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
 import {
   Dialog,
   DialogContent,
@@ -65,7 +72,17 @@ export default function FilterSheet({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[85vh] sm:max-h-[80vh] flex flex-col">
+      <DialogContent 
+        className="w-[95vw] max-w-lg mx-auto max-h-[85vh] sm:max-h-[80vh] flex flex-col"
+        style={isIOSSafari() ? {
+          position: 'fixed',
+          top: '10%',
+          left: '50%',
+          transform: 'translateX(-50%)', // Only horizontal centering for iOS
+          maxWidth: '95vw',
+          width: '95vw'
+        } : undefined}
+      >
         <DialogHeader>
           <DialogTitle>Filter Reports</DialogTitle>
           <DialogDescription>
@@ -86,6 +103,8 @@ export default function FilterSheet({
         <div 
           className="flex-1 overflow-y-auto min-h-0 pb-2 pr-1" 
           data-scroll-lock-scrollable
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
           style={{ 
             WebkitOverflowScrolling: 'touch', 
             touchAction: 'pan-y', 

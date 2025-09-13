@@ -303,6 +303,8 @@ export default function ReportModal({
             <div 
               className="flex-1 overflow-y-auto modal__body"
               data-scroll-lock-scrollable
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
               style={{
                 WebkitOverflowScrolling: 'touch',
                 touchAction: 'pan-y',
@@ -633,7 +635,16 @@ export default function ReportModal({
   // Desktop: use DialogContent with proper max-height and scroll
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass-modal w-full max-w-md max-h-[90vh] overflow-hidden p-0 rounded-2xl">
+      <DialogContent 
+        className="glass-modal w-full max-w-md max-h-[90vh] overflow-hidden p-0 rounded-2xl"
+        style={isIOS() ? {
+          position: 'fixed',
+          top: '5%',
+          left: '50%',
+          transform: 'translateX(-50%)', // Only horizontal centering for iOS
+          maxHeight: '90vh'
+        } : undefined}
+      >
         <div className="flex flex-col h-full max-h-[90vh]">
           <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <DialogTitle>Report Incident</DialogTitle>
@@ -645,6 +656,8 @@ export default function ReportModal({
           <div 
             className="flex-1 overflow-y-auto p-6 pt-4 modal__body"
             data-scroll-lock-scrollable
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             style={{
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-y',
