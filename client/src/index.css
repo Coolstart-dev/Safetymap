@@ -98,6 +98,14 @@ body[data-scroll-locked] {
   --font-sans: Inter, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
+  
+  /* Category colors */
+  --category-harassment: hsl(0, 84%, 60%);
+  --category-suspicious: hsl(25, 95%, 53%);
+  --category-public: hsl(271, 91%, 65%);
+  --category-theft: hsl(195, 100%, 50%);
+  --category-dangerous: hsl(0, 72%, 51%);
+  --category-status: hsl(142, 71%, 45%);
 }
 
 .dark {
@@ -126,8 +134,7 @@ body[data-scroll-locked] {
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    @apply font-sans antialiased text-foreground bg-background;
     min-height: 100vh;
   }
 

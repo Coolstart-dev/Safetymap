@@ -61,6 +61,14 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        category: {
+          harassment: "var(--category-harassment)",
+          suspicious: "var(--category-suspicious)",
+          public: "var(--category-public)",
+          theft: "var(--category-theft)",
+          dangerous: "var(--category-dangerous)",
+          status: "var(--category-status)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
