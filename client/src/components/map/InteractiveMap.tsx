@@ -72,10 +72,57 @@ export default function InteractiveMap({
   const heatmapRef = useRef<any>(null);
   const locationMarkerRef = useRef<L.Marker | null>(null);
   const isDraggingMarker = useRef(false);
+  const heatDataRef = useRef<[number, number, number][]>([]);
 
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ["/api/reports", { category: activeCategory }],
   });
+
+  // Function to update heatmap with current zoom level parameters
+  const updateHeatmapForZoom = () => {
+    if (!leafletMapRef.current || !isHeatmapMode || heatDataRef.current.length === 0) return;
+
+    // Remove existing heatmap
+    if (heatmapRef.current) {
+      leafletMapRef.current.removeLayer(heatmapRef.current);
+      heatmapRef.current = null;
+    }
+
+    try {
+      // @ts-ignore - leaflet.heat doesn't have types
+      if (typeof L.heatLayer === 'function') {
+        // Get current zoom for responsive parameters
+        const currentZoom = leafletMapRef.current.getZoom();
+        
+        // Zoom-responsive configuration for better visibility at all levels
+        const radius = currentZoom < 12 ? 50 : currentZoom < 14 ? 40 : 30;
+        const minOpacity = currentZoom < 12 ? 0.3 : currentZoom < 14 ? 0.2 : 0.15;
+        const blur = currentZoom < 12 ? 20 : currentZoom < 14 ? 18 : 15;
+        
+        // @ts-ignore
+        const heatmapLayer = L.heatLayer(heatDataRef.current, {
+          radius: radius,
+          blur: blur,
+          maxZoom: 17,
+          max: 1.0,
+          minOpacity: minOpacity,
+          gradient: {
+            '0.0': 'rgba(0,100,255,0.7)',  // More visible blue start
+            '0.4': 'rgba(0,255,255,0.8)',  // Bright cyan
+            '0.6': 'rgba(255,255,0,0.9)',  // Bright yellow
+            '0.8': 'rgba(255,150,0,0.95)', // Bright orange  
+            '1.0': 'rgba(255,0,0,1.0)'     // Full red for hotspots
+          }
+        });
+        
+        heatmapLayer.addTo(leafletMapRef.current);
+        heatmapRef.current = heatmapLayer;
+        console.log('Heatmap updated for zoom level:', currentZoom);
+      }
+    } catch (error) {
+      console.error('Error updating heatmap for zoom:', error);
+    }
+  };
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -220,6 +267,25 @@ export default function InteractiveMap({
     }
   }, [locationSelectionMode, selectedLocation, onLocationSelect]);
 
+  // Add zoom event listener for heatmap responsiveness
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    const handleZoomEnd = () => {
+      if (isHeatmapMode && heatDataRef.current.length > 0) {
+        updateHeatmapForZoom();
+      }
+    };
+
+    leafletMapRef.current.on('zoomend', handleZoomEnd);
+
+    return () => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.off('zoomend', handleZoomEnd);
+      }
+    };
+  }, [isHeatmapMode, updateHeatmapForZoom]);
+
   // Update markers/heatmap when reports or mode changes
   useEffect(() => {
     if (!leafletMapRef.current || !markersRef.current) return;
@@ -268,14 +334,14 @@ export default function InteractiveMap({
           }
         });
         
-        // Convert count to intensity (0-1 range)
+        // Convert count to intensity (0-1 range) with more aggressive scaling
         let intensity: number;
         if (nearbyCount === 1) {
-          intensity = 0.3;  // Low intensity
+          intensity = 0.5;  // Higher base intensity for single reports
         } else if (nearbyCount === 2) {
-          intensity = 0.6;  // Medium intensity
+          intensity = 0.75;  // Medium-high intensity
         } else if (nearbyCount === 3) {
-          intensity = 0.8;  // High intensity
+          intensity = 0.9;  // High intensity
         } else {
           intensity = 1.0;  // Maximum intensity
         }
@@ -283,37 +349,11 @@ export default function InteractiveMap({
         heatData.push([report.latitude, report.longitude, intensity]);
       });
 
-      if (heatData.length > 0) {
-        try {
-          // @ts-ignore - leaflet.heat doesn't have types
-          if (typeof L.heatLayer === 'function') {
-            console.log('Creating heatmap with', heatData.length, 'points');
-            // @ts-ignore
-            const heatmapLayer = L.heatLayer(heatData, {
-              radius: 25,
-              blur: 15,
-              maxZoom: 17,
-              max: 1.0,
-              minOpacity: 0.05,
-              gradient: {
-                '0.0': 'blue',
-                '0.3': 'cyan',  
-                '0.6': 'lime',
-                '0.8': 'yellow',
-                '1.0': 'red'
-              }
-            });
-            
-            heatmapLayer.addTo(leafletMapRef.current);
-            heatmapRef.current = heatmapLayer;
-            console.log('Heatmap layer added successfully');
-          } else {
-            console.error('L.heatLayer function not available');
-          }
-        } catch (error) {
-          console.error('Error creating heatmap:', error);
-        }
-      } else {
+      // Cache the heat data and update the heatmap using the responsive function
+      heatDataRef.current = heatData;
+      updateHeatmapForZoom();
+      
+      if (heatData.length === 0) {
         console.log('No data for heatmap');
       }
     } else {
