@@ -205,23 +205,29 @@ RESPOND NOW:`;
     try {
       const systemPrompt = `You are a JSON-only text formalizer. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
       
-      const userPrompt = customPrompt || `Rewrite this Dutch text to be formal and professional. Return EXACTLY this JSON structure:
+      const userPrompt = customPrompt || `Make this Dutch text more formal and professional while preserving ALL original details and meaning. Return EXACTLY this JSON structure:
 {"formalizedTitle": "string", "formalizedDescription": "string"}
 
-IMPORTANT: Keep the original meaning and content, just make it more formal.
+CRITICAL RULES:
+- NEVER add new details, locations, or events not in the original
+- NEVER invent stories or additional context  
+- ONLY improve grammar, spelling and formality
+- Keep the same basic content and facts
+- If the original is already formal, keep it unchanged
 
 Examples:
-- "Zerfvuil" → {"formalizedTitle": "Zwerfvuil in openbare ruimte", "formalizedDescription": "Zwerfvuil aangetroffen in openbare ruimte"}
-- "Vandalisme" → {"formalizedTitle": "Vandalisme incident", "formalizedDescription": "Vandalisme schade vastgesteld"}
+- "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
+- "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
 
 Original title: "${title}"
 Original description: "${description}"
 
-Rewrite this to formal Dutch but keep the same meaning:`;
+Make this more formal but preserve ALL original meaning and facts:`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 300,
+        temperature: 0, // Conservative - no creativity/improvisation
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       });
@@ -240,6 +246,19 @@ Rewrite this to formal Dutch but keep the same meaning:`;
       if (typeof result.formalizedTitle !== 'string' ||
           typeof result.formalizedDescription !== 'string') {
         throw new Error('Invalid response structure from AI');
+      }
+
+      // Safety check: Reject outputs that are significantly longer (likely invented details)
+      const originalLength = (title + ' ' + description).length;
+      const formalizedLength = (result.formalizedTitle + ' ' + result.formalizedDescription).length;
+      const lengthIncrease = (formalizedLength - originalLength) / originalLength;
+      
+      if (lengthIncrease > 0.5) { // More than 50% longer = likely adding details
+        console.warn('Formalization rejected: output too long, likely invented details');
+        return {
+          formalizedTitle: title,
+          formalizedDescription: description
+        };
       }
 
       return result as TextFormalizationResult;
