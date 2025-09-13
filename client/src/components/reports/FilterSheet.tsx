@@ -73,7 +73,7 @@ export default function FilterSheet({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="w-[95vw] max-w-lg mx-auto max-h-[85vh] sm:max-h-[80vh] flex flex-col"
+        className="w-[95vw] max-w-lg mx-auto max-h-[85dvh] sm:max-h-[80dvh] flex flex-col"
         style={isIOSSafari() ? {
           position: 'fixed',
           top: '10%',

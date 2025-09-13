@@ -1,0 +1,26 @@
+Het venster dat je ziet na het klikken op het blauwe plusje is een overlay (bottom‑sheet/modal) die de pagina–scrol blokkeert door een data-scroll-locked attribuut op <body> te zetten. In de bijhorende stylesheet staat dan:
+
+body[data-scroll-locked] { overflow: hidden !important; position: fixed; width: 100%; }
+
+
+Dit is een veelgebruikte manier om te voorkomen dat de achterliggende pagina scrolt, maar iOS Safari reageert daar anders op dan andere browsers. Zodra position: fixed op de body staat, past Safari de hoogte van de viewport niet meer correct aan wanneer de adresbalk in‑ of uitklapt. Daardoor denkt je code dat de overlay 100 vh hoog moet zijn, terwijl het zichtbare scherm lager is; het scrollbare gedeelte krijgt daardoor te weinig hoogte en scrollt niet
+stripearmy.medium.com
+. In het Medium‑artikel over dit probleem staat dat iOS 18 window.innerHeight niet bijwerkt bij een “fixed” body, waardoor knoppen of formulieren onder de adresbalk terechtkomen
+stripearmy.medium.com
+.
+
+Daarnaast negeert iOS Safari scroll‑gebaren als een container geen -webkit-overflow-scrolling: touch, overscroll-behavior: contain en een maximale hoogte heeft. In de code van je dashboard zit wél een .modal__body met overflow-y: auto; -webkit-overflow-scrolling: touch; en een [data-rsbs-scroll] met overflow: auto; overscroll-behavior: contain, maar door de foute hoogte van het venster komt die scroll niet tot zijn recht.
+
+Wat je kunt doen:
+
+Gebruik de kleine viewporthoogte (dvh) of een CSS‑variabele die je met window.innerHeight vult om de hoogte van de modal te bepalen in plaats van 100vh. Hierdoor bereken je de hoogte onafhankelijk van de adresbalk
+stripearmy.medium.com
+.
+
+Vermijd position: fixed op de <body> en zet de scroll‑lock op een wrapper‑element. Zo blijft window.innerHeight correct.
+
+Geef de scrollbare container een expliciete maximale hoogte: bv. .modal__body { max-height: 80dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; }.
+
+Als je met react-spring-bottom-sheet werkt, update naar de nieuwste versie of geef snapPoints={({ maxHeight }) => maxHeight * 0.8 }, zodat de sheet nooit de volledige hoogte inneemt.
+
+Kort gezegd: de modal scrollt niet omdat iOS Safari de viewporthoogte verkeerd berekent zodra je de body fixeert, waardoor de overlay te groot wordt en niet scrollt. Met de bovenstaande aanpassingen krijg je een scrollbare modal op iPhone.

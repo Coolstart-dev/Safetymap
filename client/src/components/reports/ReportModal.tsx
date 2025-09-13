@@ -636,16 +636,16 @@ export default function ReportModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="glass-modal w-full max-w-md max-h-[90vh] overflow-hidden p-0 rounded-2xl"
+        className="glass-modal w-full max-w-md max-h-[90dvh] overflow-hidden p-0 rounded-2xl"
         style={isIOS() ? {
           position: 'fixed',
           top: '5%',
           left: '50%',
           transform: 'translateX(-50%)', // Only horizontal centering for iOS
-          maxHeight: '90vh'
+          maxHeight: '90dvh'
         } : undefined}
       >
-        <div className="flex flex-col h-full max-h-[90vh]">
+        <div className="flex flex-col h-full max-h-[90dvh]">
           <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <DialogTitle>Report Incident</DialogTitle>
             <DialogDescription className="sr-only">
@@ -662,7 +662,7 @@ export default function ReportModal({
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-y',
               overscrollBehavior: 'contain',
-              maxHeight: 'calc(90vh - 120px)'
+              maxHeight: 'calc(90dvh - 120px)'
             }}
           >
                   <Form {...form}>

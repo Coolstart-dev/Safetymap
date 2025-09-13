@@ -45,7 +45,7 @@ const DialogContent = React.forwardRef<
           "fixed left-[50%] top-[50%] z-[100001] translate-x-[-50%] translate-y-[-50%] group",
           className
         )}
-        style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+        style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
         {...props}
       >
         <div className={cn(
