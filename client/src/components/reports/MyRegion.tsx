@@ -216,7 +216,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
     return (
       <section className="mb-8" data-testid={`category-section-${section.category}`}>
         {/* Category Header */}
-        <div className="mb-4 glass-card rounded-2xl">
+        <div className="mb-4 bg-background border border-border rounded-2xl shadow-sm">
           <div className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -349,7 +349,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
             {/* News Sections */}
             {groupedReports.length === 0 ? (
               <div className="text-center py-16 glass-card rounded-2xl">
-                <div className="w-16 h-16 glass-subtle rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-muted/30 border border-border rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No News Yet</h3>
@@ -377,7 +377,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
+                <div className="flex flex-col items-center p-6 bg-background/60 border border-border/50 rounded-xl shadow-sm">
                   <Users className="w-8 h-8 text-blue-600 mb-3" />
                   <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Community Insights</h3>
                   <p className="text-sm text-gray-600 text-center">
@@ -385,7 +385,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                   </p>
                 </div>
 
-                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
+                <div className="flex flex-col items-center p-6 bg-background/60 border border-border/50 rounded-xl shadow-sm">
                   <Image className="w-8 h-8 text-green-600 mb-3" />
                   <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Visual Stories</h3>
                   <p className="text-sm text-gray-600 text-center">
@@ -393,7 +393,7 @@ export default function MyRegion({ onReportClick }: MyRegionProps) {
                   </p>
                 </div>
 
-                <div className="flex flex-col items-center p-6 glass-subtle rounded-xl">
+                <div className="flex flex-col items-center p-6 bg-background/60 border border-border/50 rounded-xl shadow-sm">
                   <Heart className="w-8 h-8 text-red-600 mb-3" />
                   <h3 className="font-semibold text-gray-900 mb-2 drop-shadow-sm">Regional Safety</h3>
                   <p className="text-sm text-gray-600 text-center">

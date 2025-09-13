@@ -186,7 +186,7 @@ export default function ReportsList({
           filteredReports.map((report) => (
             <div
               key={report.id}
-              className="report-item p-4 mx-2 mb-2 glass-card rounded-xl cursor-pointer transition-all duration-300 hover:glass-strong hover:transform hover:-translate-y-1"
+              className="report-item p-4 mx-2 mb-2 bg-background border border-border rounded-xl cursor-pointer transition-all duration-300 hover:bg-muted/50 hover:shadow-md hover:-translate-y-1"
               onClick={() => onReportClick(report.id)}
               data-testid={`report-item-${report.id}`}
             >
