@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 export default function ReportsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showOriginalContent, setShowOriginalContent] = useState<{[key: string]: boolean}>({});
+  const [deletingReportId, setDeletingReportId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -45,6 +46,31 @@ export default function ReportsPage() {
       });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteSingleReport = async (reportId: string) => {
+    setDeletingReportId(reportId);
+    try {
+      await apiRequest('DELETE', `/api/admin/reports/${reportId}`);
+
+      toast({
+        title: "Success",
+        description: "Report has been deleted successfully.",
+      });
+
+      // Invalidate and refetch all related queries
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/reports'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/reports'] });
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingReportId(null);
     }
   };
 
@@ -161,7 +187,7 @@ export default function ReportsPage() {
                 .map((report: any) => (
                 <div key={report.id} className="border rounded-lg p-3 md:p-4 space-y-2 md:space-y-3">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 md:gap-0">
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-sm">
                           {showOriginalContent[report.id] ? report.originalTitle || report.title : report.title}
@@ -172,17 +198,54 @@ export default function ReportsPage() {
                         {showOriginalContent[report.id] ? report.originalDescription || report.description : report.description}
                       </p>
                     </div>
-                    {(report.originalTitle || report.originalDescription) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleOriginalContent(report.id)}
-                        className="gap-1 text-xs"
-                      >
-                        {showOriginalContent[report.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                        {showOriginalContent[report.id] ? 'Gemoderate versie' : 'Originele versie'}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {(report.originalTitle || report.originalDescription) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleOriginalContent(report.id)}
+                          className="gap-1 text-xs"
+                        >
+                          {showOriginalContent[report.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                          {showOriginalContent[report.id] ? 'Gemoderate versie' : 'Originele versie'}
+                        </Button>
+                      )}
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                            data-testid={`button-delete-report-${report.id}`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Verwijder
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Rapport verwijderen?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Deze actie kan niet ongedaan worden gemaakt. Het rapport wordt permanent verwijderd.
+                              <br /><br />
+                              <strong>Titel:</strong> {report.title}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel data-testid={`button-cancel-delete-${report.id}`}>Annuleren</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteSingleReport(report.id)}
+                              disabled={deletingReportId === report.id}
+                              data-testid={`button-confirm-delete-${report.id}`}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {deletingReportId === report.id ? "Verwijderen..." : "Ja, verwijder rapport"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-muted-foreground gap-1 sm:gap-0">
