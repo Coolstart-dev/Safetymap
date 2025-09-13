@@ -68,14 +68,20 @@ Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug m
 - Ongevallen of milieuproblemen
 - Alle oprechte meldingen bedoeld om anderen te informeren
 
-❌ Niet toegestaan:
+❌ STRIKT NIET TOEGESTAAN (hasInappropriateContent=true):
+- Racistische woorden of slurs (n-woord, ook met spelfouten zoals "neger", "negro", etc.)
+- Discriminerende taal over etniciteit, religie, geslacht, seksualiteit
+- Hatelijke uitspraken tegen groepen mensen
+- Grove scheldwoorden en beledigingen
+- Gewelddadige dreigingen
+
+❌ Ook niet toegestaan:
 - Duidelijke test berichten ("test", "testing 123", "hallo wereld")
 - Echte spam (reclame, promotie, herhaalde berichten)
 - Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
-- Racistische, discriminerende of grove taal
-- Duidelijk ongepaste inhoud
 
-BELANGRIJK: Bij twijfel altijd GOEDKEUREN. Geef alleen pure JSON terug zonder markdown code blocks.`;
+KRITISCH: Als er racistische/discriminerende taal in staat, ALTIJD hasInappropriateContent=true en isApproved=false zetten.
+Bij andere twijfel: GOEDKEUREN. Geef alleen pure JSON terug zonder markdown code blocks.`;
 }
 
 // Default text formalization prompt (Type 2: How to rewrite text formally)

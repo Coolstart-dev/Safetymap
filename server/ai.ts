@@ -90,9 +90,7 @@ export class AIContentModerator {
 
 DO NOT use any other JSON keys. DO NOT add explanations.`;
       
-      const userPrompt = customPrompt || `Report: "${title}" - "${description}"
-
-APPROVE legitimate community safety reports including:
+      const policyPrompt = customPrompt || `APPROVE legitimate community safety reports including:
 - Suspicious activity, dangerous situations, criminal incidents
 - Status updates about neighborhood conditions  
 - Safety concerns, infrastructure issues
@@ -100,17 +98,34 @@ APPROVE legitimate community safety reports including:
 - Environmental hazards, accidents
 - Any genuine report meant to inform/warn others
 
-REJECT only if the content contains:
+STRICTLY REJECT (hasInappropriateContent=true) if content contains:
+- Racial slurs or racist language (n-word, "negro", "neger", etc.)
+- Discriminatory language about ethnicity, religion, gender, sexuality
+- Hateful statements against groups of people
+- Offensive profanity and insults
+- Violent threats
+
+Also reject:
 - Actual spam (promotional content, advertisements)
-- Clearly inappropriate/offensive language
 - Personal information (full names, addresses, phone numbers)
 - Obviously fake/test content like "test", "testing 123", "hello world"
 
 For legitimate reports, respond with:
 {"isApproved": true, "isSpam": false, "hasInappropriateContent": false, "hasPII": false, "reason": null}
 
-For rejected content, respond with:
+For racist/discriminatory content, respond with:
+{"isApproved": false, "isSpam": false, "hasInappropriateContent": true, "hasPII": false, "reason": "discriminatory language"}
+
+For other rejected content, respond with:
 {"isApproved": false, "isSpam": true, "hasInappropriateContent": false, "hasPII": false, "reason": "specific reason"}
+
+CRITICAL: If racist/discriminatory language detected, ALWAYS set hasInappropriateContent=true and isApproved=false.`;
+
+      const userPrompt = `${policyPrompt}
+
+ANALYZE THIS REPORT:
+Title: "${title}"
+Description: "${description}"
 
 RESPOND NOW:`;
 
