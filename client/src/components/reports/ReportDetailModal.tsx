@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,9 +42,12 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-md max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-gray-900 drop-shadow-sm">Report Details</DialogTitle>
+          <DialogDescription>
+            View detailed information about this community safety report.
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
@@ -52,7 +56,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             <p className="text-sm text-gray-700 drop-shadow-sm">Loading report details...</p>
           </div>
         ) : report ? (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Header */}
             <div className="flex items-start space-x-3">
               <div 
@@ -80,7 +84,7 @@ export default function ReportDetailModal({ isOpen, onClose, reportId }: ReportD
             </div>
 
             {/* Details */}
-            <div className="space-y-3 text-sm">
+            <div className="space-y-2 sm:space-y-3 text-sm">
               <div>
                 <span className="font-medium text-gray-900 flex items-center mb-1 drop-shadow-sm">
                   <User className="h-4 w-4 mr-2" />
