@@ -55,12 +55,12 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+            className="fixed inset-0 z-40 bg-black/30" 
             onClick={() => setIsOpen(false)}
           />
           
           {/* Menu Items */}
-          <div className="absolute top-14 left-0 glass-modal rounded-2xl min-w-48 py-2 z-50 shadow-2xl border border-white/30">
+          <div className="absolute top-14 left-0 bg-background border border-border rounded-2xl min-w-48 py-2 z-50 shadow-lg">
             {/* Navigation Items */}
             {items.map((item, index) => (
               <button
@@ -69,10 +69,10 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
                   item.onClick();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center px-4 py-3 text-sm text-gray-900 hover:bg-white/20 transition-all duration-200 backdrop-blur-sm drop-shadow-sm first:rounded-t-2xl last:rounded-b-2xl"
+                className="w-full flex items-center px-4 py-3 text-sm text-foreground hover:bg-muted/50 transition-all duration-200 first:rounded-t-2xl last:rounded-b-2xl"
                 data-testid={`menu-item-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                <span className="mr-3 text-gray-700 drop-shadow-sm">
+                <span className="mr-3 text-muted-foreground">
                   {item.icon}
                 </span>
                 {item.label}
@@ -81,7 +81,7 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
             
             {/* Separator if we have both items and toggle actions */}
             {items.length > 0 && toggleActions.length > 0 && (
-              <hr className="my-1 border-white/30 mx-4" />
+              <hr className="my-1 border-border mx-4" />
             )}
             
             {/* Toggle Actions */}
@@ -91,20 +91,20 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
                 onClick={() => {
                   action.onToggle();
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 backdrop-blur-sm drop-shadow-sm ${
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 ${
                   action.isActive 
-                    ? 'text-blue-800 bg-blue-100/40 border-l-2 border-blue-400' 
-                    : 'text-gray-900 hover:bg-white/20'
+                    ? 'text-primary bg-primary/10 border-l-2 border-primary' 
+                    : 'text-foreground hover:bg-muted/50'
                 }`}
                 data-testid={`toggle-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <div className="flex items-center">
-                  <span className={`mr-3 drop-shadow-sm ${action.isActive ? 'text-blue-700' : 'text-gray-700'}`}>
+                  <span className={`mr-3 ${action.isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                     {action.icon}
                   </span>
                   {action.label}
                 </div>
-                <div className={`w-2 h-2 rounded-full shadow-sm ${action.isActive ? 'bg-blue-600 shadow-blue-300' : 'bg-gray-400 shadow-gray-200'}`} />
+                <div className={`w-2 h-2 rounded-full ${action.isActive ? 'bg-primary' : 'bg-muted'}`} />
               </button>
             ))}
           </div>

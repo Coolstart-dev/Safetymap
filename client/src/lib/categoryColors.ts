@@ -1,4 +1,4 @@
-import { type Categories } from "./categories";
+// Helper functions for category colors using Tailwind theme
 
 // Category color mappings for Tailwind CSS classes
 export const getCategoryColorClasses = (category: string) => {
