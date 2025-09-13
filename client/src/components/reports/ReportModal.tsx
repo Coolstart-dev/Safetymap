@@ -285,16 +285,6 @@ export default function ReportModal({
             maxWidth: 'none',
             transform: 'none'
           }}>
-          {/* Explicit DialogClose for mobile reliability */}
-          <DialogClose asChild>
-            <button 
-              className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-background/80"
-              data-testid="button-close-modal"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </button>
-          </DialogClose>
 
           <div className="h-full flex flex-col bg-background">
             <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b pr-12">
@@ -308,10 +298,11 @@ export default function ReportModal({
               className="flex-1 overflow-y-auto modal__body"
               style={{
                 WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y',
+                touchAction: 'manipulation', // Better for mobile forms
                 overscrollBehavior: 'contain',
-                maxHeight: 'calc(100vh - 80px)', // Adjust for header
-                height: 'calc(100vh - 80px)' // Ensure full height usage
+                maxHeight: 'calc(100dvh - 80px)', // Dynamic viewport height
+                height: 'auto',
+                minHeight: 0
               }}
             >
             <Form {...form}>
