@@ -92,11 +92,25 @@ DO NOT use any other JSON keys. DO NOT add explanations.`;
       
       const userPrompt = customPrompt || `Report: "${title}" - "${description}"
 
-For litter/zwerfvuil reports, respond with:
+APPROVE legitimate community safety reports including:
+- Suspicious activity, dangerous situations, criminal incidents
+- Status updates about neighborhood conditions  
+- Safety concerns, infrastructure issues
+- Community observations and warnings
+- Environmental hazards, accidents
+- Any genuine report meant to inform/warn others
+
+REJECT only if the content contains:
+- Actual spam (promotional content, advertisements)
+- Clearly inappropriate/offensive language
+- Personal information (full names, addresses, phone numbers)
+- Obviously fake/test content like "test", "testing 123", "hello world"
+
+For legitimate reports, respond with:
 {"isApproved": true, "isSpam": false, "hasInappropriateContent": false, "hasPII": false, "reason": null}
 
-For test messages, respond with:
-{"isApproved": false, "isSpam": true, "hasInappropriateContent": false, "hasPII": false, "reason": "test message"}
+For rejected content, respond with:
+{"isApproved": false, "isSpam": true, "hasInappropriateContent": false, "hasPII": false, "reason": "specific reason"}
 
 RESPOND NOW:`;
 

@@ -57,20 +57,25 @@ Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug m
 - hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
 - reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
 
-✅ Toegestaan:
+✅ Toegestaan (RUIM INTERPRETEREN):
 - Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)
+- Verdachte activiteiten of criminele gebeurtenissen
 - Overlast in openbare ruimte
-- Positieve observaties over de buurt
-- Status updates over publieke ruimtes
+- Positieve observaties over de buurt (zoals "mooie plek", "schone straat", "mooie schuur")
+- Status updates over publieke ruimtes en gebouwen
+- Community waarnemingen en waarschuwingen
+- Infrastructurele problemen of gevaren
+- Ongevallen of milieuproblemen
+- Alle oprechte meldingen bedoeld om anderen te informeren
 
 ❌ Niet toegestaan:
-- Test berichten of spam ("test", "proberen")
-- Algemene complimenten zonder specifiek incident
+- Duidelijke test berichten ("test", "testing 123", "hallo wereld")
+- Echte spam (reclame, promotie, herhaalde berichten)
 - Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
 - Racistische, discriminerende of grove taal
-- Memes of grappen
+- Duidelijk ongepaste inhoud
 
-BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
+BELANGRIJK: Bij twijfel altijd GOEDKEUREN. Geef alleen pure JSON terug zonder markdown code blocks.`;
 }
 
 // Default text formalization prompt (Type 2: How to rewrite text formally)
