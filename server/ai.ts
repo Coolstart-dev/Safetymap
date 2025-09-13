@@ -204,7 +204,18 @@ RESPOND NOW:`;
   // Type 2: Text Formalization - herschrijft goedgekeurde tekst naar formele versie
   async formalizeText(title: string, description: string, customPrompt?: string): Promise<TextFormalizationResult> {
     try {
-      const systemPrompt = `You are a JSON-only text formalizer. You MUST respond with ONLY valid JSON. No explanations, no markdown, no extra text. Just pure JSON.`;
+      const systemPrompt = `You are a JSON-only text formalizer. 
+
+CRITICAL: You MUST respond with ONLY valid JSON in this EXACT format:
+{"formalizedTitle": "string", "formalizedDescription": "string"}
+
+Do NOT include:
+- Any explanations before or after the JSON
+- Any markdown code blocks or backticks  
+- Any natural language text
+- Any comments or notes
+
+Return ONLY the JSON object, nothing else.`;
       
       const userPrompt = customPrompt || `Make this Dutch text more formal and professional while preserving ALL original details and meaning. Return EXACTLY this JSON structure:
 {"formalizedTitle": "string", "formalizedDescription": "string"}
@@ -240,8 +251,22 @@ Make this more formal but preserve ALL original meaning, facts, and key nouns:`;
       const contentBlock = response.content[0];
       let result;
       if (contentBlock.type === 'text') {
-        let responseText = contentBlock.text;
+        let responseText = contentBlock.text.trim();
+        
+        // Log the raw response for debugging
+        console.log('DEBUG AI Formalization Raw Response:', responseText);
+        
+        // More aggressive JSON extraction 
         responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+        
+        // Remove any leading/trailing text that isn't JSON
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          responseText = jsonMatch[0];
+        } else {
+          throw new Error(`AI response contains no JSON object: "${responseText}"`);
+        }
+        
         result = JSON.parse(responseText);
       } else {
         throw new Error('Unexpected content type from AI response');
