@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Report } from "@shared/schema";
 import { categories } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
-import { Shield, X, Clock, MapPin } from "lucide-react";
+import { Shield, X, Clock, MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import MyRegion from "./MyRegion";
@@ -14,9 +14,11 @@ interface ReportsListProps {
   selectedSubcategories: string[];
   onSubcategoriesChange: (subcategories: string[]) => void;
   onSheetInteraction?: () => void;
-  activeTab: 'recent' | 'region';
-  onTabChange: (tab: 'recent' | 'region') => void;
+  activeTab: 'recent' | 'region' | 'nearme';
+  onTabChange: (tab: 'recent' | 'region' | 'nearme') => void;
   showFilters?: boolean; // Keep for backwards compatibility but not used
+  mapBounds?: {north: number, south: number, east: number, west: number} | null;
+  currentZoom?: number;
 }
 
 export default function ReportsList({ 
@@ -28,7 +30,9 @@ export default function ReportsList({
   onSheetInteraction,
   activeTab,
   onTabChange,
-  showFilters = false // Keep for backwards compatibility but not used
+  showFilters = false, // Keep for backwards compatibility but not used
+  mapBounds,
+  currentZoom
 }: ReportsListProps) {
   
   // Handle any interaction within the sheet (buttons, clicks, etc.)
@@ -40,8 +44,28 @@ export default function ReportsList({
     queryKey: ["/api/reports", { category: activeCategory }],
   });
 
+  // Function to check if a report is within the current map bounds
+  const isReportInBounds = (report: Report) => {
+    if (!mapBounds || report.latitude == null || report.longitude == null) return false;
+    
+    return (
+      report.latitude >= mapBounds.south &&
+      report.latitude <= mapBounds.north &&
+      report.longitude >= mapBounds.west &&
+      report.longitude <= mapBounds.east
+    );
+  };
+
   const filteredReports = reports
     .filter(report => {
+      // For Near Me tab, filter by map bounds and zoom level
+      if (activeTab === 'nearme') {
+        // Only show if zoom level is 12 or higher (same as app start zoom)
+        if (!currentZoom || currentZoom < 12) return false;
+        // Only show reports visible on current map
+        if (!isReportInBounds(report)) return false;
+      }
+      
       // If no subcategories selected, show all reports
       if (selectedSubcategories.length === 0) {
         return activeCategory === 'all' || report.category === activeCategory;
@@ -76,12 +100,25 @@ export default function ReportsList({
       {/* Tab Navigation */}
       <div className="px-4 pt-4 pb-2 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
+            <Button
+              variant={activeTab === 'nearme' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => { onTabChange('nearme'); handleInteraction(); }}
+              className={`flex-shrink-0 flex items-center gap-2 rounded-xl ${
+                activeTab === 'nearme' ? 'glass-strong' : 'glass-subtle'
+              } ${(!currentZoom || currentZoom < 12) ? 'opacity-50' : ''}`}
+              data-testid="tab-near-me"
+              disabled={!currentZoom || currentZoom < 12}
+            >
+              <Navigation className="w-4 h-4" />
+              Near Me
+            </Button>
             <Button
               variant={activeTab === 'recent' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => { onTabChange('recent'); handleInteraction(); }}
-              className={`flex items-center gap-2 rounded-xl ${
+              className={`flex-shrink-0 flex items-center gap-2 rounded-xl ${
                 activeTab === 'recent' ? 'glass-strong' : 'glass-subtle'
               }`}
               data-testid="tab-recent-reports"
@@ -93,7 +130,7 @@ export default function ReportsList({
               variant={activeTab === 'region' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => { onTabChange('region'); handleInteraction(); }}
-              className={`flex items-center gap-2 rounded-xl ${
+              className={`flex-shrink-0 flex items-center gap-2 rounded-xl ${
                 activeTab === 'region' ? 'glass-strong' : 'glass-subtle'
               }`}
               data-testid="tab-my-region"
@@ -156,7 +193,92 @@ export default function ReportsList({
       {/* FilterSheet now managed from Dashboard via map controls */}
 
       {/* Tab Content */}
-      {activeTab === 'recent' ? (
+      {activeTab === 'nearme' ? (
+        <div 
+          className="flex-1 overflow-y-auto"
+          onScroll={handleInteraction}
+        >
+        {!currentZoom || currentZoom < 12 ? (
+          <div className="p-8 text-center">
+            <Navigation className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">Zoom in to see nearby reports</h3>
+            <p className="text-muted-foreground">
+              Zoom in on the map to view incidents in your area.
+            </p>
+          </div>
+        ) : !mapBounds ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">Aligning with map view...</p>
+          </div>
+        ) : isLoading ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">Loading nearby reports...</p>
+          </div>
+        ) : filteredReports.length === 0 ? (
+          <div className="p-8 text-center">
+            <Navigation className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No nearby reports</h3>
+            <p className="text-muted-foreground">
+              No incidents found in the current map area.
+            </p>
+          </div>
+        ) : (
+          filteredReports.map((report) => (
+            <div
+              key={report.id}
+              className="report-item p-4 mx-2 mb-2 bg-background border border-border rounded-xl cursor-pointer transition-all duration-300 hover:bg-muted/50 hover:shadow-md hover:-translate-y-1"
+              onClick={() => { onReportClick(report.id); handleInteraction(); }}
+              data-testid={`report-item-${report.id}`}
+            >
+              <div className="flex items-start space-x-3">
+                <div 
+                  className="w-3 h-3 rounded-full mt-2 flex-shrink-0 shadow-sm"
+                  style={{ 
+                    backgroundColor: getCategoryColor(report.category),
+                    boxShadow: `0 0 8px ${getCategoryColor(report.category)}40`
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-medium text-gray-900 truncate drop-shadow-sm">
+                      {report.title}
+                    </h3>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2 line-clamp-2 drop-shadow-sm">
+                    {report.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Badge 
+                        variant="secondary"
+                        className="text-xs"
+                        style={{ 
+                          backgroundColor: `${getCategoryColor(report.category)}20`,
+                          color: getCategoryColor(report.category)
+                        }}
+                      >
+                        {getCategoryName(report.category)}
+                      </Badge>
+                      {report.authoritiesContacted && (
+                        <Shield className="h-3 w-3 text-green-600" />
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {calculateDistance(report.latitude, report.longitude)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+        </div>
+      ) : activeTab === 'recent' ? (
         <div 
           className="flex-1 overflow-y-auto"
           onScroll={handleInteraction}

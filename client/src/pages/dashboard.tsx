@@ -20,7 +20,9 @@ export default function Dashboard() {
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isHeatmapMode, setIsHeatmapMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recent' | 'region'>('recent');
+  const [activeTab, setActiveTab] = useState<'recent' | 'region' | 'nearme'>('recent');
+  const [mapBounds, setMapBounds] = useState<{north: number, south: number, east: number, west: number} | null>(null);
+  const [currentZoom, setCurrentZoom] = useState<number>(12);
   const [showFilters, setShowFilters] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
 
@@ -42,10 +44,16 @@ export default function Dashboard() {
   }, [snapToPosition]);
 
   // Handle tab change with sheet expansion
-  const handleTabChange = useCallback((tab: 'recent' | 'region') => {
+  const handleTabChange = useCallback((tab: 'recent' | 'region' | 'nearme') => {
     setActiveTab(tab);
     handleSheetInteraction(); // Always expand to 90% on tab interaction
   }, [handleSheetInteraction]);
+
+  // Handle map view change (bounds and zoom)
+  const handleMapViewChange = useCallback((bounds: {north: number, south: number, east: number, west: number}, zoom: number) => {
+    setMapBounds(bounds);
+    setCurrentZoom(zoom);
+  }, []);
 
   const handleReportClick = (reportId: string) => {
     setSelectedReportId(reportId);
@@ -117,6 +125,7 @@ export default function Dashboard() {
           onHeatmapToggle={() => setIsHeatmapMode(!isHeatmapMode)}
           onFilterClick={() => setShowFilters(true)}
           onMapInteraction={handleMapInteraction}
+          onViewChange={handleMapViewChange}
         />
       </div>
 
@@ -132,6 +141,8 @@ export default function Dashboard() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           showFilters={false}
+          mapBounds={mapBounds}
+          currentZoom={currentZoom}
         />
       </BottomSheet>
 

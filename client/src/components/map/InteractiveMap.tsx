@@ -52,6 +52,8 @@ interface InteractiveMapProps {
   onFilterClick?: () => void;
   // Callback for map interactions (zoom, pan, etc)
   onMapInteraction?: () => void;
+  // Callback for map view changes (bounds and zoom)
+  onViewChange?: (bounds: {north: number, south: number, east: number, west: number}, zoom: number) => void;
 }
 
 
@@ -65,7 +67,8 @@ export default function InteractiveMap({
   isHeatmapMode = false,
   onHeatmapToggle,
   onFilterClick,
-  onMapInteraction
+  onMapInteraction,
+  onViewChange
 }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -173,6 +176,25 @@ export default function InteractiveMap({
     map.on('movestart zoomstart', () => {
       setHasManuallyMoved(true);
     });
+
+    // Track view changes (bounds and zoom) for Near Me functionality  
+    if (onViewChange) {
+      const handleViewChange = () => {
+        const bounds = map.getBounds();
+        const zoom = map.getZoom();
+        onViewChange({
+          north: bounds.getNorth(),
+          south: bounds.getSouth(),
+          east: bounds.getEast(),
+          west: bounds.getWest()
+        }, zoom);
+      };
+      
+      map.on('zoomend moveend', handleViewChange);
+      
+      // Initial view change call
+      setTimeout(handleViewChange, 100);
+    }
 
     return () => {
       if (leafletMapRef.current) {
