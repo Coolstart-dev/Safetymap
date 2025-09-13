@@ -612,6 +612,23 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     }
   });
 
+  // Delete single report by ID (Admin only)
+  app.delete("/api/admin/reports/:id", async (req, res) => {
+    console.log("DEBUG - Admin DELETE single report route hit!", req.params.id);
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteReport(id);
+      if (success) {
+        res.json({ success: true, message: "Report deleted successfully" });
+      } else {
+        res.status(404).json({ error: "Report not found" });
+      }
+    } catch (error) {
+      console.log("DEBUG - Admin delete report error:", error);
+      res.status(500).json({ error: "Failed to delete report" });
+    }
+  });
+
   // News Scraping Configuration API
   app.get("/api/admin/scraping-configs", async (req, res) => {
     try {
