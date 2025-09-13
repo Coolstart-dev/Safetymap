@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertReportSchema, insertScrapingConfigSchema, insertMunicipalitySchema } from "@shared/schema";
+import { insertReportSchema, insertScrapingConfigSchema, insertMunicipalitySchema, insertNoteSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -608,6 +608,49 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     } catch (error) {
       console.error('Error fetching AI logs:', error);
       res.status(500).json({ error: "Failed to fetch AI logs" });
+    }
+  });
+
+  // Notes endpoints for Best Practices and other documentation
+  app.get("/api/admin/notes/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      const note = await storage.getNote(key);
+      if (note) {
+        res.json(note);
+      } else {
+        // Return empty note if not found
+        res.json({ key, content: "", updatedAt: new Date().toISOString() });
+      }
+    } catch (error) {
+      console.error('Error fetching note:', error);
+      res.status(500).json({ error: "Failed to fetch note" });
+    }
+  });
+
+  app.post("/api/admin/notes/:key", async (req, res) => {
+    try {
+      const { key } = req.params;
+      
+      // Validate key parameter
+      if (!key || key.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(key)) {
+        return res.status(400).json({ error: "Invalid key format" });
+      }
+      
+      // Validate request body using Zod
+      const validationSchema = insertNoteSchema.extend({
+        content: z.string().max(50000) // 50KB text limit
+      }).pick({ content: true });
+      
+      const validatedData = validationSchema.parse(req.body);
+      const note = await storage.saveNote(key, validatedData.content);
+      res.json(note);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      }
+      console.error('Error saving note:', error);
+      res.status(500).json({ error: "Failed to save note" });
     }
   });
 

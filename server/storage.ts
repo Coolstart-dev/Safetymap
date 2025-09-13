@@ -3,6 +3,7 @@ import {
   scrapedReports, 
   scrapingConfig,
   municipalities,
+  notes,
   type Report, 
   type InsertReport,
   type ScrapedReport,
@@ -10,7 +11,9 @@ import {
   type ScrapingConfig,
   type InsertScrapingConfig,
   type Municipality,
-  type InsertMunicipality
+  type InsertMunicipality,
+  type Note,
+  type InsertNote
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc } from "drizzle-orm";
@@ -53,6 +56,10 @@ export interface IStorage {
   createMunicipality(municipality: InsertMunicipality): Promise<Municipality>;
   updateMunicipality(id: string, municipality: Partial<Municipality>): Promise<boolean>;
   deleteMunicipality(id: string): Promise<boolean>;
+  
+  // Notes methods
+  getNote(key: string): Promise<Note | undefined>;
+  saveNote(key: string, content: string): Promise<Note>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -291,6 +298,31 @@ export class DatabaseStorage implements IStorage {
   async deleteMunicipality(id: string): Promise<boolean> {
     const result = await db.delete(municipalities).where(eq(municipalities.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  // Notes methods implementation
+  async getNote(key: string): Promise<Note | undefined> {
+    const [note] = await db.select().from(notes).where(eq(notes.key, key));
+    return note || undefined;
+  }
+
+  async saveNote(key: string, content: string): Promise<Note> {
+    // First try to update existing note
+    const existingNote = await this.getNote(key);
+    
+    if (existingNote) {
+      const [updatedNote] = await db.update(notes)
+        .set({ content, updatedAt: new Date() })
+        .where(eq(notes.key, key))
+        .returning();
+      return updatedNote;
+    } else {
+      // Create new note
+      const [newNote] = await db.insert(notes)
+        .values({ key, content })
+        .returning();
+      return newNote;
+    }
   }
 }
 

@@ -159,3 +159,21 @@ export const insertMunicipalitySchema = createInsertSchema(municipalities).omit(
 
 export type InsertMunicipality = z.infer<typeof insertMunicipalitySchema>;
 export type Municipality = typeof municipalities.$inferSelect;
+
+// Notes schema for Best Practices documentation
+export const notes = pgTable("notes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: varchar("key", { length: 50 }).notNull().unique(), // e.g. "best_practices"
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertNoteSchema = createInsertSchema(notes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertNote = z.infer<typeof insertNoteSchema>;
+export type Note = typeof notes.$inferSelect;
