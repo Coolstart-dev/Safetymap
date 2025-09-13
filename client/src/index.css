@@ -222,7 +222,7 @@ body[data-scroll-locked] {
     height: 100dvh !important;
     border-radius: 0 !important;
     overflow: hidden;
-    z-index: 9999;
+    z-index: var(--z-dialog-content);
     background: white;
   }
 
