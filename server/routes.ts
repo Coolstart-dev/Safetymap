@@ -86,27 +86,22 @@ Bij andere twijfel: GOEDKEUREN. Geef alleen pure JSON terug zonder markdown code
 
 // Default text formalization prompt (Type 2: How to rewrite text formally)
 function getDefaultTextFormalizationPrompt(): string {
-  return `Je bent een tekst editor die meldingen herschrijft naar formele, professionele taal.
+  return `Maak deze Nederlandse tekst formeler en professioneler, maar behoud ALLE originele details en betekenis. Geef EXACT deze JSON structuur terug:
+{"formalizedTitle": "string", "formalizedDescription": "string"}
 
-Herschrijf de volgende melding naar een formele versie en geef een JSON response terug met:
-- formalizedTitle: string (herschreven titel in formele, neutrale taal)
-- formalizedDescription: string (herschreven beschrijving in formele, neutrale taal)
-
-Richtlijnen voor herschrijven:
-- Gebruik formele, neutrale taal
-- Verwijder emotionele uitingen en vervang door feitelijke beschrijving
-- Verwijder persoonlijke informatie (volledige namen, telefoonnummers, specifieke adressen)
-- Behoud algemene locatie-informatie ("bij de supermarkt", "in het park")
-- Behoud alle belangrijke details over het incident
-- Maak het professioneel maar nog steeds begrijpelijk
-- Gebruik Nederlandse spelling en grammatica
+KRITIEKE REGELS:
+- NOOIT nieuwe details, locaties, of gebeurtenissen toevoegen die niet in het origineel staan
+- NOOIT verhalen verzinnen of extra context toevoegen  
+- ALLEEN grammatica, spelling en formaliteit verbeteren
+- Dezelfde basis inhoud en feiten behouden
+- Als het origineel al formeel is, houd het ongewijzigd
 
 Voorbeelden:
-- "Mijn fiets is gejat door een of andere idioot!" → "Fietsdiefstal gemeld door eigenaar"
-- "Super mooi park vandaag, echt geweldig!" → "Positieve waarneming betreffende staat van het park"
-- "Jan de Vries (06-12345678) heeft mijn auto bekrast" → "Eigendomsschade aan voertuig door onbekende persoon"
+- "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
+- "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
+- "Schoon stukkie natuur" → {"formalizedTitle": "Schoon stukje natuur", "formalizedDescription": "Schoon stukje natuur waargenomen"}
 
-BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
+Maak dit formeler maar behoud ALLE originele betekenis en feiten:`;
 }
 
 // Distance calculation helper (Haversine formula)
