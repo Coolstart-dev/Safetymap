@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Wifi, Circle, Eye, Settings } from 'lucide-react';
+import { Wifi, Circle, Eye, Settings, TestTube, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function ModerationPage() {
   const [contentFilterPrompt, setContentFilterPrompt] = useState<string>('');
@@ -13,7 +14,9 @@ export default function ModerationPage() {
   const [promptLoading, setPromptLoading] = useState(false);
   const [apiStatus, setApiStatus] = useState<{ isOnline: boolean; error?: string } | null>(null);
   const [isCheckingApi, setIsCheckingApi] = useState(false);
+  const [testResults, setTestResults] = useState<any>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch existing moderation prompts on component mount
   const { data: promptData } = useQuery({
@@ -41,6 +44,26 @@ export default function ModerationPage() {
       setTextFormalizationPrompt(promptData.textFormalization || '');
     }
   }, [promptData]);
+
+  // Moderation test mutation
+  const testMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/admin/moderation-test'),
+    onSuccess: (data) => {
+      setTestResults(data);
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/ai-logs'] });
+      toast({
+        title: "Test voltooid",
+        description: "Moderatie pipeline test is succesvol uitgevoerd.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Test gefaald",
+        description: error.message || "Er is een fout opgetreden tijdens de test.",
+        variant: "destructive",
+      });
+    }
+  });
 
   // API Health Check
   const checkApiHealth = async () => {
@@ -228,6 +251,150 @@ export default function ModerationPage() {
           >
             {promptLoading ? 'Opslaan...' : 'Beide Moderatie Instructies Opslaan'}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* AI Moderation Test */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="h-5 w-5" />
+            AI Moderatie Pipeline Test
+          </CardTitle>
+          <CardDescription>
+            Test de volledige moderatie pipeline met voorgedefinieerde test cases
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="text-sm text-muted-foreground">
+              <p><strong>Test 1:</strong> Ongepaste content (racistische taal) - moet worden geblokkeerd</p>
+              <p><strong>Test 2:</strong> Gepaste content - moet worden goedgekeurd en geformaliseerd</p>
+              <p className="text-xs mt-2">⏱️ Tests worden 2 seconden na elkaar uitgevoerd om server overload te voorkomen</p>
+            </div>
+            
+            <Button
+              onClick={() => testMutation.mutate()}
+              disabled={testMutation.isPending}
+              data-testid="button-run-moderation-test"
+              className="w-full"
+              size="lg"
+            >
+              {testMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 animate-spin" />
+                  Pipeline test wordt uitgevoerd...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <TestTube className="h-4 w-4" />
+                  Run AI Moderatie Pipeline Test
+                </div>
+              )}
+            </Button>
+
+            {/* Test Results */}
+            {testResults && (
+              <div className="mt-6 space-y-4" data-testid="test-results">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    Test Resultaten
+                    {testResults.summary?.allPassed ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <XCircle className="h-5 w-5 text-red-600" />
+                    )}
+                  </h4>
+                  <span className="text-xs text-muted-foreground">
+                    {testResults.summary?.passed || 0}/{testResults.summary?.total || 0} geslaagd | {testResults.totalDurationMs}ms
+                  </span>
+                </div>
+                
+                {/* Summary Badge */}
+                <div className={`p-3 rounded-lg border ${
+                  testResults.summary?.allPassed 
+                    ? 'bg-green-50 border-green-200 text-green-800' 
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}>
+                  <p className="font-medium">
+                    {testResults.summary?.allPassed ? '✅ Alle tests geslaagd!' : '❌ Sommige tests gefaald'}
+                  </p>
+                  <p className="text-sm opacity-80">
+                    {testResults.summary?.allPassed 
+                      ? 'AI moderatie pipeline functioneert correct'
+                      : 'Er zijn problemen gedetecteerd in de moderatie pipeline'
+                    }
+                  </p>
+                </div>
+                
+                {testResults.tests?.map((test: any, index: number) => (
+                  <Card key={test.id} className="border-l-4 border-l-muted">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            Test {index + 1}: {test.id === 'inappropriate' ? 'Ongepaste Content' : 'Gepaste Content'}
+                          </span>
+                          {test.passed ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            test.passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {test.passed ? 'PASS' : 'FAIL'}
+                          </span>
+                          <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-800">
+                            {test.submissionResult?.status || 'ERROR'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <p className="font-medium text-muted-foreground">Input:</p>
+                          <p className="bg-muted/50 p-2 rounded text-xs">
+                            "{test.testData?.title}" - "{test.testData?.description}"
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="font-medium text-muted-foreground">Verwacht vs Resultaat:</p>
+                          <div className="bg-muted/30 p-2 rounded space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              <strong>Verwacht:</strong> {test.expected}
+                            </p>
+                            <div className={test.passed ? "text-green-700" : "text-red-700"}>
+                              {test.passed ? '✅' : '❌'} <strong>Resultaat:</strong> Status {test.submissionResult?.status}
+                              {test.passed ? ' (Correct!)' : ' (Fout!)'}
+                            </div>
+                            <details className="text-xs">
+                              <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                                API Response Details
+                              </summary>
+                              <pre className="mt-1 font-mono bg-muted/50 p-1 rounded text-xs overflow-x-auto">
+                                {typeof test.submissionResult?.response === 'string' 
+                                  ? test.submissionResult.response 
+                                  : JSON.stringify(test.submissionResult?.response, null, 2)
+                                }
+                              </pre>
+                            </details>
+                          </div>
+                        </div>
+                        
+                        <div className="text-xs text-muted-foreground">
+                          Duur: {test.submissionResult?.durationMs}ms
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

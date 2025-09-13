@@ -883,6 +883,167 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     }
   });
 
+  // AI Moderation Test Endpoint
+  app.post("/api/admin/moderation-test", async (req, res) => {
+    try {
+      const startTime = Date.now();
+      
+      // Test case 1: Inappropriate content (should be blocked)
+      const inappropriateTestData = {
+        title: "neger gespot bij bushalte",
+        description: "neger gespot bij bushalte vanmorgen",
+        category: "degradation",
+        subcategory: "Littering", 
+        involvementType: "witness",
+        authoritiesContacted: "false"
+      };
+
+      // Test case 2: Appropriate content (should be approved and formalized)
+      const appropriateTestData = {
+        title: "mooie varens in het bos",
+        description: "schone natuur aangetroffen tijdens wandeling",
+        category: "status",
+        involvementType: "witness", 
+        authoritiesContacted: "false"
+      };
+
+      const results = [];
+
+      // Test 1: Submit inappropriate content
+      console.log("MODERATION TEST: Starting test 1 (inappropriate content)");
+      const test1Start = Date.now();
+      try {
+        const test1FormData = new FormData();
+        Object.entries(inappropriateTestData).forEach(([key, value]) => {
+          test1FormData.append(key, value);
+        });
+        
+        const test1Response = await fetch(`http://localhost:${process.env.PORT || 5000}/api/reports`, {
+          method: 'POST',
+          body: test1FormData
+        });
+        
+        const test1ResponseData = await test1Response.text();
+        let test1ParsedData;
+        try {
+          test1ParsedData = JSON.parse(test1ResponseData);
+        } catch {
+          test1ParsedData = test1ResponseData;
+        }
+
+        // Evaluate if test 1 passed (inappropriate content should be blocked = 400)
+        const test1Passed = test1Response.status === 400;
+        
+        results.push({
+          id: "inappropriate",
+          testData: inappropriateTestData,
+          expected: "Should be BLOCKED (400 status)",
+          passed: test1Passed,
+          submissionResult: {
+            success: test1Response.ok,
+            status: test1Response.status,
+            response: test1ParsedData,
+            durationMs: Date.now() - test1Start
+          }
+        });
+      } catch (error) {
+        results.push({
+          id: "inappropriate",
+          testData: inappropriateTestData,
+          expected: "Should be BLOCKED (400 status)",
+          passed: false,
+          submissionResult: {
+            success: false,
+            status: 0,
+            response: { error: error instanceof Error ? error.message : String(error) },
+            durationMs: Date.now() - test1Start
+          }
+        });
+      }
+
+      // Wait 2 seconds between tests to prevent server overload
+      console.log("MODERATION TEST: Waiting 2 seconds before test 2...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Test 2: Submit appropriate content
+      console.log("MODERATION TEST: Starting test 2 (appropriate content)");
+      const test2Start = Date.now();
+      try {
+        const test2FormData = new FormData();
+        Object.entries(appropriateTestData).forEach(([key, value]) => {
+          test2FormData.append(key, value);
+        });
+        
+        const test2Response = await fetch(`http://localhost:${process.env.PORT || 5000}/api/reports`, {
+          method: 'POST',
+          body: test2FormData
+        });
+        
+        const test2ResponseData = await test2Response.text();
+        let test2ParsedData;
+        try {
+          test2ParsedData = JSON.parse(test2ResponseData);
+        } catch {
+          test2ParsedData = test2ResponseData;
+        }
+
+        // Evaluate if test 2 passed (appropriate content should be approved = 201)
+        const test2Passed = test2Response.status === 201;
+        
+        results.push({
+          id: "appropriate",
+          testData: appropriateTestData,
+          expected: "Should be APPROVED (201 status)",
+          passed: test2Passed,
+          submissionResult: {
+            success: test2Response.ok,
+            status: test2Response.status,
+            response: test2ParsedData,
+            durationMs: Date.now() - test2Start
+          }
+        });
+      } catch (error) {
+        results.push({
+          id: "appropriate", 
+          testData: appropriateTestData,
+          expected: "Should be APPROVED (201 status)",
+          passed: false,
+          submissionResult: {
+            success: false,
+            status: 0,
+            response: { error: error instanceof Error ? error.message : String(error) },
+            durationMs: Date.now() - test2Start
+          }
+        });
+      }
+
+      const totalDuration = Date.now() - startTime;
+      console.log("MODERATION TEST: Completed both tests");
+
+      // Calculate summary
+      const testsPassed = results.filter(r => r.passed).length;
+      const totalTests = results.length;
+      const allTestsPassed = testsPassed === totalTests;
+
+      res.json({
+        startedAt: new Date(startTime).toISOString(),
+        totalDurationMs: totalDuration,
+        serverDelay: 2000,
+        summary: {
+          passed: testsPassed,
+          total: totalTests,
+          allPassed: allTestsPassed,
+          status: allTestsPassed ? "ALL_TESTS_PASSED" : "SOME_TESTS_FAILED"
+        },
+        tests: results
+      });
+
+    } catch (error) {
+      console.error("Error running moderation test:", error);
+      res.status(500).json({ error: "Failed to run moderation test" });
+    }
+  });
+
   // Serve uploaded images
   app.use('/uploads', express.static('uploads'));
 
