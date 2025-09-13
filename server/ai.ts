@@ -253,7 +253,15 @@ Make this more formal but preserve ALL original meaning and facts:`;
       const formalizedLength = (result.formalizedTitle + ' ' + result.formalizedDescription).length;
       const lengthIncrease = (formalizedLength - originalLength) / originalLength;
       
-      if (lengthIncrease > 0.5) { // More than 50% longer = likely adding details
+      console.log('DEBUG Formalization:', {
+        original: `"${title}" + "${description}"`,
+        formalized: `"${result.formalizedTitle}" + "${result.formalizedDescription}"`,
+        originalLength,
+        formalizedLength,
+        lengthIncrease: (lengthIncrease * 100).toFixed(1) + '%'
+      });
+      
+      if (lengthIncrease > 0.8) { // More than 80% longer = likely adding details
         console.warn('Formalization rejected: output too long, likely invented details');
         return {
           formalizedTitle: title,
