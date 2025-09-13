@@ -10,6 +10,7 @@ When copying code from this code snippet, ensure you also include this informati
 
 // <important_do_not_delete>
 const DEFAULT_MODEL_STR = "claude-3-haiku-20240307";
+const FORMALIZATION_MODEL_STR = "claude-sonnet-4-20250514"; // Better for instruction following
 // </important_do_not_delete>
 
 const anthropic = new Anthropic({
@@ -209,24 +210,28 @@ RESPOND NOW:`;
 {"formalizedTitle": "string", "formalizedDescription": "string"}
 
 CRITICAL RULES:
-- NEVER add new details, locations, or events not in the original
+- You MUST preserve ALL named nouns and key content words from the original (varens, bos, boer, kasteel, etc.)
+- Do NOT introduce any new nouns, locations, or concepts not in the original
 - NEVER invent stories or additional context  
 - ONLY improve grammar, spelling and formality
 - Keep the same basic content and facts
 - If the original is already formal, keep it unchanged
+- If uncertain about changes, copy the input exactly to output
+- You must include the same core topics/subjects as the original
 
 Examples:
 - "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
 - "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
+- "varens in bos" → {"formalizedTitle": "Varens in bos", "formalizedDescription": "Varens aangetroffen in bos"}
 
 Original title: "${title}"
 Original description: "${description}"
 
-Make this more formal but preserve ALL original meaning and facts:`;
+Make this more formal but preserve ALL original meaning, facts, and key nouns:`;
 
       const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 300,
+        model: FORMALIZATION_MODEL_STR, // Use stronger model for formalization
+        max_tokens: 120, // Reduced to prevent drift
         temperature: 0, // Conservative - no creativity/improvisation
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
@@ -248,21 +253,40 @@ Make this more formal but preserve ALL original meaning and facts:`;
         throw new Error('Invalid response structure from AI');
       }
 
-      // Safety check: Reject outputs that are significantly longer (likely invented details)
+      // Safety check 1: Reject outputs that are significantly longer (likely invented details)
       const originalLength = (title + ' ' + description).length;
       const formalizedLength = (result.formalizedTitle + ' ' + result.formalizedDescription).length;
       const lengthIncrease = (formalizedLength - originalLength) / originalLength;
+      
+      // Safety check 2: Validate content preservation by checking key noun overlap
+      const originalText = (title + ' ' + description).toLowerCase();
+      const formalizedText = (result.formalizedTitle + ' ' + result.formalizedDescription).toLowerCase();
+      
+      // Extract key nouns (simple approach: words 3+ chars, excluding common words)
+      const commonWords = ['het', 'een', 'van', 'voor', 'bij', 'naar', 'door', 'over', 'onder', 'tegen', 'tussen', 'binnen', 'buiten', 'tijdens', 'zonder', 'vanaf', 'rond', 'naast', 'achter', 'verder', 'alleen', 'vooral', 'echter', 'daarna', 'hierna', 'omdat', 'terwijl', 'wanneer', 'waar', 'hoe', 'wat', 'wie', 'waarom', 'wel', 'niet', 'ook', 'nog', 'maar', 'dan', 'als', 'dus', 'dat', 'dit', 'deze', 'die', 'hier', 'daar', 'nu', 'toen', 'later', 'vroeger', 'vandaag', 'gisteren', 'morgen'];
+      const originalNouns = originalText.split(/\s+/).filter(word => word.length >= 3 && !commonWords.includes(word));
+      const hasKeywordOverlap = originalNouns.length === 0 || originalNouns.some(noun => formalizedText.includes(noun));
       
       console.log('DEBUG Formalization:', {
         original: `"${title}" + "${description}"`,
         formalized: `"${result.formalizedTitle}" + "${result.formalizedDescription}"`,
         originalLength,
         formalizedLength,
-        lengthIncrease: (lengthIncrease * 100).toFixed(1) + '%'
+        lengthIncrease: (lengthIncrease * 100).toFixed(1) + '%',
+        originalNouns: originalNouns.slice(0, 5), // Show first 5 key nouns
+        hasKeywordOverlap
       });
       
       if (lengthIncrease > 0.8) { // More than 80% longer = likely adding details
         console.warn('Formalization rejected: output too long, likely invented details');
+        return {
+          formalizedTitle: title,
+          formalizedDescription: description
+        };
+      }
+      
+      if (!hasKeywordOverlap) { // AI completely ignored the input content
+        console.warn('Formalization rejected: no keyword overlap, AI likely hallucinated unrelated content');
         return {
           formalizedTitle: title,
           formalizedDescription: description
