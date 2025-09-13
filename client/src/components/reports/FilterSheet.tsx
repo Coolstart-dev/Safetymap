@@ -83,7 +83,15 @@ export default function FilterSheet({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 pb-2 pr-1">
+        <div 
+          className="flex-1 overflow-y-auto min-h-0 pb-2 pr-1" 
+          data-scroll-lock-scrollable
+          style={{ 
+            WebkitOverflowScrolling: 'touch', 
+            touchAction: 'pan-y', 
+            overscrollBehavior: 'contain' 
+          }}
+        >
           {Object.entries(categories).map(([categoryKey, category]) => (
             <div key={categoryKey} className="mb-6">
               <div className="flex items-center gap-2 mb-3">

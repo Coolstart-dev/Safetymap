@@ -302,8 +302,10 @@ export default function ReportModal({
 
             <div 
               className="flex-1 overflow-y-auto modal__body"
+              data-scroll-lock-scrollable
               style={{
                 WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
                 overscrollBehavior: 'contain',
                 height: `calc(${supportsDvh() ? '100dvh' : '100vh'} - 64px)`, // Explicit height for iOS Safari
                 minHeight: 0,
@@ -642,6 +644,7 @@ export default function ReportModal({
 
           <div 
             className="flex-1 overflow-y-auto p-6 pt-4 modal__body"
+            data-scroll-lock-scrollable
             style={{
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-y',
