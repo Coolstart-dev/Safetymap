@@ -316,20 +316,18 @@ body[data-scroll-locked] {
     @apply bg-background border border-border;
   }
 
-  /* UNIVERSAL CLEAN INTERFACE - Forces all components to use clean white styling */
-  
-  /* All Radix Dialog components get clean white styling */
-  [data-radix-dialog-overlay] {
-    background: rgba(0, 0, 0, 0.5) !important;
-    z-index: 99998 !important;
+  /* Z-INDEX HIERARCHY - Logical layering system */
+  :root {
+    --z-map: 0;
+    --z-bottom-sheet: 1000;
+    --z-fab: 1100;
+    --z-menu: 1200;
+    --z-dialog-overlay: 100000;
+    --z-dialog-content: 100001;
+    --z-toast: 200000;
   }
 
-  [data-radix-dialog-content] {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-    z-index: 99999 !important;
-  }
+  /* UNIVERSAL CLEAN INTERFACE - Forces all components to use clean white styling */
 
   /* All Radix Sheet components get clean white styling */
   [data-radix-sheet-content] {
@@ -353,25 +351,25 @@ body[data-scroll-locked] {
 
   /* Force floating action button z-index above bottom sheet */
   .floating-action-button-override {
-    z-index: 99999 !important;
+    z-index: var(--z-fab) !important;
     position: fixed !important;
   }
 
-  /* Bottom sheet z-index override to prevent blocking other elements */
+  /* Bottom sheet z-index using hierarchy */
   [data-rsbs-overlay] {
-    z-index: 1000 !important;
+    z-index: var(--z-bottom-sheet) !important;
   }
   
   [data-rsbs-backdrop] {
-    z-index: 1001 !important;
+    z-index: calc(var(--z-bottom-sheet) + 1) !important;
   }
   
   [data-rsbs-header] {
-    z-index: 1002 !important;
+    z-index: calc(var(--z-bottom-sheet) + 2) !important;
   }
   
   [data-rsbs-content] {
-    z-index: 1002 !important;
+    z-index: calc(var(--z-bottom-sheet) + 2) !important;
   }
 
 
