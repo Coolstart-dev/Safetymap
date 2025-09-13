@@ -415,14 +415,48 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
 
       const validatedData = insertReportSchema.parse(reportData);
 
-      // Run AI content moderation
+      // Run AI content moderation - Use new separated prompts for better content filtering
       const moderator = new AIContentModerator();
-      const customPrompt = await storage.getModerationPrompt();
-      const moderationResult = await moderator.moderateContent(
+      const moderationPrompts = await storage.getModerationPrompts();
+      
+      // Step 1: Content filtering with proper racist/discriminatory content detection
+      // SECURITY: Use strong default if admin hasn't set custom prompt
+      const contentFilterPrompt = moderationPrompts.contentFilter || getDefaultContentFilterPrompt();
+      console.log('DEBUG - Using content filter prompt:', contentFilterPrompt ? 'Custom/Default prompt loaded' : 'No prompt available');
+      
+      const filterResult = await moderator.filterContent(
         validatedData.title || '',
         validatedData.description || '',
-        customPrompt || undefined
+        contentFilterPrompt
       );
+      
+      console.log('DEBUG - Content Filter Result:', filterResult);
+      
+      // Step 2: Text formalization only if approved
+      let moderatedTitle = validatedData.title;
+      let moderatedDescription = validatedData.description;
+      
+      if (filterResult.isApproved) {
+        const textFormalizationPrompt = moderationPrompts.textFormalization || getDefaultTextFormalizationPrompt();
+        const formalizationResult = await moderator.formalizeText(
+          validatedData.title || '',
+          validatedData.description || '',
+          textFormalizationPrompt
+        );
+        moderatedTitle = formalizationResult.formalizedTitle;
+        moderatedDescription = formalizationResult.formalizedDescription;
+      }
+      
+      // Construct moderation result for backward compatibility
+      const moderationResult = {
+        isApproved: filterResult.isApproved,
+        isSpam: filterResult.isSpam,
+        hasInappropriateContent: filterResult.hasInappropriateContent,
+        hasPII: filterResult.hasPII,
+        moderatedTitle,
+        moderatedDescription,
+        reason: filterResult.reason
+      };
 
       console.log("DEBUG - Moderation result:", moderationResult);
 

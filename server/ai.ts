@@ -160,13 +160,13 @@ RESPOND NOW:`;
         error: error instanceof Error ? error.message : String(error)
       });
       
-      // Simple fallback: approve content when AI is unavailable
+      // SECURITY: Fail-closed approach - REJECT content when AI is unavailable
       return {
-        isApproved: true,
+        isApproved: false,
         isSpam: false,
-        hasInappropriateContent: false,
+        hasInappropriateContent: true, // Mark as inappropriate to trigger rejection
         hasPII: false,
-        reason: undefined
+        reason: 'Content moderation temporarily unavailable - rejected for safety'
       };
     }
   }
