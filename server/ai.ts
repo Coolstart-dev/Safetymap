@@ -217,7 +217,8 @@ Do NOT include:
 
 Return ONLY the JSON object, nothing else.`;
       
-      const userPrompt = customPrompt || `Make this Dutch text more formal and professional while preserving ALL original details and meaning. Return EXACTLY this JSON structure:
+      // Construct the full prompt: custom prompt (instructions) + actual text
+      const basePrompt = customPrompt || `Make this Dutch text more formal and professional while preserving ALL original details and meaning. Return EXACTLY this JSON structure:
 {"formalizedTitle": "string", "formalizedDescription": "string"}
 
 CRITICAL RULES:
@@ -235,10 +236,15 @@ Examples:
 - "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
 - "varens in bos" → {"formalizedTitle": "Varens in bos", "formalizedDescription": "Varens aangetroffen in bos"}
 
-Original title: "${title}"
-Original description: "${description}"
-
 Make this more formal but preserve ALL original meaning, facts, and key nouns:`;
+
+      // Always append the actual text to be formalized
+      const userPrompt = `${basePrompt}
+
+Originele titel: "${title}"
+Originele beschrijving: "${description}"
+
+Formaliseer dit naar professionele taal:`;
 
       const response = await anthropic.messages.create({
         model: FORMALIZATION_MODEL_STR, // Use stronger model for formalization
