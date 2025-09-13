@@ -16,6 +16,12 @@ const isIOS = () => {
          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 };
 
+// Feature detection for dvh support
+const supportsDvh = () => {
+  if (typeof window === 'undefined' || !CSS?.supports) return false;
+  return CSS.supports('height', '100dvh');
+};
+
 import {
   Dialog,
   DialogContent,
@@ -273,7 +279,7 @@ export default function ReportModal({
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="glass-modal fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden"
+        <DialogContent className="glass-modal fixed inset-0 w-full h-full max-w-none rounded-none border-0 p-0 overflow-hidden flex flex-col min-h-0"
           style={{ 
             position: 'fixed', 
             top: 0, 
@@ -281,12 +287,12 @@ export default function ReportModal({
             right: 0, 
             bottom: 0, 
             width: '100vw', 
-            height: '100dvh', // Dynamic viewport height for better mobile support
+            height: supportsDvh() ? '100dvh' : '100vh', // Feature detection for iOS Safari
             maxWidth: 'none',
             transform: 'none'
           }}>
 
-          <div className="h-full flex flex-col bg-background">
+          <div className="h-full flex flex-col bg-background min-h-0">
             <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b pr-12">
               <DialogTitle>Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
@@ -298,11 +304,10 @@ export default function ReportModal({
               className="flex-1 overflow-y-auto modal__body"
               style={{
                 WebkitOverflowScrolling: 'touch',
-                touchAction: 'manipulation', // Better for mobile forms
                 overscrollBehavior: 'contain',
-                maxHeight: 'calc(100dvh - 80px)', // Dynamic viewport height
-                height: 'auto',
-                minHeight: 0
+                height: `calc(${supportsDvh() ? '100dvh' : '100vh'} - 64px)`, // Explicit height for iOS Safari
+                minHeight: 0,
+                paddingBottom: 'env(safe-area-inset-bottom)' // Safe area for iOS
               }}
             >
             <Form {...form}>
