@@ -232,6 +232,39 @@ export default function InteractiveMap({
     return () => clearTimeout(timer);
   }, [getCurrentLocation, hasManuallyMoved]);
 
+  // Center on GPS location when entering location selection mode
+  useEffect(() => {
+    if (!leafletMapRef.current || !locationSelectionMode) return;
+
+    const centerOnGPSForSelection = async () => {
+      try {
+        const userLocation = await getCurrentLocation();
+        if (userLocation) {
+          leafletMapRef.current?.setView(
+            [userLocation.latitude, userLocation.longitude], 
+            16  // Slightly higher zoom for precise location selection
+          );
+          
+          // If no location is selected yet, set initial location to GPS position
+          if (!selectedLocation && onLocationSelect) {
+            onLocationSelect({ 
+              lat: userLocation.latitude, 
+              lng: userLocation.longitude 
+            });
+          }
+        }
+      } catch (error) {
+        console.log('GPS centering for location selection failed');
+        // Keep current map position
+      }
+    };
+
+    // Small delay to ensure location selection mode is fully activated
+    const timer = setTimeout(centerOnGPSForSelection, 300);
+    
+    return () => clearTimeout(timer);
+  }, [locationSelectionMode, getCurrentLocation, selectedLocation, onLocationSelect]);
+
   // Handle location selection marker
   useEffect(() => {
     if (!leafletMapRef.current) return;
