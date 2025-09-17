@@ -75,9 +75,11 @@ export default function InteractiveMap({
   const markersRef = useRef<L.LayerGroup | null>(null);
   const heatmapRef = useRef<any>(null);
   const locationMarkerRef = useRef<L.Marker | null>(null);
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
   const isDraggingMarker = useRef(false);
   const heatDataRef = useRef<[number, number, number][]>([]);
   const [hasManuallyMoved, setHasManuallyMoved] = useState(false);
+  const [currentUserLocation, setCurrentUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Geolocation hook for automatic centering
   const { getCurrentLocation } = useGeolocation();
@@ -202,6 +204,7 @@ export default function InteractiveMap({
         leafletMapRef.current = null;
         markersRef.current = null;
         locationMarkerRef.current = null;
+        userLocationMarkerRef.current = null;
       }
     };
   }, [locationSelectionMode, onLocationSelect]);
@@ -219,6 +222,8 @@ export default function InteractiveMap({
             [userLocation.latitude, userLocation.longitude], 
             15  // Zoom level 15 for detailed neighborhood view
           );
+          // Store GPS location for marker display
+          setCurrentUserLocation({ lat: userLocation.latitude, lng: userLocation.longitude });
         }
       } catch (error) {
         console.log('Auto-centering failed, keeping default location');
@@ -244,6 +249,9 @@ export default function InteractiveMap({
             [userLocation.latitude, userLocation.longitude], 
             16  // Slightly higher zoom for precise location selection
           );
+          
+          // Store GPS location for marker display  
+          setCurrentUserLocation({ lat: userLocation.latitude, lng: userLocation.longitude });
           
           // If no location is selected yet, set initial location to GPS position
           if (!selectedLocation && onLocationSelect) {
@@ -357,6 +365,62 @@ export default function InteractiveMap({
       locationMarkerRef.current = locationMarker;
     }
   }, [locationSelectionMode, selectedLocation, onLocationSelect]);
+
+  // Handle GPS location marker (blue circle)
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    // Always remove existing GPS marker first
+    if (userLocationMarkerRef.current) {
+      leafletMapRef.current.removeLayer(userLocationMarkerRef.current);
+      userLocationMarkerRef.current = null;
+    }
+
+    // Only show GPS marker when:
+    // 1. We have a GPS location 
+    // 2. We're NOT in location selection mode (to avoid confusion)
+    if (currentUserLocation && !locationSelectionMode) {
+      // Create a blue GPS position marker (like Google Maps)
+      const gpsIcon = L.divIcon({
+        className: 'gps-location-marker',
+        html: `
+          <div style="
+            width: 20px; 
+            height: 20px; 
+            background-color: #4285F4; 
+            border: 3px solid white; 
+            border-radius: 50%; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: gpsPulse 2s infinite;
+          ">
+          </div>
+          <style>
+            @keyframes gpsPulse {
+              0% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(66, 133, 244, 0.5); }
+              70% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 8px rgba(66, 133, 244, 0); }
+              100% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(66, 133, 244, 0); }
+            }
+          </style>
+        `,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+
+      const gpsMarker = L.marker([currentUserLocation.lat, currentUserLocation.lng], {
+        icon: gpsIcon,
+        draggable: false
+      }).addTo(leafletMapRef.current);
+
+      // Add tooltip to indicate this is user's location
+      gpsMarker.bindTooltip('Your current location', {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -25]
+      });
+
+      userLocationMarkerRef.current = gpsMarker;
+    }
+  }, [currentUserLocation, locationSelectionMode]);
 
   // Add zoom event listener for heatmap responsiveness
   useEffect(() => {
