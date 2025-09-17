@@ -154,11 +154,11 @@ export default function Dashboard() {
 
       {/* Location Selection Overlay */}
       {locationSelectionMode && (
-        <div className="fixed top-4 left-4 z-50 glass-card rounded-xl p-4 max-w-sm">
+        <div className="fixed top-4 left-4 z-50 bg-white border border-gray-200 shadow-lg rounded-xl p-4 max-w-sm">
           <h3 className="font-semibold text-sm mb-3">Select Location on Map</h3>
           
           <div className="space-y-3">
-            <div className="glass-subtle border border-blue-200/50 rounded-xl p-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
               <div className="text-sm text-blue-800 mb-1">
                 🗺️ Click anywhere on the map to place your marker
               </div>
@@ -168,7 +168,7 @@ export default function Dashboard() {
             </div>
             
             {selectedLocation && (
-              <div className="glass-subtle border border-green-200/50 rounded-xl p-2">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-2">
                 <div className="text-sm text-green-800">
                   ✅ Location: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
                 </div>

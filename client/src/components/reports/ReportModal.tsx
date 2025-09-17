@@ -230,11 +230,9 @@ export default function ReportModal({
         if (onLocationSelectionStart) {
           onLocationSelectionStart();
         }
-        toast({
-          title: "Map selection enabled",
-          description: "Click anywhere on the map to set the location",
-        });
+        // Toast removed - UI overlay provides all needed guidance
       } else {
+        // Only show toast when confirming location (exiting selection mode)
         toast({
           title: "Location confirmed",
           description: "Continue filling out your report",
