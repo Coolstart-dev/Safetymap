@@ -687,6 +687,16 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
 
   app.delete("/api/admin/reports", async (req, res) => {
     console.log("DEBUG - Admin DELETE route hit!");
+    
+    // Check for admin password in request header
+    const adminPassword = req.headers['x-admin-password'];
+    if (adminPassword !== 'JustDoIt') {
+      console.log("DEBUG - Invalid or missing admin password");
+      return res.status(403).json({ 
+        error: "Forbidden: Invalid admin password" 
+      });
+    }
+    
     try {
       const success = await storage.deleteAllReports();
       res.json({ success, message: success ? "All reports deleted" : "Failed to delete reports" });

@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Trash2, Database, Eye, EyeOff, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -13,6 +15,7 @@ export default function ReportsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showOriginalContent, setShowOriginalContent] = useState<{[key: string]: boolean}>({});
   const [deletingReportId, setDeletingReportId] = useState<string | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -25,14 +28,31 @@ export default function ReportsPage() {
   });
 
   const handleDeleteAllReports = async () => {
+    // Check password first
+    if (deletePassword !== 'JustDoIt') {
+      toast({
+        title: "Incorrect Password",
+        description: "Please enter the correct password to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsDeleting(true);
     try {
-      const response = await apiRequest('DELETE', '/api/admin/reports');
+      const response = await apiRequest('DELETE', '/api/admin/reports', {
+        headers: {
+          'X-Admin-Password': deletePassword
+        }
+      });
 
       toast({
         title: "Success",
         description: "All reports have been deleted successfully.",
       });
+
+      // Reset password field
+      setDeletePassword('');
 
       // Invalidate and refetch all related queries
       queryClient.invalidateQueries({ queryKey: ['/api/admin/reports'] });
@@ -124,17 +144,38 @@ export default function ReportsPage() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogTitle>Password Required</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete all 
                     incident reports and associated data from the database.
+                    <br /><br />
+                    Please enter the password to proceed:
                   </AlertDialogDescription>
                 </AlertDialogHeader>
+                <div className="py-4">
+                  <Label htmlFor="delete-password" className="text-sm font-medium">
+                    Password
+                  </Label>
+                  <Input
+                    id="delete-password"
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter password to proceed"
+                    className="mt-1"
+                    data-testid="input-delete-password"
+                  />
+                </div>
                 <AlertDialogFooter>
-                  <AlertDialogCancel data-testid="button-cancel">Cancel</AlertDialogCancel>
+                  <AlertDialogCancel 
+                    data-testid="button-cancel"
+                    onClick={() => setDeletePassword('')}
+                  >
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleDeleteAllReports}
-                    disabled={isDeleting}
+                    disabled={isDeleting || !deletePassword.trim()}
                     data-testid="button-confirm-delete"
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
