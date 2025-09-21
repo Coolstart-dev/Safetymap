@@ -632,28 +632,6 @@ export default function InteractiveMap({
           </Button>
         )}
         
-        {/* View Toggle Button */}
-        {onHeatmapToggle && (
-          <Button
-            size="icon"
-            className={`glass-button rounded-full w-10 h-10 transition-all ${
-              isHeatmapMode 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'hover:bg-white/90'
-            }`}
-            onClick={() => {
-              onHeatmapToggle();
-              onMapInteraction?.(); // Collapse sheet when using map controls
-            }}
-            data-testid="button-toggle-heatmap"
-            title={isHeatmapMode ? "Switch to Pin View" : "Switch to Heatmap View"}
-            aria-pressed={isHeatmapMode}
-            aria-label={isHeatmapMode ? "Switch to Pin View" : "Switch to Heatmap View"}
-            role="switch"
-          >
-            {isHeatmapMode ? <MapPin className="h-4 w-4" /> : <Grid3X3 className="h-4 w-4" />}
-          </Button>
-        )}
         
         {/* Center Location Button */}
         <Button
