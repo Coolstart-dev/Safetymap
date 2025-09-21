@@ -604,8 +604,11 @@ export default function InteractiveMap({
         data-testid="leaflet-map-container"
       />
       
-      {/* Map Controls Overlay - Top Right */}
-      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+      {/* Map Controls Overlay - Top Right with iOS safe area handling */}
+      <div className="absolute top-4 right-4 ios:top-14 z-[1000] flex flex-col gap-2" style={{
+        /* iOS Safe Area adjustments */
+        top: 'max(1rem, env(safe-area-inset-top))'
+      }}>
         {/* Filter Button */}
         {onFilterClick && (
           <Button

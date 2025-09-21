@@ -112,8 +112,11 @@ export default function Dashboard() {
         onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
       />
 
-      {/* Prominent Heatmap Toggle - Top Center */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center">
+      {/* Prominent Heatmap Toggle - Top Center with iOS safe area handling */}
+      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center" style={{
+        /* iOS Safe Area adjustments */
+        top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))'
+      }}>
         <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full p-1 shadow-lg">
           <div className="flex items-center">
             <Button
