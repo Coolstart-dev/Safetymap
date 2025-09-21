@@ -46,63 +46,6 @@ Richtlijnen voor herschrijven:
 BELANGRIJK: Geef alleen pure JSON terug zonder markdown code blocks.`;
 }
 
-// Default content filter prompt (Type 1: What is allowed/not allowed)
-function getDefaultContentFilterPrompt(): string {
-  return `Je bent een content filter voor een community safety platform.
-
-Analyseer ALLEEN of deze melding toegestaan is en geef een JSON response terug met:
-- isApproved: boolean (true als de melding echt lijkt en gepubliceerd kan worden)
-- isSpam: boolean (true als het een grap, meme, test of spam lijkt)
-- hasInappropriateContent: boolean (true als er racisme, discriminatie, grove taal of ongepaste inhoud in staat)
-- hasPII: boolean (true als er persoonlijke informatie zoals namen, telefoonnummers, adressen in staat)
-- reason: string (alleen als isApproved false is - korte uitleg waarom afgekeurd)
-
-✅ Toegestaan (RUIM INTERPRETEREN):
-- Echte veiligheidsincidenten (diefstal, vandalisme, gevaar)
-- Verdachte activiteiten of criminele gebeurtenissen
-- Overlast in openbare ruimte
-- Positieve observaties over de buurt (zoals "mooie plek", "schone straat", "mooie schuur")
-- Status updates over publieke ruimtes en gebouwen
-- Community waarnemingen en waarschuwingen
-- Infrastructurele problemen of gevaren
-- Ongevallen of milieuproblemen
-- Alle oprechte meldingen bedoeld om anderen te informeren
-
-❌ STRIKT NIET TOEGESTAAN (hasInappropriateContent=true):
-- Racistische woorden of slurs (n-woord, ook met spelfouten zoals "neger", "negro", etc.)
-- Discriminerende taal over etniciteit, religie, geslacht, seksualiteit
-- Hatelijke uitspraken tegen groepen mensen
-- Grove scheldwoorden en beledigingen
-- Gewelddadige dreigingen
-
-❌ Ook niet toegestaan:
-- Duidelijke test berichten ("test", "testing 123", "hallo wereld")
-- Echte spam (reclame, promotie, herhaalde berichten)
-- Berichten met persoonlijke informatie (volledige namen, telefoonnummers, adressen)
-
-KRITISCH: Als er racistische/discriminerende taal in staat, ALTIJD hasInappropriateContent=true en isApproved=false zetten.
-Bij andere twijfel: GOEDKEUREN. Geef alleen pure JSON terug zonder markdown code blocks.`;
-}
-
-// Default text formalization prompt (Type 2: How to rewrite text formally)
-function getDefaultTextFormalizationPrompt(): string {
-  return `Maak deze Nederlandse tekst formeler en professioneler, maar behoud ALLE originele details en betekenis. Geef EXACT deze JSON structuur terug:
-{"formalizedTitle": "string", "formalizedDescription": "string"}
-
-KRITIEKE REGELS:
-- NOOIT nieuwe details, locaties, of gebeurtenissen toevoegen die niet in het origineel staan
-- NOOIT verhalen verzinnen of extra context toevoegen  
-- ALLEEN grammatica, spelling en formaliteit verbeteren
-- Dezelfde basis inhoud en feiten behouden
-- Als het origineel al formeel is, houd het ongewijzigd
-
-Voorbeelden:
-- "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
-- "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
-- "Schoon stukkie natuur" → {"formalizedTitle": "Schoon stukje natuur", "formalizedDescription": "Schoon stukje natuur waargenomen"}
-
-Maak dit formeler maar behoud ALLE originele betekenis en feiten:`;
-}
 
 // Distance calculation helper (Haversine formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -532,61 +475,6 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
     }
   });
 
-  // Legacy moderation prompt routes (backward compatibility)
-  app.get("/api/admin/moderation-prompt", async (req, res) => {
-    try {
-      const prompt = await storage.getModerationPrompt();
-      res.json({ prompt: prompt || getDefaultModerationPrompt() });
-    } catch (error) {
-      console.error('Error fetching moderation prompt:', error);
-      res.status(500).json({ error: "Failed to fetch moderation prompt" });
-    }
-  });
-
-  app.post("/api/admin/moderation-prompt", async (req, res) => {
-    try {
-      const { prompt } = req.body;
-      if (typeof prompt !== 'string') {
-        return res.status(400).json({ error: "Prompt must be a string" });
-      }
-
-      await storage.saveModerationPrompt(prompt);
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error saving moderation prompt:', error);
-      res.status(500).json({ error: "Failed to save moderation prompt" });
-    }
-  });
-
-  // New separated moderation prompts routes
-  app.get("/api/admin/moderation-prompts", async (req, res) => {
-    try {
-      const prompts = await storage.getModerationPrompts();
-      res.json({
-        contentFilter: prompts.contentFilter || getDefaultContentFilterPrompt(),
-        textFormalization: prompts.textFormalization || getDefaultTextFormalizationPrompt()
-      });
-    } catch (error) {
-      console.error('Error fetching moderation prompts:', error);
-      res.status(500).json({ error: "Failed to fetch moderation prompts" });
-    }
-  });
-
-  app.post("/api/admin/moderation-prompts", async (req, res) => {
-    try {
-      const { contentFilter, textFormalization } = req.body;
-      
-      if (typeof contentFilter !== 'string' || typeof textFormalization !== 'string') {
-        return res.status(400).json({ error: "Both contentFilter and textFormalization must be strings" });
-      }
-
-      await storage.saveModerationPrompts({ contentFilter, textFormalization });
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error saving moderation prompts:', error);
-      res.status(500).json({ error: "Failed to save moderation prompts" });
-    }
-  });
 
   // API Health Check endpoint
   app.get("/api/admin/api-health", async (req, res) => {
