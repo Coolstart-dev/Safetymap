@@ -1,4 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 /*
 <important_code_snippet_instructions>
@@ -16,6 +19,27 @@ const FORMALIZATION_MODEL_STR = "claude-sonnet-4-20250514"; // Better for instru
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// Helper functions to read prompts from text files
+function readContentFilterPrompt(): string {
+  try {
+    return readFileSync(join(process.cwd(), 'server/prompts/ai-content-filter-prompt.txt'), 'utf-8');
+  } catch (error) {
+    console.error('Failed to read content filter prompt file:', error);
+    // Fallback to basic prompt if file cannot be read
+    return 'Analyze this content for spam, inappropriate content, and PII. Return JSON with isApproved, isSpam, hasInappropriateContent, hasPII, and reason fields.';
+  }
+}
+
+function readTextFormalizationPrompt(): string {
+  try {
+    return readFileSync(join(process.cwd(), 'server/prompts/ai-text-formalization-prompt.txt'), 'utf-8');
+  } catch (error) {
+    console.error('Failed to read text formalization prompt file:', error);
+    // Fallback to basic prompt if file cannot be read
+    return 'Make this Dutch text more formal and professional. Return JSON with formalizedTitle and formalizedDescription fields.';
+  }
+}
 
 // Simple in-memory logging for AI responses (for debugging)
 interface AILogEntry {
@@ -91,36 +115,7 @@ export class AIContentModerator {
 
 DO NOT use any other JSON keys. DO NOT add explanations.`;
       
-      const policyPrompt = customPrompt || `APPROVE legitimate community safety reports including:
-- Suspicious activity, dangerous situations, criminal incidents
-- Status updates about neighborhood conditions  
-- Safety concerns, infrastructure issues
-- Community observations and warnings
-- Environmental hazards, accidents
-- Any genuine report meant to inform/warn others
-
-STRICTLY REJECT (hasInappropriateContent=true) if content contains:
-- Racial slurs or racist language (n-word, "negro", "neger", etc.)
-- Discriminatory language about ethnicity, religion, gender, sexuality
-- Hateful statements against groups of people
-- Offensive profanity and insults
-- Violent threats
-
-Also reject:
-- Actual spam (promotional content, advertisements)
-- Personal information (full names, addresses, phone numbers)
-- Obviously fake/test content like "test", "testing 123", "hello world"
-
-For legitimate reports, respond with:
-{"isApproved": true, "isSpam": false, "hasInappropriateContent": false, "hasPII": false, "reason": null}
-
-For racist/discriminatory content, respond with:
-{"isApproved": false, "isSpam": false, "hasInappropriateContent": true, "hasPII": false, "reason": "discriminatory language"}
-
-For other rejected content, respond with:
-{"isApproved": false, "isSpam": true, "hasInappropriateContent": false, "hasPII": false, "reason": "specific reason"}
-
-CRITICAL: If racist/discriminatory language detected, ALWAYS set hasInappropriateContent=true and isApproved=false.`;
+      const policyPrompt = customPrompt || readContentFilterPrompt();
 
       const userPrompt = `${policyPrompt}
 
@@ -218,25 +213,7 @@ Do NOT include:
 Return ONLY the JSON object, nothing else.`;
       
       // Construct the full prompt: custom prompt (instructions) + actual text
-      const basePrompt = customPrompt || `Make this Dutch text more formal and professional while preserving ALL original details and meaning. Return EXACTLY this JSON structure:
-{"formalizedTitle": "string", "formalizedDescription": "string"}
-
-CRITICAL RULES:
-- You MUST preserve ALL named nouns and key content words from the original (varens, bos, boer, kasteel, etc.)
-- Do NOT introduce any new nouns, locations, or concepts not in the original
-- NEVER invent stories or additional context  
-- ONLY improve grammar, spelling and formality
-- Keep the same basic content and facts
-- If the original is already formal, keep it unchanged
-- If uncertain about changes, copy the input exactly to output
-- You must include the same core topics/subjects as the original
-
-Examples:
-- "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
-- "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
-- "varens in bos" → {"formalizedTitle": "Varens in bos", "formalizedDescription": "Varens aangetroffen in bos"}
-
-Make this more formal but preserve ALL original meaning, facts, and key nouns:`;
+      const basePrompt = customPrompt || readTextFormalizationPrompt();
 
       // Always append the actual text to be formalized
       const userPrompt = `${basePrompt}
