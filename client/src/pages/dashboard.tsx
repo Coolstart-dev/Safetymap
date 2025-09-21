@@ -7,8 +7,9 @@ import FilterSheet from "@/components/reports/FilterSheet";
 import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
 import BottomSheet from "@/components/ui/bottom-sheet";
+import StoriesPage from "@/pages/stories";
 import { BottomSheetRef } from 'react-spring-bottom-sheet';
-import { Settings, Home, MapPin, Grid3X3, Activity } from "lucide-react";
+import { Settings, Home, MapPin, Grid3X3, Activity, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -112,7 +113,7 @@ export default function Dashboard() {
         onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
       />
 
-      {/* Prominent Heatmap Toggle - Top Center with iOS safe area handling */}
+      {/* Main Navigation Tabs - Top Center with iOS safe area handling */}
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center" style={{
         /* iOS Safe Area adjustments */
         top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))'
@@ -121,78 +122,107 @@ export default function Dashboard() {
           <div className="flex items-center">
             <Button
               size="sm"
-              variant={!isHeatmapMode ? "default" : "ghost"}
+              variant={viewMode === 'stories' ? "default" : "ghost"}
               onClick={() => {
-                setIsHeatmapMode(false);
+                setViewMode('stories');
                 snapToPosition(0); // Collapse sheet when switching view
               }}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                !isHeatmapMode 
+              className={`rounded-full px-3 py-2 text-sm font-medium transition-all ${
+                viewMode === 'stories' 
+                  ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+              data-testid="button-stories-view"
+              aria-label="Switch to Stories View"
+            >
+              <BookOpen className="h-4 w-4 mr-1" />
+              Stories
+            </Button>
+            
+            <Button
+              size="sm"
+              variant={viewMode === 'pins' ? "default" : "ghost"}
+              onClick={() => {
+                setViewMode('pins');
+                snapToPosition(0); // Collapse sheet when switching view
+              }}
+              className={`rounded-full px-3 py-2 text-sm font-medium transition-all ${
+                viewMode === 'pins' 
                   ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
               }`}
               data-testid="button-pin-view"
               aria-label="Switch to Pin View"
             >
-              <MapPin className="h-4 w-4 mr-2" />
+              <MapPin className="h-4 w-4 mr-1" />
               Pins
             </Button>
             
             <Button
               size="sm"
-              variant={isHeatmapMode ? "default" : "ghost"}
+              variant={viewMode === 'heatmap' ? "default" : "ghost"}
               onClick={() => {
-                setIsHeatmapMode(true);
+                setViewMode('heatmap');
                 snapToPosition(0); // Collapse sheet when switching view
               }}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                isHeatmapMode 
+              className={`rounded-full px-3 py-2 text-sm font-medium transition-all ${
+                viewMode === 'heatmap' 
                   ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
               }`}
               data-testid="button-heatmap-view"
               aria-label="Switch to Heatmap View"
             >
-              <Activity className="h-4 w-4 mr-2" />
+              <Activity className="h-4 w-4 mr-1" />
               Heatmap
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Map Container - Full Height */}
-      <div className="absolute inset-0 z-0">
-        <InteractiveMap 
-          onPinClick={handlePinClick}
-          activeCategory={activeCategory}
-          selectedSubcategories={selectedSubcategories}
-          locationSelectionMode={locationSelectionMode}
-          selectedLocation={selectedLocation}
-          onLocationSelect={setSelectedLocation}
-          isHeatmapMode={isHeatmapMode}
-          onHeatmapToggle={() => setIsHeatmapMode(!isHeatmapMode)}
-          onFilterClick={() => setShowFilters(true)}
-          onMapInteraction={handleMapInteraction}
-          onViewChange={handleMapViewChange}
-        />
-      </div>
+      {/* Conditional View Rendering */}
+      {viewMode === 'stories' ? (
+        /* Stories View - Full Screen */
+        <div className="absolute inset-0 z-0">
+          <StoriesPage />
+        </div>
+      ) : (
+        <>
+          {/* Map Container - Full Height */}
+          <div className="absolute inset-0 z-0">
+            <InteractiveMap 
+              onPinClick={handlePinClick}
+              activeCategory={activeCategory}
+              selectedSubcategories={selectedSubcategories}
+              locationSelectionMode={locationSelectionMode}
+              selectedLocation={selectedLocation}
+              onLocationSelect={setSelectedLocation}
+              isHeatmapMode={viewMode === 'heatmap'}
+              onHeatmapToggle={() => setViewMode(viewMode === 'heatmap' ? 'pins' : 'heatmap')}
+              onFilterClick={() => setShowFilters(true)}
+              onMapInteraction={handleMapInteraction}
+              onViewChange={handleMapViewChange}
+            />
+          </div>
 
-      {/* Bottom Sheet with Reports */}
-      <BottomSheet ref={bottomSheetRef} onClick={handleSheetInteraction}>
-        <ReportsList 
-          onReportClick={handleReportClick}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-          selectedSubcategories={selectedSubcategories}
-          onSubcategoriesChange={setSelectedSubcategories}
-          onSheetInteraction={handleSheetInteraction}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          showFilters={false}
-          mapBounds={mapBounds}
-          currentZoom={currentZoom}
-        />
-      </BottomSheet>
+          {/* Bottom Sheet with Reports */}
+          <BottomSheet ref={bottomSheetRef} onClick={handleSheetInteraction}>
+            <ReportsList 
+              onReportClick={handleReportClick}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              selectedSubcategories={selectedSubcategories}
+              onSubcategoriesChange={setSelectedSubcategories}
+              onSheetInteraction={handleSheetInteraction}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              showFilters={false}
+              mapBounds={mapBounds}
+              currentZoom={currentZoom}
+            />
+          </BottomSheet>
+        </>
+      )}
 
       {/* Floating Action Button */}
       <FloatingActionButton 

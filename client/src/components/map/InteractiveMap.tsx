@@ -605,9 +605,9 @@ export default function InteractiveMap({
       />
       
       {/* Map Controls Overlay - Top Right with iOS safe area handling */}
-      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2" style={{
-        /* iOS Safe Area adjustments */
-        top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))',
+      <div className="absolute top-20 right-4 z-[1000] flex flex-col gap-2" style={{
+        /* iOS Safe Area adjustments - positioned below main tabs */
+        top: 'max(5rem, calc(env(safe-area-inset-top) + 4rem))',
         right: 'max(1rem, calc(env(safe-area-inset-right) + 0.5rem))'
       }}>
         {/* Filter Button */}
