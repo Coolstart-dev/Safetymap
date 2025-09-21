@@ -40,13 +40,13 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
       <Button
         onClick={toggleMenu}
         size="icon"
-        className="bg-white hover:bg-gray-50 rounded-2xl w-12 h-12 text-gray-900 shadow-lg border border-gray-200"
+        className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full w-11 h-11 shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all"
         data-testid="button-floating-menu"
       >
         {isOpen ? (
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         ) : (
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         )}
       </Button>
 

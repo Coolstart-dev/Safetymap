@@ -112,47 +112,52 @@ export default function Dashboard() {
         onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
       />
 
-      {/* Prominent Heatmap Toggle - Top Center */}
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center">
-        <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full p-1 shadow-lg">
-          <div className="flex items-center">
-            <Button
-              size="sm"
-              variant={!isHeatmapMode ? "default" : "ghost"}
-              onClick={() => {
-                setIsHeatmapMode(false);
-                snapToPosition(0); // Collapse sheet when switching view
-              }}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                !isHeatmapMode 
-                  ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-              }`}
-              data-testid="button-pin-view"
-              aria-label="Switch to Pin View"
-            >
-              <MapPin className="h-4 w-4 mr-2" />
-              Pins
-            </Button>
-            
-            <Button
-              size="sm"
-              variant={isHeatmapMode ? "default" : "ghost"}
-              onClick={() => {
-                setIsHeatmapMode(true);
-                snapToPosition(0); // Collapse sheet when switching view
-              }}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                isHeatmapMode 
-                  ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-              }`}
-              data-testid="button-heatmap-view"
-              aria-label="Switch to Heatmap View"
-            >
-              <Activity className="h-4 w-4 mr-2" />
-              Heatmap
-            </Button>
+      {/* Map Controls Container - Top Fixed */}
+      <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          {/* Unified Heatmap Toggle */}
+          <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full p-1 shadow-lg">
+            <div className="flex items-center gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setIsHeatmapMode(false);
+                  snapToPosition(0);
+                }}
+                className={`w-11 h-11 rounded-full transition-all ${
+                  !isHeatmapMode 
+                    ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                }`}
+                data-testid="button-pin-view"
+                aria-label="Switch to Pin View"
+                aria-pressed={!isHeatmapMode}
+                title="Pin View"
+              >
+                <MapPin className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                size="icon" 
+                variant="ghost"
+                onClick={() => {
+                  setIsHeatmapMode(true);
+                  snapToPosition(0);
+                }}
+                className={`w-11 h-11 rounded-full transition-all ${
+                  isHeatmapMode 
+                    ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                }`}
+                data-testid="button-heatmap-view"
+                aria-label="Switch to Heatmap View" 
+                aria-pressed={isHeatmapMode}
+                title="Heatmap View"
+              >
+                <Activity className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
