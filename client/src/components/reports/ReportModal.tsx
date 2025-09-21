@@ -8,6 +8,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { compressImage, isImageFile } from "@/lib/imageUtils";
 import { z } from "zod";
 
 // Detect iOS
@@ -75,6 +76,7 @@ export default function ReportModal({
 }: ReportModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isCompressingImage, setIsCompressingImage] = useState(false);
   const { location, getCurrentLocation, isLoading: locationLoading } = useGeolocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -251,10 +253,46 @@ export default function ReportModal({
 
   // Note: Using ScrollArea component for proper modal scroll behavior as per Radix UI best practices
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+    if (!file) return;
+
+    // Check if it's an image file
+    if (!isImageFile(file)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsCompressingImage(true);
+      console.log(`Compressing image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+      
+      // Compress the image
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.8
+      });
+      
+      setImageFile(compressedFile);
+      
+      toast({
+        title: "Photo added successfully",
+        description: `Image compressed to ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`,
+      });
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      toast({
+        title: "Error processing image",
+        description: "Failed to compress image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompressingImage(false);
     }
   };
 
@@ -549,10 +587,15 @@ export default function ReportModal({
                   className="hidden"
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer" data-testid="input-image">
-                  <Camera className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <label htmlFor="image-upload" className={`cursor-pointer ${isCompressingImage ? 'opacity-50 pointer-events-none' : ''}`} data-testid="input-image">
+                  <Camera className={`h-8 w-8 text-muted-foreground mx-auto mb-2 ${isCompressingImage ? 'animate-pulse' : ''}`} />
                   <p className="text-sm text-muted-foreground">
-                    {imageFile ? imageFile.name : "Tap to add photo for credibility"}
+                    {isCompressingImage 
+                      ? "Compressing image..." 
+                      : imageFile 
+                        ? imageFile.name 
+                        : "Tap to add photo for credibility"
+                    }
                   </p>
                 </label>
               </div>
@@ -900,10 +943,15 @@ export default function ReportModal({
                   className="hidden"
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer" data-testid="input-image">
-                  <Camera className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <label htmlFor="image-upload" className={`cursor-pointer ${isCompressingImage ? 'opacity-50 pointer-events-none' : ''}`} data-testid="input-image">
+                  <Camera className={`h-8 w-8 text-muted-foreground mx-auto mb-2 ${isCompressingImage ? 'animate-pulse' : ''}`} />
                   <p className="text-sm text-muted-foreground">
-                    {imageFile ? imageFile.name : "Tap to add photo for credibility"}
+                    {isCompressingImage 
+                      ? "Compressing image..." 
+                      : imageFile 
+                        ? imageFile.name 
+                        : "Tap to add photo for credibility"
+                    }
                   </p>
                 </label>
               </div>
