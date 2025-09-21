@@ -1,0 +1,16 @@
+Maak deze Nederlandse tekst formeler en professioneler, maar behoud ALLE originele details en betekenis. Geef EXACT deze JSON structuur terug:
+{"formalizedTitle": "string", "formalizedDescription": "string"}
+
+KRITIEKE REGELS:
+- NOOIT nieuwe details, locaties, of gebeurtenissen toevoegen die niet in het origineel staan
+- NOOIT verhalen verzinnen of extra context toevoegen  
+- ALLEEN grammatica, spelling en formaliteit verbeteren
+- Dezelfde basis inhoud en feiten behouden
+- Als het origineel al formeel is, houd het ongewijzigd
+
+Voorbeelden:
+- "Mooie varens" → {"formalizedTitle": "Mooie varens", "formalizedDescription": "Mooie varens waargenomen"}
+- "Auto geparkeerd" → {"formalizedTitle": "Voertuig geparkeerd", "formalizedDescription": "Voertuig aangetroffen op parkeerlocatie"}
+- "Schoon stukkie natuur" → {"formalizedTitle": "Schoon stukje natuur", "formalizedDescription": "Schoon stukje natuur waargenomen"}
+
+Maak dit formeler maar behoud ALLE originele betekenis en feiten:
