@@ -329,7 +329,7 @@ export default function ReportModal({
           }}>
 
           <div className="h-full flex flex-col bg-background min-h-0">
-            <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b pr-12">
+            <DialogHeader className="flex-shrink-0 px-2 py-3 border-b pr-12">
               <DialogTitle>Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
                 Create a new incident report with location, category, and details
@@ -345,13 +345,13 @@ export default function ReportModal({
                 WebkitOverflowScrolling: 'touch',
                 touchAction: 'pan-y',
                 overscrollBehavior: 'contain',
-                height: `calc(${supportsDvh() ? '100dvh' : '100vh'} - 64px)`, // Explicit height for iOS Safari
+                height: `calc(${supportsDvh() ? '100dvh' : '100vh'} - 56px)`, // Explicit height for iOS Safari
                 minHeight: 0,
                 paddingBottom: 'env(safe-area-inset-bottom)' // Safe area for iOS
               }}
             >
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 pb-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-2 pb-[env(safe-area-inset-bottom)]">
             {/* Category Selection */}
             <FormField
               control={form.control}
