@@ -329,8 +329,8 @@ export default function ReportModal({
           }}>
 
           <div className="h-full flex flex-col bg-background min-h-0">
-            <DialogHeader className="flex-shrink-0 px-2 py-3 border-b pr-12">
-              <DialogTitle>Report Incident</DialogTitle>
+            <DialogHeader className="flex-shrink-0 px-4 py-4 border-b border-border/20 pr-12 bg-background/95 backdrop-blur-sm">
+              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
                 Create a new incident report with location, category, and details
               </DialogDescription>
@@ -366,8 +366,8 @@ export default function ReportModal({
                       <button
                         key={key}
                         type="button"
-                        className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
-                          field.value === key ? 'border-primary bg-primary/5' : 'border-border'
+                        className={`p-4 bg-background border border-border rounded-xl hover:bg-muted/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left ${
+                          field.value === key ? 'border-primary bg-primary/5 shadow-lg -translate-y-1' : 'border-border'
                         }`}
                         onClick={() => {
                           field.onChange(key);
@@ -376,11 +376,14 @@ export default function ReportModal({
                         data-testid={`category-${key}`}
                       >
                         <div 
-                          className="w-6 h-6 rounded-full mb-2"
-                          style={{ backgroundColor: category.color }}
+                          className="w-8 h-8 rounded-full mb-3 shadow-md"
+                          style={{ 
+                            backgroundColor: category.color,
+                            boxShadow: `0 4px 12px ${category.color}30`
+                          }}
                         />
-                        <div className="text-sm font-medium text-foreground">{category.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-base font-semibold text-foreground mb-1">{category.name}</div>
+                        <div className="text-sm text-muted-foreground leading-relaxed">
                           {category.subcategories[0]}...
                         </div>
                       </button>
@@ -687,8 +690,8 @@ export default function ReportModal({
         } : undefined}
       >
         <div className="flex flex-col h-full max-h-[95dvh]">
-          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
-            <DialogTitle>Report Incident</DialogTitle>
+          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b border-border/20 bg-background/95 backdrop-blur-sm">
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Report Incident</DialogTitle>
             <DialogDescription className="sr-only">
               Create a new incident report with location, category, and details
             </DialogDescription>
@@ -722,8 +725,8 @@ export default function ReportModal({
                       <button
                         key={key}
                         type="button"
-                        className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
-                          field.value === key ? 'border-primary bg-primary/5' : 'border-border'
+                        className={`p-4 bg-background border border-border rounded-xl hover:bg-muted/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left ${
+                          field.value === key ? 'border-primary bg-primary/5 shadow-lg -translate-y-1' : 'border-border'
                         }`}
                         onClick={() => {
                           field.onChange(key);
@@ -732,11 +735,14 @@ export default function ReportModal({
                         data-testid={`category-${key}`}
                       >
                         <div 
-                          className="w-6 h-6 rounded-full mb-2"
-                          style={{ backgroundColor: category.color }}
+                          className="w-8 h-8 rounded-full mb-3 shadow-md"
+                          style={{ 
+                            backgroundColor: category.color,
+                            boxShadow: `0 4px 12px ${category.color}30`
+                          }}
                         />
-                        <div className="text-sm font-medium text-foreground">{category.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-base font-semibold text-foreground mb-1">{category.name}</div>
+                        <div className="text-sm text-muted-foreground leading-relaxed">
                           {category.subcategories[0]}...
                         </div>
                       </button>
