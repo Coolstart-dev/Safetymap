@@ -364,33 +364,26 @@ Journalist toon: professioneel maar toegankelijk, focus op wat burgers moeten we
 
       const validatedData = insertReportSchema.parse(reportData);
 
-      // Run AI content moderation - Use new separated prompts for better content filtering
+      // Run AI content moderation - Prompts are now read from files automatically
       const moderator = new AIContentModerator();
-      const moderationPrompts = await storage.getModerationPrompts();
+      console.log('DEBUG - Using content filter prompt: Custom/Default prompt loaded');
       
-      // Step 1: Content filtering with proper racist/discriminatory content detection
-      // SECURITY: Use strong default if admin hasn't set custom prompt
-      const contentFilterPrompt = moderationPrompts.contentFilter || getDefaultContentFilterPrompt();
-      console.log('DEBUG - Using content filter prompt:', contentFilterPrompt ? 'Custom/Default prompt loaded' : 'No prompt available');
-      
+      // Step 1: Content filtering (prompts read automatically from server/prompts/)
       const filterResult = await moderator.filterContent(
         validatedData.title || '',
-        validatedData.description || '',
-        contentFilterPrompt
+        validatedData.description || ''
       );
       
       console.log('DEBUG - Content Filter Result:', filterResult);
       
-      // Step 2: Text formalization only if approved
+      // Step 2: Text formalization only if approved (prompts read automatically from files)
       let moderatedTitle = validatedData.title;
       let moderatedDescription = validatedData.description;
       
       if (filterResult.isApproved) {
-        const textFormalizationPrompt = moderationPrompts.textFormalization || getDefaultTextFormalizationPrompt();
         const formalizationResult = await moderator.formalizeText(
           validatedData.title || '',
-          validatedData.description || '',
-          textFormalizationPrompt
+          validatedData.description || ''
         );
         moderatedTitle = formalizationResult.formalizedTitle;
         moderatedDescription = formalizationResult.formalizedDescription;
