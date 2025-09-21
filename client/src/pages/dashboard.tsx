@@ -5,11 +5,10 @@ import ReportModal from "@/components/reports/ReportModal";
 import ReportDetailModal from "@/components/reports/ReportDetailModal";
 import FilterSheet from "@/components/reports/FilterSheet";
 import FloatingActionButton from "@/components/ui/floating-action-button";
-import FloatingMenu from "@/components/ui/floating-menu";
 import BottomSheet from "@/components/ui/bottom-sheet";
 import StoriesPage from "@/pages/stories";
 import { BottomSheetRef } from 'react-spring-bottom-sheet';
-import { Settings, Home, MapPin, Grid3X3, Activity, BookOpen } from "lucide-react";
+import { Settings, Home, MapPin, Grid3X3, Activity, BookOpen, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -25,7 +24,9 @@ export default function Dashboard() {
   const [mapBounds, setMapBounds] = useState<{north: number, south: number, east: number, west: number} | null>(null);
   const [currentZoom, setCurrentZoom] = useState<number>(15);
   const [showFilters, setShowFilters] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Debounced function to snap bottom sheet to position
   const snapToPosition = useCallback((snapIndex: number) => {
@@ -84,42 +85,54 @@ export default function Dashboard() {
     setSelectedLocation(null);
   };
 
-  const menuItems = [
-    {
-      label: "Dashboard",
-      icon: <Home className="h-4 w-4" />,
-      onClick: () => {
-        snapToPosition(0); // Snap to low position for better visibility
-        window.location.href = '/';
+  // Handle click outside menu to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
       }
-    },
-    {
-      label: "Admin Panel",
-      icon: <Settings className="h-4 w-4" />,
-      onClick: () => {
-        snapToPosition(0); // Snap to low position for better visibility
-        window.location.href = '/admin';
-      }
-    }
-  ];
+    };
 
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
 
-      {/* Floating Menu */}
-      <FloatingMenu 
-        items={menuItems} 
-        onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
-      />
-
-      {/* Main Navigation Tabs - Top Center with iOS safe area handling */}
+      {/* Main Navigation Tabs with Integrated Menu - Top Center with iOS safe area handling */}
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center" style={{
         /* iOS Safe Area adjustments */
         top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))'
       }}>
         <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full p-1 shadow-lg">
-          <div className="flex items-center">
+          <div ref={menuRef} className="flex items-center relative">
+            {/* Menu Button - Smaller and on the left */}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+                snapToPosition(0); // Snap to low position when menu opens
+              }}
+              className="rounded-full px-2 py-2 text-sm font-medium transition-all text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+              data-testid="button-integrated-menu"
+              aria-label="Open Menu"
+            >
+              {isMenuOpen ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Menu className="h-4 w-4" />
+              )}
+            </Button>
+            
+            {/* Vertical Separator */}
+            <div className="w-px h-6 bg-gray-300 mx-2"></div>
             <Button
               size="sm"
               variant={viewMode === 'stories' ? "default" : "ghost"}
@@ -176,6 +189,36 @@ export default function Dashboard() {
               <Activity className="h-4 w-4 mr-1" />
               Heatmap
             </Button>
+
+            {/* Integrated Menu Dropdown */}
+            {isMenuOpen && (
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    snapToPosition(0);
+                    window.location.href = '/';
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  data-testid="menu-dashboard"
+                >
+                  <Home className="h-4 w-4" />
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    snapToPosition(0);
+                    window.location.href = '/admin';
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  data-testid="menu-admin"
+                >
+                  <Settings className="h-4 w-4" />
+                  Admin Panel
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
