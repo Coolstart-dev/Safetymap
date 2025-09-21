@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [locationSelectionMode, setLocationSelectionMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [isHeatmapMode, setIsHeatmapMode] = useState(false);
+  const [viewMode, setViewMode] = useState<'stories' | 'pins' | 'heatmap'>('pins');
   const [activeTab, setActiveTab] = useState<'recent' | 'region' | 'nearme'>('nearme');
   const [mapBounds, setMapBounds] = useState<{north: number, south: number, east: number, west: number} | null>(null);
   const [currentZoom, setCurrentZoom] = useState<number>(15);
