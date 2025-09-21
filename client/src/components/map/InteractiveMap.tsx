@@ -605,15 +605,15 @@ export default function InteractiveMap({
       />
       
       {/* Map Controls Overlay - Top Right */}
-      <div className="absolute top-4 right-4 z-50 flex flex-col gap-2">
+      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
         {/* Filter Button */}
         {onFilterClick && (
           <Button
             size="icon"
-            className={`bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full w-11 h-11 shadow-lg transition-all ${
+            className={`glass-button rounded-full w-10 h-10 transition-all ${
               selectedSubcategories.length > 0 
-                ? 'bg-blue-500 text-white hover:bg-blue-600 border-blue-500' 
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                ? 'bg-orange-500 text-white hover:bg-orange-600' 
+                : 'hover:bg-white/90'
             }`}
             onClick={() => {
               onFilterClick();
@@ -625,17 +625,18 @@ export default function InteractiveMap({
           >
             <Filter className="h-4 w-4" />
             {selectedSubcategories.length > 0 && (
-              <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold border border-white">
+              <div className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
                 {selectedSubcategories.length > 9 ? '9+' : selectedSubcategories.length}
               </div>
             )}
           </Button>
         )}
         
+        
         {/* Center Location Button */}
         <Button
           size="icon"
-          className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full w-11 h-11 shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all"
+          className="glass-button rounded-full w-10 h-10"
           onClick={() => {
             handleCenterMap();
             onMapInteraction?.(); // Collapse sheet when using map controls
