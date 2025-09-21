@@ -610,10 +610,10 @@ export default function InteractiveMap({
         {onFilterClick && (
           <Button
             size="icon"
-            className={`glass-button rounded-full w-10 h-10 transition-all ${
+            className={`rounded-full w-10 h-10 transition-all ${
               selectedSubcategories.length > 0 
-                ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                : 'hover:bg-white/90'
+                ? 'bg-orange-500 text-white hover:bg-orange-600 border border-white/20' 
+                : 'bg-gray-900 text-white hover:bg-gray-800 border border-white/20'
             }`}
             onClick={() => {
               onFilterClick();
@@ -636,7 +636,7 @@ export default function InteractiveMap({
         {/* Center Location Button */}
         <Button
           size="icon"
-          className="glass-button rounded-full w-10 h-10"
+          className="rounded-full w-10 h-10 bg-gray-900 text-white hover:bg-gray-800 border border-white/20"
           onClick={() => {
             handleCenterMap();
             onMapInteraction?.(); // Collapse sheet when using map controls
