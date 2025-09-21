@@ -35,9 +35,10 @@ export default function FloatingMenu({ items, toggleActions = [], onMenuOpen }: 
   };
 
   return (
-    <div className="fixed top-6 left-4 z-50" style={{
+    <div className="fixed top-6 left-4 z-[1200]" style={{
       /* iOS Safe Area adjustments */
-      top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))'
+      top: 'max(1.5rem, calc(env(safe-area-inset-top) + 0.5rem))',
+      left: 'max(1rem, calc(env(safe-area-inset-left) + 0.5rem))'
     }}>
       {/* Menu Button */}
       <Button
