@@ -329,7 +329,7 @@ export default function ReportModal({
           }}>
 
           <div className="h-full flex flex-col bg-background min-h-0">
-            <DialogHeader className="flex-shrink-0 p-3 pb-1 border-b pr-12">
+            <DialogHeader className="flex-shrink-0 p-4 pb-2 border-b pr-12">
               <DialogTitle>Report Incident</DialogTitle>
               <DialogDescription className="sr-only">
                 Create a new incident report with location, category, and details
@@ -351,7 +351,7 @@ export default function ReportModal({
               }}
             >
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 p-4 pb-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 pb-8">
             {/* Category Selection */}
             <FormField
               control={form.control}
@@ -361,12 +361,12 @@ export default function ReportModal({
                   <FormLabel className="text-sm font-medium mb-3 block">
                     What type of incident? <span className="text-destructive">*</span>
                   </FormLabel>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     {Object.entries(categories).map(([key, category]) => (
                       <button
                         key={key}
                         type="button"
-                        className={`p-4 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left flex items-center gap-3 ${
+                        className={`p-3 border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors text-left ${
                           field.value === key ? 'border-primary bg-primary/5' : 'border-border'
                         }`}
                         onClick={() => {
@@ -376,14 +376,12 @@ export default function ReportModal({
                         data-testid={`category-${key}`}
                       >
                         <div 
-                          className="w-8 h-8 rounded-full flex-shrink-0"
+                          className="w-6 h-6 rounded-full mb-2"
                           style={{ backgroundColor: category.color }}
                         />
-                        <div className="flex-1">
-                          <div className="text-base font-medium text-foreground">{category.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {category.subcategories[0]}...
-                          </div>
+                        <div className="text-sm font-medium text-foreground">{category.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {category.subcategories[0]}...
                         </div>
                       </button>
                     ))}
@@ -734,14 +732,12 @@ export default function ReportModal({
                         data-testid={`category-${key}`}
                       >
                         <div 
-                          className="w-8 h-8 rounded-full flex-shrink-0"
+                          className="w-6 h-6 rounded-full mb-2"
                           style={{ backgroundColor: category.color }}
                         />
-                        <div className="flex-1">
-                          <div className="text-base font-medium text-foreground">{category.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {category.subcategories[0]}...
-                          </div>
+                        <div className="text-sm font-medium text-foreground">{category.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {category.subcategories[0]}...
                         </div>
                       </button>
                     ))}
