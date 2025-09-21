@@ -8,7 +8,7 @@ import FloatingActionButton from "@/components/ui/floating-action-button";
 import FloatingMenu from "@/components/ui/floating-menu";
 import BottomSheet from "@/components/ui/bottom-sheet";
 import { BottomSheetRef } from 'react-spring-bottom-sheet';
-import { Settings, Home, MapPin } from "lucide-react";
+import { Settings, Home, MapPin, Grid3X3, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -111,6 +111,51 @@ export default function Dashboard() {
         items={menuItems} 
         onMenuOpen={() => snapToPosition(0)} // Snap to low position when menu opens
       />
+
+      {/* Prominent Heatmap Toggle - Top Center */}
+      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-[1100] flex items-center">
+        <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-full p-1 shadow-lg">
+          <div className="flex items-center">
+            <Button
+              size="sm"
+              variant={!isHeatmapMode ? "default" : "ghost"}
+              onClick={() => {
+                setIsHeatmapMode(false);
+                snapToPosition(0); // Collapse sheet when switching view
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                !isHeatmapMode 
+                  ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+              data-testid="button-pin-view"
+              aria-label="Switch to Pin View"
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Pins
+            </Button>
+            
+            <Button
+              size="sm"
+              variant={isHeatmapMode ? "default" : "ghost"}
+              onClick={() => {
+                setIsHeatmapMode(true);
+                snapToPosition(0); // Collapse sheet when switching view
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                isHeatmapMode 
+                  ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+              data-testid="button-heatmap-view"
+              aria-label="Switch to Heatmap View"
+            >
+              <Activity className="h-4 w-4 mr-2" />
+              Heatmap
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Map Container - Full Height */}
       <div className="absolute inset-0 z-0">
